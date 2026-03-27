@@ -1,21 +1,21 @@
 // @mdocui/core — Streaming Markdoc parser for LLM generative UI
 
-export { Tokenizer, TokenizerState, TokenType } from './tokenizer'
-export type { Token } from './tokenizer'
-export { StreamingParser } from './parser'
-export type { ParserOptions } from './parser'
 export { parseAttributes } from './attributes'
-export { ComponentRegistry, defineComponent } from './registry'
+export type { ParserOptions } from './parser'
+export { StreamingParser } from './parser'
 export { generatePrompt } from './prompt'
+export { ComponentRegistry, defineComponent } from './registry'
+export type { Token } from './tokenizer'
+export { Tokenizer, TokenizerState, TokenType } from './tokenizer'
 export type {
-	ASTNode,
 	ActionEvent,
+	ASTNode,
 	ComponentDefinition,
 	ComponentGroup,
 	ComponentNode,
 	ParseError,
 	ParseMeta,
-	ProseNode,
 	PromptOptions,
+	ProseNode,
 	ValidationResult,
 } from './types'

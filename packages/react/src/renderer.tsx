@@ -1,7 +1,7 @@
 import type { ASTNode, ComponentNode, ProseNode } from '@mdocui/core'
 import { useMemo } from 'react'
-import { MdocUIProvider } from './context'
 import type { ActionHandler, ComponentMap, RendererContext } from './context'
+import { MdocUIProvider } from './context'
 
 export interface RendererProps {
 	nodes: ASTNode[]

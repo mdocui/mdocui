@@ -1,5 +1,5 @@
-import { type ComponentRegistry, StreamingParser } from '@mdocui/core'
 import type { ASTNode, ParseMeta } from '@mdocui/core'
+import { type ComponentRegistry, StreamingParser } from '@mdocui/core'
 import { useCallback, useRef, useState } from 'react'
 
 export interface UseRendererOptions {

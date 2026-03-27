@@ -110,7 +110,7 @@ function resolveType(def: ZodDef): string {
 
 function formatComponent(def: ComponentDefinition): string {
 	const closing = def.children === 'none' ? ' /%}' : ' %}'
-	const shape = def.props.shape as Record<string, ZodField>
+	const shape = def.props.shape as unknown as Record<string, ZodField>
 	const propNames = Object.keys(shape)
 
 	if (propNames.length === 0) {

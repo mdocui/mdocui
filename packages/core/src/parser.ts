@@ -1,6 +1,6 @@
 import { parseAttributes } from './attributes'
-import { TokenType, Tokenizer } from './tokenizer'
 import type { Token } from './tokenizer'
+import { Tokenizer, TokenType } from './tokenizer'
 import type { ASTNode, ComponentNode, ParseError, ParseMeta, ProseNode } from './types'
 
 export interface ParserOptions {
