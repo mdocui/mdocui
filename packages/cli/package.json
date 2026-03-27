@@ -8,7 +8,7 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "echo 'stub — no build yet'",
+    "build": "true",
     "clean": "rm -rf dist"
   },
   "dependencies": {
