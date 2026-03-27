@@ -1,4 +1,5 @@
 import type { ActionEvent } from '@mdocui/core'
+import { useState } from 'react'
 import type { ComponentProps } from '../context'
 
 export function Button({ props, onAction, isStreaming }: ComponentProps) {
@@ -6,9 +7,12 @@ export function Button({ props, onAction, isStreaming }: ComponentProps) {
 	const label = props.label as string
 	const variant = (props.variant as string) ?? 'primary'
 	const disabled = (props.disabled as boolean) ?? false
+	const [clicked, setClicked] = useState(false)
+
+	const isDisabled = isStreaming || disabled || clicked
 
 	const handleClick = () => {
-		if (isStreaming || disabled) return
+		if (isDisabled) return
 		const event: ActionEvent = {
 			type: 'button_click',
 			action,
@@ -16,6 +20,7 @@ export function Button({ props, onAction, isStreaming }: ComponentProps) {
 			tagName: 'button',
 		}
 		onAction(event)
+		setClicked(true)
 	}
 
 	return (
@@ -23,13 +28,13 @@ export function Button({ props, onAction, isStreaming }: ComponentProps) {
 			type="button"
 			data-mdocui-button
 			data-variant={variant}
-			disabled={isStreaming || disabled}
+			disabled={isDisabled}
 			onClick={handleClick}
 			style={{
 				padding: '8px 16px',
 				borderRadius: '6px',
-				cursor: isStreaming || disabled ? 'not-allowed' : 'pointer',
-				opacity: isStreaming || disabled ? 0.6 : 1,
+				cursor: isDisabled ? 'not-allowed' : 'pointer',
+				opacity: isDisabled ? 0.5 : 1,
 				border: variant === 'outline' ? '1px solid #555' : 'none',
 				background:
 					variant === 'primary' ? '#3b82f6' : variant === 'ghost' ? 'transparent' : '#27272a',
@@ -173,10 +178,11 @@ export function Checkbox({ props, onAction, isStreaming }: ComponentProps) {
 export function Form({ props, children, onAction, isStreaming }: ComponentProps) {
 	const formName = props.name as string
 	const action = (props.action as string) ?? `submit:${formName}`
+	const [submitted, setSubmitted] = useState(false)
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		if (isStreaming) return
+		if (isStreaming || submitted) return
 
 		const formData = new FormData(e.currentTarget)
 		const state: Record<string, unknown> = {}
@@ -192,6 +198,43 @@ export function Form({ props, children, onAction, isStreaming }: ComponentProps)
 			tagName: 'form',
 		}
 		onAction(event)
+		setSubmitted(true)
+	}
+
+	if (submitted) {
+		return (
+			<div
+				data-mdocui-form
+				data-name={formName}
+				data-submitted
+				style={{
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '12px',
+					opacity: 0.5,
+					pointerEvents: 'none',
+					position: 'relative',
+				}}
+			>
+				{children}
+				<div
+					style={{
+						position: 'absolute',
+						inset: 0,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						background: 'rgba(0,0,0,0.3)',
+						borderRadius: '8px',
+						fontSize: '13px',
+						color: '#4ade80',
+						fontWeight: 500,
+					}}
+				>
+					Submitted
+				</div>
+			</div>
+		)
 	}
 
 	return (

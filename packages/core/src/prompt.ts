@@ -76,9 +76,36 @@ export function generatePrompt(registry: ComponentRegistry, options?: PromptOpti
 	return sections.join('\n').trim()
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Zod internals require dynamic access
+type ZodDef = Record<string, any>
+
 interface ZodField {
 	isOptional: () => boolean
-	_def: { description?: string }
+	_def: ZodDef
+}
+
+function resolveType(def: ZodDef): string {
+	const typeName = def.typeName as string | undefined
+
+	if (typeName === 'ZodOptional' || typeName === 'ZodDefault') {
+		return resolveType(def.innerType?._def ?? {})
+	}
+
+	if (typeName === 'ZodEnum') {
+		const vals = (def.values as string[]) ?? []
+		return vals.map((v) => `"${v}"`).join(' | ')
+	}
+
+	if (typeName === 'ZodArray') {
+		const inner = resolveType(def.type?._def ?? {})
+		return `${inner}[]`
+	}
+
+	if (typeName === 'ZodString') return 'string'
+	if (typeName === 'ZodNumber') return 'number'
+	if (typeName === 'ZodBoolean') return 'boolean'
+
+	return ''
 }
 
 function formatComponent(def: ComponentDefinition): string {
@@ -86,14 +113,23 @@ function formatComponent(def: ComponentDefinition): string {
 	const shape = def.props.shape as Record<string, ZodField>
 	const propNames = Object.keys(shape)
 
-	const sig = propNames.map((name) => (shape[name].isOptional() ? `${name}?` : name)).join(' ')
+	if (propNames.length === 0) {
+		const lines = [`{% ${def.name}${closing}`, `  ${def.description}`]
+		if (def.children && def.children !== 'none') {
+			lines.push('  (accepts body content)')
+		}
+		return lines.join('\n')
+	}
 
+	const sig = propNames.map((name) => (shape[name].isOptional() ? `${name}?` : name)).join(' ')
 	const lines = [`{% ${def.name} ${sig}${closing}`, `  ${def.description}`]
 
 	for (const [name, field] of Object.entries(shape)) {
 		const desc = field._def.description ?? ''
+		const typeStr = resolveType(field._def)
 		const opt = field.isOptional() ? ' (optional)' : ''
-		lines.push(`  ${name}: ${desc}${opt}`)
+		const typeHint = typeStr ? ` — ${typeStr}` : ''
+		lines.push(`  ${name}${typeHint}: ${desc}${opt}`)
 	}
 
 	if (def.children && def.children !== 'none') {
