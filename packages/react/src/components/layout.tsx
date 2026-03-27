@@ -49,7 +49,7 @@ export function Card({ props, children }: ComponentProps) {
 		<div
 			data-mdocui-card
 			data-variant={(props.variant as string) ?? 'default'}
-			style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}
+			style={{ border: '1px solid #27272a', borderRadius: '8px', padding: '16px' }}
 		>
 			{title && (
 				<div data-mdocui-card-title style={{ fontWeight: 600, marginBottom: '8px' }}>
@@ -65,7 +65,7 @@ export function Divider(_: ComponentProps) {
 	return (
 		<hr
 			data-mdocui-divider
-			style={{ border: 'none', borderTop: '1px solid #e2e8f0', margin: '8px 0' }}
+			style={{ border: 'none', borderTop: '1px solid #27272a', margin: '8px 0' }}
 		/>
 	)
 }
@@ -83,7 +83,7 @@ export function Accordion({ props, children }: ComponentProps) {
 }
 
 export function Tabs({ props, children }: ComponentProps) {
-	const labels = (props.labels as string[]) ?? []
+	const labels = Array.isArray(props.labels) ? props.labels : []
 	const initialActive = (props.active as number) ?? 0
 	const [active, setActive] = useState(initialActive)
 	const childArray = React.Children.toArray(children)
@@ -92,7 +92,7 @@ export function Tabs({ props, children }: ComponentProps) {
 		<div data-mdocui-tabs>
 			<div
 				role="tablist"
-				style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #e2e8f0' }}
+				style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #27272a' }}
 			>
 				{labels.map((label, i) => (
 					<button

@@ -30,10 +30,10 @@ export function Button({ props, onAction, isStreaming }: ComponentProps) {
 				borderRadius: '6px',
 				cursor: isStreaming || disabled ? 'not-allowed' : 'pointer',
 				opacity: isStreaming || disabled ? 0.6 : 1,
-				border: variant === 'outline' ? '1px solid currentColor' : 'none',
+				border: variant === 'outline' ? '1px solid #555' : 'none',
 				background:
-					variant === 'primary' ? '#0f172a' : variant === 'ghost' ? 'transparent' : '#e2e8f0',
-				color: variant === 'primary' ? '#fff' : 'inherit',
+					variant === 'primary' ? '#3b82f6' : variant === 'ghost' ? 'transparent' : '#27272a',
+				color: '#fff',
 			}}
 		>
 			{label}
@@ -83,7 +83,9 @@ export function Input({ props }: ComponentProps) {
 				style={{
 					width: '100%',
 					padding: '8px 12px',
-					border: '1px solid #e2e8f0',
+					border: '1px solid #333',
+					background: '#18181b',
+					color: 'inherit',
 					borderRadius: '6px',
 					boxSizing: 'border-box',
 				}}
@@ -95,7 +97,7 @@ export function Input({ props }: ComponentProps) {
 export function Select({ props, onAction, isStreaming }: ComponentProps) {
 	const name = props.name as string
 	const label = props.label as string | undefined
-	const options = (props.options as string[]) ?? []
+	const options = Array.isArray(props.options) ? props.options : []
 	const placeholder = props.placeholder as string | undefined
 	const required = (props.required as boolean) ?? false
 	const id = `mdocui-${name}`
@@ -125,7 +127,9 @@ export function Select({ props, onAction, isStreaming }: ComponentProps) {
 				style={{
 					width: '100%',
 					padding: '8px 12px',
-					border: '1px solid #e2e8f0',
+					border: '1px solid #333',
+					background: '#18181b',
+					color: 'inherit',
 					borderRadius: '6px',
 				}}
 			>
