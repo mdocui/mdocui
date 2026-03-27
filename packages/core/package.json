@@ -1,0 +1,40 @@
+{
+  "name": "@mdocui/core",
+  "version": "0.0.1",
+  "description": "Streaming Markdoc parser, component registry, and system prompt generator for LLM generative UI",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "vitest": "^3.2.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdocui/mdocui",
+    "directory": "packages/core"
+  },
+  "keywords": ["markdoc", "llm", "generative-ui", "streaming", "parser"],
+  "publishConfig": {
+    "access": "public"
+  }
+}

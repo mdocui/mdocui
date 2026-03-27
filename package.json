@@ -1,0 +1,24 @@
+{
+  "name": "mdocui",
+  "private": true,
+  "description": "Generative UI library using Markdoc syntax for LLM streaming output",
+  "scripts": {
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "clean": "turbo clean",
+    "playground": "tsx playground.ts"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "tsx": "^4.21.0",
+    "turbo": "^2.8.0",
+    "typescript": "catalog:",
+    "zod": "catalog:"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

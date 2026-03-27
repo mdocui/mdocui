@@ -1,0 +1,34 @@
+{
+  "name": "@mdocui/react",
+  "version": "0.0.1",
+  "description": "React adapter for mdocUI — Renderer component, useRenderer hook",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "echo 'stub — no build yet'",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "@mdocui/core": "workspace:*",
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mdocui/mdocui",
+    "directory": "packages/react"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
