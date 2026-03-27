@@ -8,7 +8,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "clean": "turbo clean",
-    "playground": "tsx playground.ts"
+    "playground": "tsx playground.ts",
+    "release": "turbo build --force && pnpm -r publish --access public --no-git-checks"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
