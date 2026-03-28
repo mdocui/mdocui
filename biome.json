@@ -1,12 +1,12 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+	"files": {
+		"includes": ["packages/*/src/**", "packages/*/tests/**"]
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
-			"suspicious": {
-				"noArrayIndexKey": "warn"
-			}
+			"recommended": true
 		}
 	},
 	"formatter": {

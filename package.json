@@ -5,8 +5,8 @@
   "scripts": {
     "build": "turbo build",
     "test": "turbo test",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
+    "lint": "biome check packages/",
+    "lint:fix": "biome check --write packages/",
     "clean": "turbo clean",
     "playground": "tsx playground.ts",
     "release": "turbo build --force && pnpm --filter @mdocui/core publish --access public --no-git-checks && pnpm --filter @mdocui/react publish --access public --no-git-checks && pnpm --filter @mdocui/cli publish --access public --no-git-checks"

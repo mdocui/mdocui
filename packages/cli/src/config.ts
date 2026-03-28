@@ -1,6 +1,6 @@
-import { pathToFileURL } from 'node:url'
-import path from 'node:path'
 import fs from 'node:fs'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import type { ComponentDefinition, ComponentGroup, PromptOptions } from '@mdocui/core'
 
 export interface MdocUIConfig {
@@ -12,11 +12,7 @@ export interface MdocUIConfig {
 	groups?: ComponentGroup[]
 }
 
-const CONFIG_FILES = [
-	'mdocui.config.ts',
-	'mdocui.config.js',
-	'mdocui.config.mjs',
-]
+const CONFIG_FILES = ['mdocui.config.ts', 'mdocui.config.js', 'mdocui.config.mjs']
 
 export async function loadConfig(cwd: string): Promise<MdocUIConfig> {
 	for (const name of CONFIG_FILES) {
@@ -34,9 +30,7 @@ export async function loadConfig(cwd: string): Promise<MdocUIConfig> {
 		return config as MdocUIConfig
 	}
 
-	throw new Error(
-		`No config file found. Create one of: ${CONFIG_FILES.join(', ')}`,
-	)
+	throw new Error(`No config file found. Create one of: ${CONFIG_FILES.join(', ')}`)
 }
 
 export function toPromptOptions(config: MdocUIConfig): PromptOptions {

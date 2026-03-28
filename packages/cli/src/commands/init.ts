@@ -45,11 +45,7 @@ export async function init(cwd: string) {
 
 	fs.writeFileSync(configPath, CONFIG_TEMPLATE, 'utf-8')
 	fs.mkdirSync(generatedDir, { recursive: true })
-	fs.writeFileSync(
-		path.resolve(generatedDir, '.gitkeep'),
-		'',
-		'utf-8',
-	)
+	fs.writeFileSync(path.resolve(generatedDir, '.gitkeep'), '', 'utf-8')
 
 	console.log('Created:')
 	console.log('  mdocui.config.ts    — component definitions + config')

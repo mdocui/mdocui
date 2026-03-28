@@ -1,14 +1,18 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import fs from 'node:fs'
-import path from 'node:path'
-import os from 'node:os'
 import { execSync } from 'node:child_process'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 const CLI_PATH = path.resolve(__dirname, '../dist/index.js')
 const coreRoot = path.resolve(__dirname, '../../..')
 
 function run(args: string, cwd: string): string {
-	return execSync(`node ${CLI_PATH} ${args}`, { cwd, encoding: 'utf-8', env: { ...process.env, NODE_OPTIONS: '' } })
+	return execSync(`node ${CLI_PATH} ${args}`, {
+		cwd,
+		encoding: 'utf-8',
+		env: { ...process.env, NODE_OPTIONS: '' },
+	})
 }
 
 describe('CLI', () => {

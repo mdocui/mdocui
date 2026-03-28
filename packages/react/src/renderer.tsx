@@ -30,26 +30,36 @@ export function Renderer({
 	return (
 		<MdocUIProvider value={ctx}>
 			<div data-mdocui style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-				{grouped.map((item, i) => {
+				{grouped.map((item) => {
 					if (item.type === 'button-row') {
+						const rowKey = item.nodes
+							.map((n) => (n.type === 'component' ? n.props.label : ''))
+							.join('-')
 						return (
-							<div key={`br-${i}`} data-mdocui-button-row style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-								{item.nodes.map((node, j) =>
-									renderNode(node, `br-${i}-${j}`, ctx, renderProse, classNames),
-								)}
+							<div
+								key={`br-${rowKey}`}
+								data-mdocui-button-row
+								style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+							>
+								{item.nodes.map((node) => {
+									const nodeKey = node.type === 'component' ? `btn-${node.props.label}` : 'btn'
+									return renderNode(node, nodeKey, ctx, renderProse, classNames)
+								})}
 							</div>
 						)
 					}
-					return renderNode(item.node, `n-${i}`, ctx, renderProse, classNames)
+					const nodeKey =
+						item.node.type === 'component'
+							? `${item.node.name}-${item.node.props.label ?? item.node.props.title ?? ''}`
+							: `prose-${item.node.content.slice(0, 20)}`
+					return renderNode(item.node, nodeKey, ctx, renderProse, classNames)
 				})}
 			</div>
 		</MdocUIProvider>
 	)
 }
 
-type GroupedItem =
-	| { type: 'node'; node: ASTNode }
-	| { type: 'button-row'; nodes: ASTNode[] }
+type GroupedItem = { type: 'node'; node: ASTNode } | { type: 'button-row'; nodes: ASTNode[] }
 
 function groupConsecutiveButtons(nodes: ASTNode[]): GroupedItem[] {
 	const result: GroupedItem[] = []
@@ -63,10 +73,8 @@ function groupConsecutiveButtons(nodes: ASTNode[]): GroupedItem[] {
 	}
 
 	for (const node of nodes) {
-		const isButton =
-			node.type === 'component' && node.name === 'button'
-		const isEmptyProse =
-			node.type === 'prose' && node.content.trim() === ''
+		const isButton = node.type === 'component' && node.name === 'button'
+		const isEmptyProse = node.type === 'prose' && node.content.trim() === ''
 
 		if (isButton) {
 			buttonBuffer.push(node)

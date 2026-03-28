@@ -1,4 +1,4 @@
-import type { ASTNode, ActionEvent } from '@mdocui/core'
+import type { ActionEvent, ASTNode } from '@mdocui/core'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { defaultComponents } from '../src/defaults'
@@ -163,7 +163,13 @@ describe('Interactive components', () => {
 	it('fires select_change on select change', () => {
 		const handler = vi.fn()
 		const { container } = renderNodes(
-			[componentNode('select', { name: 'fruit', options: ['Apple', 'Banana'], placeholder: 'Pick' })],
+			[
+				componentNode('select', {
+					name: 'fruit',
+					options: ['Apple', 'Banana'],
+					placeholder: 'Pick',
+				}),
+			],
 			handler,
 		)
 		const selectEl = container.querySelector('select') as HTMLSelectElement

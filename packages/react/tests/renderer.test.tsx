@@ -1,4 +1,4 @@
-import type { ASTNode, ActionEvent } from '@mdocui/core'
+import type { ActionEvent, ASTNode } from '@mdocui/core'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { defaultComponents } from '../src/defaults'

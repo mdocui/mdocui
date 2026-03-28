@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Tokenizer, TokenType, TokenizerState } from '../src/tokenizer'
+import { Tokenizer, TokenizerState, TokenType } from '../src/tokenizer'
 
 describe('Tokenizer', () => {
 	it('emits prose for plain text', () => {

@@ -111,7 +111,7 @@ export function Tabs({ props, className, children }: ComponentProps) {
 				{labels.map((label, i) => (
 					<button
 						type="button"
-						key={`${i}-${label}`}
+						key={label}
 						role="tab"
 						aria-selected={i === active}
 						onClick={() => setActive(i)}

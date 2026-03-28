@@ -161,6 +161,7 @@ export function Toggle({ props, className, onAction, isStreaming }: ComponentPro
 			<input
 				type="checkbox"
 				role="switch"
+				aria-checked={checked}
 				name={name}
 				defaultChecked={checked}
 				onChange={handleChange}

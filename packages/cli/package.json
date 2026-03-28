@@ -1,35 +1,37 @@
 {
-  "name": "@mdocui/cli",
-  "version": "0.4.3",
-  "description": "CLI for mdocUI — scaffold, generate system prompts, preview",
-  "type": "module",
-  "bin": {
-    "mdocui": "./dist/index.js"
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": ["dist"],
-  "scripts": {
-    "build": "tsup",
-    "test": "vitest run",
-    "clean": "rm -rf dist"
-  },
-  "dependencies": {
-    "@mdocui/core": "workspace:*",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@types/node": "^25.5.0",
-    "tsup": "^8.5.1",
-    "vitest": "^4.1.0"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mdocui/mdocui",
-    "directory": "packages/cli"
-  },
-  "publishConfig": {
-    "access": "public"
-  }
+	"name": "@mdocui/cli",
+	"version": "0.5.0",
+	"description": "CLI for mdocUI — scaffold, generate system prompts, preview",
+	"type": "module",
+	"bin": {
+		"mdocui": "./dist/index.js"
+	},
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"test": "vitest run",
+		"clean": "rm -rf dist"
+	},
+	"dependencies": {
+		"@mdocui/core": "workspace:*",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@types/node": "^25.5.0",
+		"tsup": "^8.5.1",
+		"vitest": "^4.1.0"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mdocui/mdocui",
+		"directory": "packages/cli"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
 }
