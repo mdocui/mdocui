@@ -1,6 +1,6 @@
 import type { ComponentProps } from '../context'
 
-export function Chart({ props }: ComponentProps) {
+export function Chart({ props, className }: ComponentProps) {
 	const type = props.type as string
 	const labels = Array.isArray(props.labels) ? props.labels : []
 	const values = Array.isArray(props.values) ? (props.values as number[]).map(Number) : []
@@ -8,7 +8,7 @@ export function Chart({ props }: ComponentProps) {
 	const max = values.reduce((a, b) => Math.max(a, b), 1)
 
 	return (
-		<div data-mdocui-chart data-type={type} style={{ padding: '12px 0' }}>
+		<div className={className} data-mdocui-chart data-type={type} style={{ padding: '12px 0' }}>
 			{title && <div style={{ fontWeight: 600, marginBottom: '12px' }}>{title}</div>}
 			{(type === 'bar' || type === 'line') && (
 				<div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '140px' }}>
@@ -81,13 +81,17 @@ const chartColors = [
 	'#f97316',
 ]
 
-export function Table({ props }: ComponentProps) {
+export function Table({ props, className }: ComponentProps) {
 	const headers = Array.isArray(props.headers) ? props.headers : []
 	const rows = Array.isArray(props.rows) ? props.rows : []
 	const caption = props.caption as string | undefined
 
 	return (
-		<table data-mdocui-table style={{ width: '100%', borderCollapse: 'collapse' }}>
+		<table
+			className={className}
+			data-mdocui-table
+			style={{ width: '100%', borderCollapse: 'collapse' }}
+		>
 			{caption && (
 				<caption style={{ textAlign: 'left', fontWeight: 600, marginBottom: '8px' }}>
 					{caption}
@@ -133,7 +137,7 @@ export function Table({ props }: ComponentProps) {
 	)
 }
 
-export function Stat({ props }: ComponentProps) {
+export function Stat({ props, className }: ComponentProps) {
 	const label = props.label as string
 	const value = props.value as string
 	const change = props.change as string | undefined
@@ -142,7 +146,7 @@ export function Stat({ props }: ComponentProps) {
 	const trendColor = trend === 'up' ? '#4ade80' : trend === 'down' ? '#f87171' : '#64748b'
 
 	return (
-		<div data-mdocui-stat style={{ padding: '8px 0' }}>
+		<div className={className} data-mdocui-stat style={{ padding: '8px 0' }}>
 			<div style={{ fontSize: '13px', color: '#64748b' }}>{label}</div>
 			<div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
 			{change && <div style={{ fontSize: '13px', color: trendColor }}>{change}</div>}
@@ -150,14 +154,14 @@ export function Stat({ props }: ComponentProps) {
 	)
 }
 
-export function Progress({ props }: ComponentProps) {
+export function Progress({ props, className }: ComponentProps) {
 	const value = Number(props.value) || 0
 	const label = props.label as string | undefined
 	const max = Number(props.max) || 100
 	const pct = Math.min(100, Math.max(0, (value / max) * 100))
 
 	return (
-		<div data-mdocui-progress>
+		<div className={className} data-mdocui-progress>
 			{label && (
 				<div
 					style={{

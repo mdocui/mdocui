@@ -61,7 +61,7 @@ export const tabs = defineComponent({
 		labels: z.array(z.string()).describe('Tab labels in order'),
 		active: z.number().optional().describe('Zero-based index of active tab'),
 	}),
-	children: 'any',
+	children: ['tab'],
 })
 
 export const tab = defineComponent({
@@ -136,6 +136,30 @@ export const checkbox = defineComponent({
 	children: 'none',
 })
 
+export const textarea = defineComponent({
+	name: 'textarea',
+	description: 'Multi-line text input',
+	props: z.object({
+		name: z.string().describe('Field name for form state'),
+		label: z.string().optional().describe('Textarea label'),
+		placeholder: z.string().optional().describe('Placeholder text'),
+		rows: z.number().optional().describe('Number of visible rows'),
+		required: z.boolean().optional().describe('Whether field is required'),
+	}),
+	children: 'none',
+})
+
+export const toggle = defineComponent({
+	name: 'toggle',
+	description: 'On/off toggle switch',
+	props: z.object({
+		name: z.string().describe('Field name for form state'),
+		label: z.string().describe('Toggle label'),
+		checked: z.boolean().optional().describe('Default on/off state'),
+	}),
+	children: 'none',
+})
+
 export const form = defineComponent({
 	name: 'form',
 	description: 'Form container that groups inputs and submits their state',
@@ -143,7 +167,7 @@ export const form = defineComponent({
 		name: z.string().describe('Form identifier for action events'),
 		action: z.string().optional().describe('Submit action — defaults to "submit:<name>"'),
 	}),
-	children: 'any',
+	children: ['input', 'textarea', 'select', 'checkbox', 'toggle', 'button'],
 })
 
 // ── Data ────────────────────────────────────────────────
@@ -266,8 +290,10 @@ export const allDefinitions = [
 	button,
 	buttonGroup,
 	input,
+	textarea,
 	select,
 	checkbox,
+	toggle,
 	form,
 	chart,
 	table,
@@ -288,7 +314,16 @@ export const defaultGroups = [
 	},
 	{
 		name: 'Interactive',
-		components: ['button', 'button-group', 'input', 'select', 'checkbox', 'form'],
+		components: [
+			'button',
+			'button-group',
+			'input',
+			'textarea',
+			'select',
+			'checkbox',
+			'toggle',
+			'form',
+		],
 		notes: [
 			'Wrap inputs in a form for state collection',
 			'button action="continue" sends label as message',

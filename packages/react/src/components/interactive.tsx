@@ -2,7 +2,7 @@ import type { ActionEvent } from '@mdocui/core'
 import { useState } from 'react'
 import type { ComponentProps } from '../context'
 
-export function Button({ props, onAction, isStreaming }: ComponentProps) {
+export function Button({ props, className, onAction, isStreaming }: ComponentProps) {
 	const action = props.action as string
 	const label = props.label as string
 	const variant = (props.variant as string) ?? 'primary'
@@ -26,6 +26,7 @@ export function Button({ props, onAction, isStreaming }: ComponentProps) {
 	return (
 		<button
 			type="button"
+			className={className}
 			data-mdocui-button
 			data-variant={variant}
 			disabled={isDisabled}
@@ -46,11 +47,12 @@ export function Button({ props, onAction, isStreaming }: ComponentProps) {
 	)
 }
 
-export function ButtonGroup({ props, children }: ComponentProps) {
+export function ButtonGroup({ props, className, children }: ComponentProps) {
 	const direction = (props.direction as string) ?? 'horizontal'
 
 	return (
 		<div
+			className={className}
 			data-mdocui-button-group
 			style={{
 				display: 'flex',
@@ -63,7 +65,7 @@ export function ButtonGroup({ props, children }: ComponentProps) {
 	)
 }
 
-export function Input({ props }: ComponentProps) {
+export function Input({ props, className }: ComponentProps) {
 	const name = props.name as string
 	const label = props.label as string | undefined
 	const placeholder = (props.placeholder as string) ?? ''
@@ -73,7 +75,7 @@ export function Input({ props }: ComponentProps) {
 	const id = `mdocui-${name}`
 
 	return (
-		<div data-mdocui-input>
+		<div className={className} data-mdocui-input>
 			{label && (
 				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
 					{label}
@@ -99,7 +101,7 @@ export function Input({ props }: ComponentProps) {
 	)
 }
 
-export function Select({ props, onAction, isStreaming }: ComponentProps) {
+export function Select({ props, className, onAction, isStreaming }: ComponentProps) {
 	const name = props.name as string
 	const label = props.label as string | undefined
 	const options = Array.isArray(props.options) ? props.options : []
@@ -118,7 +120,7 @@ export function Select({ props, onAction, isStreaming }: ComponentProps) {
 	}
 
 	return (
-		<div data-mdocui-select>
+		<div className={className} data-mdocui-select>
 			{label && (
 				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
 					{label}
@@ -149,7 +151,77 @@ export function Select({ props, onAction, isStreaming }: ComponentProps) {
 	)
 }
 
-export function Checkbox({ props, onAction, isStreaming }: ComponentProps) {
+export function Textarea({ props, className }: ComponentProps) {
+	const name = props.name as string
+	const label = props.label as string | undefined
+	const placeholder = (props.placeholder as string) ?? ''
+	const rows = (props.rows as number) ?? 3
+	const required = (props.required as boolean) ?? false
+	const id = `mdocui-${name}`
+
+	return (
+		<div className={className} data-mdocui-textarea>
+			{label && (
+				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+					{label}
+				</label>
+			)}
+			<textarea
+				id={id}
+				name={name}
+				placeholder={placeholder}
+				rows={rows}
+				required={required}
+				style={{
+					width: '100%',
+					padding: '8px 12px',
+					border: '1px solid #333',
+					background: '#18181b',
+					color: 'inherit',
+					borderRadius: '6px',
+					boxSizing: 'border-box',
+					resize: 'vertical',
+				}}
+			/>
+		</div>
+	)
+}
+
+export function Toggle({ props, className, onAction, isStreaming }: ComponentProps) {
+	const name = props.name as string
+	const label = props.label as string
+	const checked = (props.checked as boolean) ?? false
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (isStreaming) return
+		onAction({
+			type: 'select_change',
+			action: `change:${name}`,
+			tagName: 'toggle',
+			params: { name, value: e.target.checked },
+		})
+	}
+
+	return (
+		<label
+			className={className}
+			data-mdocui-toggle
+			style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+		>
+			<input
+				type="checkbox"
+				role="switch"
+				name={name}
+				defaultChecked={checked}
+				onChange={handleChange}
+				style={{ width: '36px', height: '20px', accentColor: '#3b82f6' }}
+			/>
+			<span>{label}</span>
+		</label>
+	)
+}
+
+export function Checkbox({ props, className, onAction, isStreaming }: ComponentProps) {
 	const name = props.name as string
 	const label = props.label as string
 	const checked = (props.checked as boolean) ?? false
@@ -166,6 +238,7 @@ export function Checkbox({ props, onAction, isStreaming }: ComponentProps) {
 
 	return (
 		<label
+			className={className}
 			data-mdocui-checkbox
 			style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
 		>
@@ -175,7 +248,7 @@ export function Checkbox({ props, onAction, isStreaming }: ComponentProps) {
 	)
 }
 
-export function Form({ props, children, onAction, isStreaming }: ComponentProps) {
+export function Form({ props, className, children, onAction, isStreaming }: ComponentProps) {
 	const formName = props.name as string
 	const action = (props.action as string) ?? `submit:${formName}`
 	const [submitted, setSubmitted] = useState(false)
@@ -239,6 +312,7 @@ export function Form({ props, children, onAction, isStreaming }: ComponentProps)
 
 	return (
 		<form
+			className={className}
 			data-mdocui-form
 			data-name={formName}
 			onSubmit={handleSubmit}

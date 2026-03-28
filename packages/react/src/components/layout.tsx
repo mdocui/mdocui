@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import type { ComponentProps } from '../context'
 
-export function Stack({ props, children }: ComponentProps) {
+export function Stack({ props, className, children }: ComponentProps) {
 	const direction = (props.direction as string) ?? 'vertical'
 	const gap = (props.gap as string) ?? 'md'
 	const align = (props.align as string) ?? 'stretch'
 
 	return (
 		<div
+			className={className}
 			data-mdocui-stack
 			data-direction={direction}
 			data-gap={gap}
@@ -24,12 +25,13 @@ export function Stack({ props, children }: ComponentProps) {
 	)
 }
 
-export function Grid({ props, children }: ComponentProps) {
+export function Grid({ props, className, children }: ComponentProps) {
 	const cols = (props.cols as number) ?? 2
 	const gap = (props.gap as string) ?? 'md'
 
 	return (
 		<div
+			className={className}
 			data-mdocui-grid
 			style={{
 				display: 'grid',
@@ -42,11 +44,12 @@ export function Grid({ props, children }: ComponentProps) {
 	)
 }
 
-export function Card({ props, children }: ComponentProps) {
+export function Card({ props, className, children }: ComponentProps) {
 	const title = props.title as string | undefined
 
 	return (
 		<div
+			className={className}
 			data-mdocui-card
 			data-variant={(props.variant as string) ?? 'default'}
 			style={{ border: '1px solid #27272a', borderRadius: '8px', padding: '16px' }}
@@ -61,35 +64,36 @@ export function Card({ props, children }: ComponentProps) {
 	)
 }
 
-export function Divider(_: ComponentProps) {
+export function Divider({ className }: ComponentProps) {
 	return (
 		<hr
+			className={className}
 			data-mdocui-divider
 			style={{ border: 'none', borderTop: '1px solid #27272a', margin: '8px 0' }}
 		/>
 	)
 }
 
-export function Accordion({ props, children }: ComponentProps) {
+export function Accordion({ props, className, children }: ComponentProps) {
 	const title = props.title as string
 	const open = (props.open as boolean) ?? false
 
 	return (
-		<details data-mdocui-accordion open={open || undefined}>
+		<details className={className} data-mdocui-accordion open={open || undefined}>
 			<summary style={{ cursor: 'pointer', fontWeight: 500 }}>{title}</summary>
 			<div style={{ paddingTop: '8px' }}>{children}</div>
 		</details>
 	)
 }
 
-export function Tabs({ props, children }: ComponentProps) {
+export function Tabs({ props, className, children }: ComponentProps) {
 	const labels = Array.isArray(props.labels) ? props.labels : []
 	const initialActive = (props.active as number) ?? 0
 	const [active, setActive] = useState(initialActive)
 	const childArray = React.Children.toArray(children)
 
 	return (
-		<div data-mdocui-tabs>
+		<div className={className} data-mdocui-tabs>
 			<div
 				role="tablist"
 				style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #27272a' }}
@@ -121,9 +125,9 @@ export function Tabs({ props, children }: ComponentProps) {
 	)
 }
 
-export function Tab({ props, children }: ComponentProps) {
+export function Tab({ props, className, children }: ComponentProps) {
 	return (
-		<div data-mdocui-tab data-label={props.label as string}>
+		<div className={className} data-mdocui-tab data-label={props.label as string}>
 			{children}
 		</div>
 	)

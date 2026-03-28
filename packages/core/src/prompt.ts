@@ -56,6 +56,31 @@ export function generatePrompt(registry: ComponentRegistry, options?: PromptOpti
 	}
 
 	sections.push(
+		'## COMPOSITION',
+		'Components with body content can nest other components inside them.',
+		'Use layout components (stack, grid, card, tabs) to arrange content.',
+		'',
+		'Nesting example:',
+		'{% card title="Dashboard" %}',
+		'{% grid cols=3 %}',
+		'{% stat label="Revenue" value="$1.2M" change="+12%" trend="up" /%}',
+		'{% stat label="Users" value="8,432" change="+5%" trend="up" /%}',
+		'{% stat label="Churn" value="3.1%" change="-0.5%" trend="down" /%}',
+		'{% /grid %}',
+		'{% chart type="bar" labels=["Q1","Q2","Q3","Q4"] values=[80,120,150,200] /%}',
+		'{% /card %}',
+		'',
+		'Button groups:',
+		'{% button action="continue" label="View details" /%}',
+		'{% button action="continue" label="Export" variant="secondary" /%}',
+		'',
+		'Forms with inputs:',
+		'{% form name="contact" %}',
+		'{% input name="email" label="Email" type="email" /%}',
+		'{% input name="message" label="Message" placeholder="Your message..." /%}',
+		'{% button action="submit:contact" label="Send" /%}',
+		'{% /form %}',
+		'',
 		'## STREAMING GUIDELINE',
 		'Write prose content before components.',
 		'Users see text immediately while components load.',
@@ -116,7 +141,7 @@ function formatComponent(def: ComponentDefinition): string {
 	if (propNames.length === 0) {
 		const lines = [`{% ${def.name}${closing}`, `  ${def.description}`]
 		if (def.children && def.children !== 'none') {
-			lines.push('  (accepts body content)')
+			lines.push(formatChildren(def.children))
 		}
 		return lines.join('\n')
 	}
@@ -133,8 +158,13 @@ function formatComponent(def: ComponentDefinition): string {
 	}
 
 	if (def.children && def.children !== 'none') {
-		lines.push('  (accepts body content)')
+		lines.push(formatChildren(def.children))
 	}
 
 	return lines.join('\n')
+}
+
+function formatChildren(children: 'any' | string[] | undefined): string {
+	if (!children || children === 'any') return '  (accepts any body content)'
+	return `  (children: ${children.join(', ')})`
 }

@@ -1,7 +1,11 @@
 # mdocUI
 
+[![npm core](https://img.shields.io/npm/v/@mdocui/core?label=%40mdocui%2Fcore&color=blue)](https://www.npmjs.com/package/@mdocui/core)
+[![npm react](https://img.shields.io/npm/v/@mdocui/react?label=%40mdocui%2Freact&color=blue)](https://www.npmjs.com/package/@mdocui/react)
+[![npm cli](https://img.shields.io/npm/v/@mdocui/cli?label=%40mdocui%2Fcli&color=blue)](https://www.npmjs.com/package/@mdocui/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/Node-%E2%89%A522-green)](https://nodejs.org/)
 
 Generative UI library for LLMs using Markdoc `{% %}` tag syntax inline with markdown prose.
 
@@ -109,6 +113,68 @@ onAction={(event) => {
       break
   }
 }}
+```
+
+## Custom Components
+
+Every component receives `ComponentProps` and can be swapped:
+
+```typescript
+interface ComponentProps {
+  name: string
+  props: Record<string, unknown>
+  children?: React.ReactNode
+  className?: string
+  onAction: ActionHandler
+  isStreaming: boolean
+}
+```
+
+### Override specific components
+
+```tsx
+import { defaultComponents, Renderer } from '@mdocui/react'
+
+const myComponents = {
+  ...defaultComponents,
+  button: MyButton,     // swap just the button
+  card: MyShadcnCard,   // use your shadcn card
+}
+
+<Renderer nodes={nodes} components={myComponents} />
+```
+
+### Tailwind / className support
+
+Pass per-component classes via `classNames`:
+
+```tsx
+<Renderer
+  nodes={nodes}
+  components={defaultComponents}
+  classNames={{
+    button: 'bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2',
+    card: 'border border-gray-200 rounded-xl p-6 shadow-sm',
+    callout: 'border-l-4 pl-4 py-3',
+  }}
+/>
+```
+
+### Bring your own components entirely
+
+```tsx
+const shadcnComponents = {
+  button: ({ props, onAction }) => (
+    <Button onClick={() => onAction({ type: 'button_click', action: props.action, label: props.label, tagName: 'button' })}>
+      {props.label}
+    </Button>
+  ),
+  card: ({ props, children }) => (
+    <Card><CardHeader>{props.title}</CardHeader><CardContent>{children}</CardContent></Card>
+  ),
+}
+
+<Renderer nodes={nodes} components={shadcnComponents} />
 ```
 
 ## Architecture

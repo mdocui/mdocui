@@ -1,7 +1,16 @@
 import { ComponentRegistry } from '@mdocui/core'
 import { Badge, Callout, CodeBlock, Image, Link } from './components/content'
 import { Chart, Progress, Stat, Table } from './components/data'
-import { Button, ButtonGroup, Checkbox, Form, Input, Select } from './components/interactive'
+import {
+	Button,
+	ButtonGroup,
+	Checkbox,
+	Form,
+	Input,
+	Select,
+	Textarea,
+	Toggle,
+} from './components/interactive'
 import { Accordion, Card, Divider, Grid, Stack, Tab, Tabs } from './components/layout'
 import type { ComponentMap } from './context'
 import { allDefinitions, defaultGroups } from './definitions'
@@ -17,8 +26,10 @@ export const defaultComponents: ComponentMap = {
 	button: Button,
 	'button-group': ButtonGroup,
 	input: Input,
+	textarea: Textarea,
 	select: Select,
 	checkbox: Checkbox,
+	toggle: Toggle,
 	form: Form,
 	chart: Chart,
 	table: Table,

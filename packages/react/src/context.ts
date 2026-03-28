@@ -8,6 +8,7 @@ export interface ComponentProps {
 	name: string
 	props: Record<string, unknown>
 	children?: React.ReactNode
+	className?: string
 	onAction: ActionHandler
 	isStreaming: boolean
 }

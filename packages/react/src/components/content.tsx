@@ -8,13 +8,14 @@ const calloutColors: Record<string, { bg: string; border: string }> = {
 	success: { bg: 'rgba(34,197,94,0.1)', border: '#22c55e' },
 }
 
-export function Callout({ props, children }: ComponentProps) {
+export function Callout({ props, className, children }: ComponentProps) {
 	const type = (props.type as string) ?? 'info'
 	const title = props.title as string | undefined
 	const colors = calloutColors[type] ?? calloutColors.info
 
 	return (
 		<div
+			className={className}
 			data-mdocui-callout
 			data-type={type}
 			role="alert"
@@ -39,13 +40,14 @@ const badgeColors: Record<string, { bg: string; color: string }> = {
 	info: { bg: 'rgba(59,130,246,0.15)', color: '#60a5fa' },
 }
 
-export function Badge({ props }: ComponentProps) {
+export function Badge({ props, className }: ComponentProps) {
 	const label = props.label as string
 	const variant = (props.variant as string) ?? 'default'
 	const colors = badgeColors[variant] ?? badgeColors.default
 
 	return (
 		<span
+			className={className}
 			data-mdocui-badge
 			data-variant={variant}
 			style={{
@@ -63,7 +65,7 @@ export function Badge({ props }: ComponentProps) {
 	)
 }
 
-export function Image({ props }: ComponentProps) {
+export function Image({ props, className }: ComponentProps) {
 	const src = props.src as string
 	const alt = props.alt as string
 	const width = props.width as number | undefined
@@ -71,6 +73,7 @@ export function Image({ props }: ComponentProps) {
 
 	return (
 		<img
+			className={className}
 			data-mdocui-image
 			src={src}
 			alt={alt}
@@ -81,13 +84,13 @@ export function Image({ props }: ComponentProps) {
 	)
 }
 
-export function CodeBlock({ props }: ComponentProps) {
+export function CodeBlock({ props, className }: ComponentProps) {
 	const code = props.code as string
 	const language = props.language as string | undefined
 	const title = props.title as string | undefined
 
 	return (
-		<div data-mdocui-code-block>
+		<div className={className} data-mdocui-code-block>
 			{title && (
 				<div
 					style={{
@@ -118,7 +121,7 @@ export function CodeBlock({ props }: ComponentProps) {
 	)
 }
 
-export function Link({ props, onAction, isStreaming }: ComponentProps) {
+export function Link({ props, className, onAction, isStreaming }: ComponentProps) {
 	const action = props.action as string
 	const label = props.label as string
 	const rawUrl = props.url as string | undefined
@@ -140,6 +143,7 @@ export function Link({ props, onAction, isStreaming }: ComponentProps) {
 
 	return (
 		<a
+			className={className}
 			data-mdocui-link
 			href={url ?? '#'}
 			onClick={handleClick}
