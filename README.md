@@ -40,7 +40,7 @@ Markdoc's `{% %}` delimiters are unambiguous — they never appear in normal pro
 |---------|-------------|--------|
 | [`@mdocui/core`](packages/core) | Streaming parser, tokenizer, component registry, prompt generator | Stable |
 | [`@mdocui/react`](packages/react) | React renderer, 22 default components, `useRenderer` hook | Stable |
-| `@mdocui/cli` | Scaffold, generate system prompts, preview | Planned |
+| [`@mdocui/cli`](packages/cli) | Scaffold, generate system prompts, preview | Stable |
 
 ## Quick Start
 
