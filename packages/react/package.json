@@ -40,6 +40,7 @@
 		"vitest": "^4.1.0",
 		"zod": "catalog:"
 	},
+	"homepage": "https://mdocui.github.io",
 	"license": "MIT",
 	"repository": {
 		"type": "git",

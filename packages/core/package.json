@@ -29,6 +29,7 @@
 		"tsup": "^8.5.0",
 		"vitest": "^4.1.0"
 	},
+	"homepage": "https://mdocui.github.io",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
