@@ -52,7 +52,12 @@ export function Card({ props, className, children }: ComponentProps) {
 			className={className}
 			data-mdocui-card
 			data-variant={(props.variant as string) ?? 'default'}
-			style={{ border: '1px solid #27272a', borderRadius: '8px', padding: '16px' }}
+			style={{
+				border: '1px solid currentColor',
+				borderRadius: '8px',
+				padding: '16px',
+				opacity: 0.8,
+			}}
 		>
 			{title && (
 				<div data-mdocui-card-title style={{ fontWeight: 600, marginBottom: '8px' }}>
@@ -69,7 +74,7 @@ export function Divider({ className }: ComponentProps) {
 		<hr
 			className={className}
 			data-mdocui-divider
-			style={{ border: 'none', borderTop: '1px solid #27272a', margin: '8px 0' }}
+			style={{ border: 'none', borderTop: '1px solid currentColor', margin: '8px 0', opacity: 0.2 }}
 		/>
 	)
 }
@@ -96,7 +101,12 @@ export function Tabs({ props, className, children }: ComponentProps) {
 		<div className={className} data-mdocui-tabs>
 			<div
 				role="tablist"
-				style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #27272a' }}
+				style={{
+					display: 'flex',
+					gap: '4px',
+					borderBottom: '1px solid currentColor',
+					opacity: 0.2,
+				}}
 			>
 				{labels.map((label, i) => (
 					<button
@@ -112,6 +122,7 @@ export function Tabs({ props, className, children }: ComponentProps) {
 							borderBottom: i === active ? '2px solid currentColor' : '2px solid transparent',
 							cursor: 'pointer',
 							fontWeight: i === active ? 600 : 400,
+							color: 'inherit',
 						}}
 					>
 						{label}

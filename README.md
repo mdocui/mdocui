@@ -43,7 +43,7 @@ Markdoc's `{% %}` delimiters are unambiguous — they never appear in normal pro
 | Package | Description | Status |
 |---------|-------------|--------|
 | [`@mdocui/core`](packages/core) | Streaming parser, tokenizer, component registry, prompt generator | Stable |
-| [`@mdocui/react`](packages/react) | React renderer, 22 default components, `useRenderer` hook | Stable |
+| [`@mdocui/react`](packages/react) | React renderer, 24 default components, `useRenderer` hook | Stable |
 | [`@mdocui/cli`](packages/cli) | Scaffold, generate system prompts, preview | Stable |
 
 ## Quick Start
@@ -201,7 +201,7 @@ The core is framework-agnostic. `@mdocui/react` is one adapter — Vue, Svelte, 
 `stack` `grid` `card` `divider` `accordion` `tabs` `tab`
 
 ### Interactive
-`button` `button-group` `input` `select` `checkbox` `form`
+`button` `button-group` `input` `textarea` `select` `checkbox` `toggle` `form`
 
 ### Data
 `chart` `table` `stat` `progress`
@@ -209,7 +209,7 @@ The core is framework-agnostic. `@mdocui/react` is one adapter — Vue, Svelte, 
 ### Content
 `callout` `badge` `image` `code-block` `link`
 
-All components are bare-bone semantic HTML with `data-mdocui-*` attributes. Style them however you want — CSS, Tailwind, CSS-in-JS, or swap in your own component map entirely.
+All components render theme-neutral semantic HTML with `data-mdocui-*` attributes. They use `currentColor` and `inherit` — no hardcoded colors. They adapt to any light or dark theme automatically. Style them with CSS, Tailwind `classNames`, or swap in your own components entirely.
 
 ## Development
 

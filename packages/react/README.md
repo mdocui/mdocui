@@ -1,6 +1,6 @@
 # @mdocui/react
 
-React adapter for [mdocui](https://github.com/mdocui/mdocui) -- provides a streaming `Renderer` component, the `useRenderer` hook, and 22 default UI components for LLM generative UI powered by Markdoc `{% %}` tag syntax.
+React adapter for [mdocui](https://github.com/mdocui/mdocui) — streaming `Renderer` component, `useRenderer` hook, and 24 theme-neutral UI components for LLM generative UI powered by Markdoc `{% %}` tag syntax.
 
 Part of the [mdocui](https://github.com/mdocui/mdocui) monorepo.
 

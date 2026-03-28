@@ -36,10 +36,9 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 				borderRadius: '6px',
 				cursor: isDisabled ? 'not-allowed' : 'pointer',
 				opacity: isDisabled ? 0.5 : 1,
-				border: variant === 'outline' ? '1px solid #555' : 'none',
-				background:
-					variant === 'primary' ? '#3b82f6' : variant === 'ghost' ? 'transparent' : '#27272a',
-				color: '#fff',
+				color: 'inherit',
+				background: 'none',
+				border: '1px solid currentColor',
 			}}
 		>
 			{label}
@@ -71,7 +70,6 @@ export function Input({ props, className }: ComponentProps) {
 	const placeholder = (props.placeholder as string) ?? ''
 	const type = (props.type as string) ?? 'text'
 	const required = (props.required as boolean) ?? false
-
 	const id = `mdocui-${name}`
 
 	return (
@@ -90,14 +88,85 @@ export function Input({ props, className }: ComponentProps) {
 				style={{
 					width: '100%',
 					padding: '8px 12px',
-					border: '1px solid #333',
-					background: '#18181b',
-					color: 'inherit',
+					border: '1px solid currentColor',
 					borderRadius: '6px',
 					boxSizing: 'border-box',
+					background: 'transparent',
+					color: 'inherit',
+					opacity: 0.8,
 				}}
 			/>
 		</div>
+	)
+}
+
+export function Textarea({ props, className }: ComponentProps) {
+	const name = props.name as string
+	const label = props.label as string | undefined
+	const placeholder = (props.placeholder as string) ?? ''
+	const rows = (props.rows as number) ?? 3
+	const required = (props.required as boolean) ?? false
+	const id = `mdocui-${name}`
+
+	return (
+		<div className={className} data-mdocui-textarea>
+			{label && (
+				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+					{label}
+				</label>
+			)}
+			<textarea
+				id={id}
+				name={name}
+				placeholder={placeholder}
+				rows={rows}
+				required={required}
+				style={{
+					width: '100%',
+					padding: '8px 12px',
+					border: '1px solid currentColor',
+					borderRadius: '6px',
+					boxSizing: 'border-box',
+					resize: 'vertical',
+					background: 'transparent',
+					color: 'inherit',
+					opacity: 0.8,
+				}}
+			/>
+		</div>
+	)
+}
+
+export function Toggle({ props, className, onAction, isStreaming }: ComponentProps) {
+	const name = props.name as string
+	const label = props.label as string
+	const checked = (props.checked as boolean) ?? false
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (isStreaming) return
+		onAction({
+			type: 'select_change',
+			action: `change:${name}`,
+			tagName: 'toggle',
+			params: { name, value: e.target.checked },
+		})
+	}
+
+	return (
+		<label
+			className={className}
+			data-mdocui-toggle
+			style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+		>
+			<input
+				type="checkbox"
+				role="switch"
+				name={name}
+				defaultChecked={checked}
+				onChange={handleChange}
+			/>
+			<span>{label}</span>
+		</label>
 	)
 }
 
@@ -134,10 +203,11 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 				style={{
 					width: '100%',
 					padding: '8px 12px',
-					border: '1px solid #333',
-					background: '#18181b',
-					color: 'inherit',
+					border: '1px solid currentColor',
 					borderRadius: '6px',
+					background: 'transparent',
+					color: 'inherit',
+					opacity: 0.8,
 				}}
 			>
 				{placeholder && <option value="">{placeholder}</option>}
@@ -148,76 +218,6 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 				))}
 			</select>
 		</div>
-	)
-}
-
-export function Textarea({ props, className }: ComponentProps) {
-	const name = props.name as string
-	const label = props.label as string | undefined
-	const placeholder = (props.placeholder as string) ?? ''
-	const rows = (props.rows as number) ?? 3
-	const required = (props.required as boolean) ?? false
-	const id = `mdocui-${name}`
-
-	return (
-		<div className={className} data-mdocui-textarea>
-			{label && (
-				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
-					{label}
-				</label>
-			)}
-			<textarea
-				id={id}
-				name={name}
-				placeholder={placeholder}
-				rows={rows}
-				required={required}
-				style={{
-					width: '100%',
-					padding: '8px 12px',
-					border: '1px solid #333',
-					background: '#18181b',
-					color: 'inherit',
-					borderRadius: '6px',
-					boxSizing: 'border-box',
-					resize: 'vertical',
-				}}
-			/>
-		</div>
-	)
-}
-
-export function Toggle({ props, className, onAction, isStreaming }: ComponentProps) {
-	const name = props.name as string
-	const label = props.label as string
-	const checked = (props.checked as boolean) ?? false
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		if (isStreaming) return
-		onAction({
-			type: 'select_change',
-			action: `change:${name}`,
-			tagName: 'toggle',
-			params: { name, value: e.target.checked },
-		})
-	}
-
-	return (
-		<label
-			className={className}
-			data-mdocui-toggle
-			style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-		>
-			<input
-				type="checkbox"
-				role="switch"
-				name={name}
-				defaultChecked={checked}
-				onChange={handleChange}
-				style={{ width: '36px', height: '20px', accentColor: '#3b82f6' }}
-			/>
-			<span>{label}</span>
-		</label>
 	)
 }
 
@@ -277,6 +277,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 	if (submitted) {
 		return (
 			<div
+				className={className}
 				data-mdocui-form
 				data-name={formName}
 				data-submitted
@@ -286,26 +287,9 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 					gap: '12px',
 					opacity: 0.5,
 					pointerEvents: 'none',
-					position: 'relative',
 				}}
 			>
 				{children}
-				<div
-					style={{
-						position: 'absolute',
-						inset: 0,
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						background: 'rgba(0,0,0,0.3)',
-						borderRadius: '8px',
-						fontSize: '13px',
-						color: '#4ade80',
-						fontWeight: 500,
-					}}
-				>
-					Submitted
-				</div>
 			</div>
 		)
 	}

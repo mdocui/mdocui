@@ -24,18 +24,17 @@ export function Chart({ props, className }: ComponentProps) {
 								height: '100%',
 							}}
 						>
-							<div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>{val}</div>
+							<div style={{ fontSize: '11px', opacity: 0.6, marginBottom: '4px' }}>{val}</div>
 							<div
 								style={{
 									height: `${Math.max((val / max) * 100, 4)}%`,
-									background: 'linear-gradient(180deg, #3b82f6, #2563eb)',
+									background: 'currentColor',
 									borderRadius: '4px 4px 0 0',
 									minHeight: '4px',
+									opacity: 0.3,
 								}}
 							/>
-							<div style={{ fontSize: '11px', marginTop: '6px', color: '#64748b' }}>
-								{labels[i]}
-							</div>
+							<div style={{ fontSize: '11px', marginTop: '6px', opacity: 0.5 }}>{labels[i]}</div>
 						</div>
 					))}
 				</div>
@@ -46,22 +45,9 @@ export function Chart({ props, className }: ComponentProps) {
 						const total = values.reduce((a, b) => a + b, 0)
 						const pct = total > 0 ? Math.round((values[i] / total) * 100) : 0
 						return (
-							<div
-								key={label}
-								style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
-							>
-								<div
-									style={{
-										width: 10,
-										height: 10,
-										borderRadius: '50%',
-										background: chartColors[i % chartColors.length],
-									}}
-								/>
-								<span>
-									{label}: {values[i]} ({pct}%)
-								</span>
-							</div>
+							<span key={label} style={{ fontSize: '13px' }}>
+								{label}: {values[i]} ({pct}%)
+							</span>
 						)
 					})}
 				</div>
@@ -69,17 +55,6 @@ export function Chart({ props, className }: ComponentProps) {
 		</div>
 	)
 }
-
-const chartColors = [
-	'#3b82f6',
-	'#22c55e',
-	'#f59e0b',
-	'#ef4444',
-	'#8b5cf6',
-	'#ec4899',
-	'#06b6d4',
-	'#f97316',
-]
 
 export function Table({ props, className }: ComponentProps) {
 	const headers = Array.isArray(props.headers) ? props.headers : []
@@ -105,9 +80,9 @@ export function Table({ props, className }: ComponentProps) {
 							style={{
 								textAlign: 'left',
 								padding: '8px',
-								borderBottom: '2px solid #333',
+								borderBottom: '2px solid currentColor',
 								fontWeight: 600,
-								color: '#94a3b8',
+								opacity: 0.7,
 								fontSize: '13px',
 							}}
 						>
@@ -124,7 +99,10 @@ export function Table({ props, className }: ComponentProps) {
 							{cells.map((cell) => {
 								const cellKey = `${cells[0]}-${cell}`
 								return (
-									<td key={cellKey} style={{ padding: '8px', borderBottom: '1px solid #222' }}>
+									<td
+										key={cellKey}
+										style={{ padding: '8px', borderBottom: '1px solid currentColor', opacity: 0.8 }}
+									>
 										{cell}
 									</td>
 								)
@@ -143,13 +121,11 @@ export function Stat({ props, className }: ComponentProps) {
 	const change = props.change as string | undefined
 	const trend = (props.trend as string) ?? 'neutral'
 
-	const trendColor = trend === 'up' ? '#4ade80' : trend === 'down' ? '#f87171' : '#64748b'
-
 	return (
-		<div className={className} data-mdocui-stat style={{ padding: '8px 0' }}>
-			<div style={{ fontSize: '13px', color: '#64748b' }}>{label}</div>
+		<div className={className} data-mdocui-stat data-trend={trend} style={{ padding: '8px 0' }}>
+			<div style={{ fontSize: '13px', opacity: 0.6 }}>{label}</div>
 			<div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
-			{change && <div style={{ fontSize: '13px', color: trendColor }}>{change}</div>}
+			{change && <div style={{ fontSize: '13px' }}>{change}</div>}
 		</div>
 	)
 }
@@ -172,19 +148,25 @@ export function Progress({ props, className }: ComponentProps) {
 					}}
 				>
 					<span>{label}</span>
-					<span style={{ color: '#64748b' }}>{Math.round(pct)}%</span>
+					<span style={{ opacity: 0.6 }}>{Math.round(pct)}%</span>
 				</div>
 			)}
 			<div
-				style={{ height: '8px', background: '#27272a', borderRadius: '4px', overflow: 'hidden' }}
+				style={{
+					height: '8px',
+					background: 'currentColor',
+					borderRadius: '4px',
+					overflow: 'hidden',
+					opacity: 0.15,
+				}}
 			>
 				<div
 					style={{
 						height: '100%',
 						width: `${pct}%`,
-						background: '#3b82f6',
+						background: 'currentColor',
 						borderRadius: '4px',
-						transition: 'width 0.3s',
+						opacity: 1,
 					}}
 				/>
 			</div>
