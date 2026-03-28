@@ -83,25 +83,36 @@ export default {
 		expect(prompt).toContain('A button')
 	})
 
-	it('preview prints prompt to stdout', () => {
-		const config = `
-import { defineComponent } from '${coreRoot}/packages/core/dist/index.js'
-import { z } from '${coreRoot}/node_modules/zod/index.js'
+	it('preview starts dev server', () => {
+		const child = require('node:child_process').spawn(
+			'node',
+			[CLI_PATH, 'preview', '--port', '4399'],
+			{
+				cwd: tmpDir,
+				env: { ...process.env, NODE_OPTIONS: '' },
+				stdio: ['pipe', 'pipe', 'pipe'],
+			},
+		)
 
-export default {
-  components: [
-    defineComponent({
-      name: 'chart',
-      description: 'Data chart',
-      props: z.object({ type: z.enum(['bar','line']).describe('chart type') }),
-    }),
-  ],
-}
-`
-		fs.writeFileSync(path.join(tmpDir, 'mdocui.config.mjs'), config)
-		const out = run('preview', tmpDir)
-		expect(out).toContain('mdocUI format')
-		expect(out).toContain('{% chart')
-		expect(out).toContain('chart type')
+		return new Promise<void>((resolve, reject) => {
+			const timeout = setTimeout(() => {
+				child.kill()
+				reject(new Error('Server did not start in time'))
+			}, 5000)
+
+			child.stdout.on('data', (data: Buffer) => {
+				const out = data.toString()
+				if (out.includes('4399')) {
+					clearTimeout(timeout)
+					child.kill()
+					resolve()
+				}
+			})
+
+			child.on('error', (err: Error) => {
+				clearTimeout(timeout)
+				reject(err)
+			})
+		})
 	})
 })

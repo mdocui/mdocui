@@ -36,7 +36,6 @@ function Chat() {
   return (
     <Renderer
       nodes={nodes}
-      components={defaultComponents}
       isStreaming={isStreaming}
       onAction={(event) => console.log('action:', event)}
     />
@@ -92,25 +91,25 @@ Renders an `ASTNode[]` tree into React elements using a component map.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `nodes` | `ASTNode[]` | required | AST from `useRenderer` or `StreamingParser` |
-| `components` | `ComponentMap` | required | Map of tag name to React component |
+| `components` | `ComponentMap` | all 24 built-ins | Custom components merged on top of defaults (see below) |
 | `onAction` | `ActionHandler` | no-op | Callback for interactive events |
 | `isStreaming` | `boolean` | `false` | Whether the LLM is still streaming |
-| `renderProse` | `(content: string, key: string) => ReactNode` | plain `<span>` | Custom renderer for prose nodes (see below) |
+| `renderProse` | `(content: string, key: string) => ReactNode` | built-in `SimpleMarkdown` | Custom renderer for prose nodes (see below) |
+| `classNames` | `Record<string, string>` | — | Per-component CSS class overrides |
 
 ---
 
-## `renderProse` -- Markdown Rendering
+## Prose Rendering
 
-The core parser splits the LLM stream into two node types: **prose nodes** (standard markdown content) and **component nodes** (`{% %}` tags). The `renderProse` callback is responsible for turning prose nodes into rendered markdown. Component nodes are handled separately by the component map.
+By default, prose nodes are rendered with the built-in `SimpleMarkdown` component which handles **bold**, *italic*, `inline code`, [links](url), headings (h1-h3), unordered lists, and paragraph breaks — no external dependencies required.
 
-By default, prose nodes render as plain `<span>` elements. To render markdown, pass a `renderProse` function:
+For full GFM support, override with `renderProse`:
 
 ```tsx
 import ReactMarkdown from 'react-markdown'
 
 <Renderer
   nodes={nodes}
-  components={defaultComponents}
   renderProse={(content, key) => <ReactMarkdown key={key}>{content}</ReactMarkdown>}
 />
 ```
@@ -218,12 +217,11 @@ function handleAction(event: ActionEvent) {
 
 ---
 
-## Custom Component Map
+## Custom Components
 
-Override or extend the defaults by merging your own components:
+Pass custom components via the `components` prop — they merge on top of the 24 built-in defaults. You only need to pass overrides, not the full map:
 
 ```tsx
-import { defaultComponents } from '@mdocui/react'
 import type { ComponentProps } from '@mdocui/react'
 
 function MyCard({ props, children }: ComponentProps) {
@@ -235,12 +233,8 @@ function MyCard({ props, children }: ComponentProps) {
   )
 }
 
-const components = {
-  ...defaultComponents,
-  card: MyCard,
-}
-
-<Renderer nodes={nodes} components={components} />
+// MyCard replaces the built-in card; all other 23 components still work
+<Renderer nodes={nodes} components={{ card: MyCard }} />
 ```
 
 ---

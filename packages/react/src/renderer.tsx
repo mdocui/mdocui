@@ -2,10 +2,12 @@ import type { ASTNode, ComponentNode, ProseNode } from '@mdocui/core'
 import { useMemo } from 'react'
 import type { ActionHandler, ComponentMap, RendererContext } from './context'
 import { MdocUIProvider } from './context'
+import { defaultComponents } from './defaults'
+import { SimpleMarkdown } from './prose'
 
 export interface RendererProps {
 	nodes: ASTNode[]
-	components: ComponentMap
+	components?: ComponentMap
 	onAction?: ActionHandler
 	isStreaming?: boolean
 	renderProse?: (content: string, key: string) => React.ReactNode
@@ -20,9 +22,14 @@ export function Renderer({
 	renderProse,
 	classNames,
 }: RendererProps) {
+	const merged = useMemo<ComponentMap>(
+		() => (components ? { ...defaultComponents, ...components } : defaultComponents),
+		[components],
+	)
+
 	const ctx = useMemo<RendererContext>(
-		() => ({ components, onAction, isStreaming }),
-		[components, onAction, isStreaming],
+		() => ({ components: merged, onAction, isStreaming }),
+		[merged, onAction, isStreaming],
 	)
 
 	const grouped = groupConsecutiveButtons(nodes)
@@ -104,11 +111,7 @@ function renderProseNode(
 	renderProse?: (content: string, key: string) => React.ReactNode,
 ): React.ReactNode {
 	if (renderProse) return renderProse(node.content, key)
-	return (
-		<span key={key} data-mdocui-prose>
-			{node.content}
-		</span>
-	)
+	return <SimpleMarkdown key={key} content={node.content} dataKey={key} />
 }
 
 function renderComponentNode(
