@@ -9,7 +9,6 @@ export interface RendererProps {
 	onAction?: ActionHandler
 	isStreaming?: boolean
 	renderProse?: (content: string, key: string) => React.ReactNode
-	/** Per-component className overrides: { button: 'my-btn', card: 'my-card' } */
 	classNames?: Record<string, string>
 }
 
@@ -26,13 +25,61 @@ export function Renderer({
 		[components, onAction, isStreaming],
 	)
 
+	const grouped = groupConsecutiveButtons(nodes)
+
 	return (
 		<MdocUIProvider value={ctx}>
-			<div data-mdocui>
-				{nodes.map((node, i) => renderNode(node, `n-${i}`, ctx, renderProse, classNames))}
+			<div data-mdocui style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+				{grouped.map((item, i) => {
+					if (item.type === 'button-row') {
+						return (
+							<div key={`br-${i}`} data-mdocui-button-row style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+								{item.nodes.map((node, j) =>
+									renderNode(node, `br-${i}-${j}`, ctx, renderProse, classNames),
+								)}
+							</div>
+						)
+					}
+					return renderNode(item.node, `n-${i}`, ctx, renderProse, classNames)
+				})}
 			</div>
 		</MdocUIProvider>
 	)
+}
+
+type GroupedItem =
+	| { type: 'node'; node: ASTNode }
+	| { type: 'button-row'; nodes: ASTNode[] }
+
+function groupConsecutiveButtons(nodes: ASTNode[]): GroupedItem[] {
+	const result: GroupedItem[] = []
+	let buttonBuffer: ASTNode[] = []
+
+	const flushButtons = () => {
+		if (buttonBuffer.length > 0) {
+			result.push({ type: 'button-row', nodes: buttonBuffer })
+			buttonBuffer = []
+		}
+	}
+
+	for (const node of nodes) {
+		const isButton =
+			node.type === 'component' && node.name === 'button'
+		const isEmptyProse =
+			node.type === 'prose' && node.content.trim() === ''
+
+		if (isButton) {
+			buttonBuffer.push(node)
+		} else if (isEmptyProse && buttonBuffer.length > 0) {
+			// skip whitespace-only prose between buttons
+		} else {
+			flushButtons()
+			result.push({ type: 'node', node })
+		}
+	}
+	flushButtons()
+
+	return result
 }
 
 function renderNode(

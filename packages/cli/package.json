@@ -1,6 +1,6 @@
 {
   "name": "@mdocui/cli",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "CLI for mdocUI — scaffold, generate system prompts, preview",
   "type": "module",
   "bin": {
