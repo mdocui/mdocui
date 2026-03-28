@@ -11,6 +11,10 @@
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node-%E2%89%A522-green" alt="Node"></a>
 </p>
 
+<p align="center">
+  <a href="https://mdocui.github.io">Documentation</a> · <a href="https://mdocui-demo.vercel.app">Live Demo</a> · <a href="https://www.npmjs.com/org/mdocui">npm</a>
+</p>
+
 Generative UI library for LLMs using Markdoc `{% %}` tag syntax inline with markdown prose.
 
 LLMs write natural markdown **and** drop interactive UI components in the same stream — charts, buttons, forms, tables, cards, and more. No custom DSL to learn, no JSON blocks, no JSX confusion.
