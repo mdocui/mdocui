@@ -1,18 +1,27 @@
 {
   "name": "@mdocui/cli",
-  "version": "0.0.1",
+  "version": "0.3.0",
   "description": "CLI for mdocUI — scaffold, generate system prompts, preview",
   "type": "module",
   "bin": {
     "mdocui": "./dist/index.js"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "true",
+    "build": "tsup",
+    "test": "vitest run",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@mdocui/core": "workspace:*"
+    "@mdocui/core": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsup": "^8.5.1",
+    "vitest": "^4.1.0"
   },
   "license": "MIT",
   "repository": {

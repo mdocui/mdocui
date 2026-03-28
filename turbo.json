@@ -5,9 +5,6 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "@mdocui/cli#build": {
-      "outputs": []
-    },
     "test": {
       "dependsOn": ["build"]
     },

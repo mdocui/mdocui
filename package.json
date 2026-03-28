@@ -9,7 +9,7 @@
     "lint:fix": "biome check --write .",
     "clean": "turbo clean",
     "playground": "tsx playground.ts",
-    "release": "turbo build --force && pnpm -r publish --access public --no-git-checks"
+    "release": "turbo build --force && pnpm --filter @mdocui/core publish --access public --no-git-checks && pnpm --filter @mdocui/react publish --access public --no-git-checks && pnpm --filter @mdocui/cli publish --access public --no-git-checks"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",
@@ -20,6 +20,6 @@
   },
   "packageManager": "pnpm@10.33.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }
