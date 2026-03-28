@@ -26,6 +26,37 @@ Review the pipeline before end of quarter.
 {% button action="continue" label="Export as PDF" /%}
 ```
 
+## Syntax: Markdown + Markdoc Tags
+
+mdocUI combines two syntaxes in a single stream:
+
+- **[Markdown](https://commonmark.org/)** -- the universal prose format created by John Gruber (2004), standardized by [CommonMark](https://github.com/commonmark/commonmark-spec). Handles headings, bold, italic, lists, links, code blocks -- everything an LLM already knows how to write.
+- **[Markdoc](https://github.com/markdoc/markdoc) `{% %}` tags** -- the tag syntax from Stripe's Markdoc framework (2022, MIT). Markdoc extends Markdown with `{% %}` custom tags for structured content.
+
+mdocUI borrows **only the `{% %}` tag syntax** from Markdoc. We do not use Markdoc's parser, runtime, compiler, schema system, or config layer. We built our own streaming parser from scratch, purpose-built for token-by-token LLM output.
+
+### Tag forms
+
+Self-closing (no body):
+
+```
+{% tagname attr="value" /%}
+```
+
+With body content:
+
+```
+{% tagname attr="value" %}
+Body content here -- can include markdown or nested tags.
+{% /tagname %}
+```
+
+### Why `{% %}` works for streaming
+
+The character sequence `{%` never appears in normal prose, standard markdown, or fenced code blocks. This makes it a reliable delimiter that a character-by-character streaming parser can detect without ambiguity -- no lookahead, no backtracking, no fragile heuristics.
+
+The LLM writes both markdown **and** component tags in the same response. The parser separates them into prose nodes and component nodes as tokens arrive.
+
 ## Why mdocUI?
 
 | Approach | Prose? | Components? | Streaming? | Token efficient? |

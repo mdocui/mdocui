@@ -101,6 +101,8 @@ Renders an `ASTNode[]` tree into React elements using a component map.
 
 ## `renderProse` -- Markdown Rendering
 
+The core parser splits the LLM stream into two node types: **prose nodes** (standard markdown content) and **component nodes** (`{% %}` tags). The `renderProse` callback is responsible for turning prose nodes into rendered markdown. Component nodes are handled separately by the component map.
+
 By default, prose nodes render as plain `<span>` elements. To render markdown, pass a `renderProse` function:
 
 ```tsx

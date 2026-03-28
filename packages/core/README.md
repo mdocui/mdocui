@@ -18,6 +18,15 @@ npm install @mdocui/core
 2. **Component registry** -- defines available components with Zod schemas so the parser can validate props and the prompt generator can describe them to the model.
 3. **Prompt generator** -- turns a registry into a system prompt section that teaches an LLM how to emit mdocUI markup.
 
+### How the parser separates prose from components
+
+The LLM writes a single stream containing both standard markdown and `{% %}` component tags. The parser's job is to split that stream into two node types:
+
+- **Prose nodes** -- everything outside `{% %}` delimiters. This is standard markdown (headings, bold, lists, code blocks, etc.) and is passed through as-is for a markdown renderer to handle.
+- **Component nodes** -- everything inside `{% %}` delimiters. The parser extracts the tag name, parses attributes, and validates props against the registry's Zod schemas.
+
+The `{%` sequence never appears in normal prose or fenced code blocks, so the tokenizer can reliably detect tag boundaries character-by-character during streaming -- no lookahead or backtracking required.
+
 ---
 
 ## API Reference
