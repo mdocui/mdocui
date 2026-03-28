@@ -273,6 +273,30 @@ Contributions are welcome. Please open an issue first to discuss what you'd like
 4. Run `pnpm test && pnpm lint`
 5. Open a pull request
 
+## For AI Agents
+
+- [SKILL.md](SKILL.md) — implementation guide for AI coding agents
+- [llms.txt](https://mdocui.github.io/llms.txt) — machine-readable project summary for LLM crawlers
+
+**Install as a Claude Code skill:**
+
+Option 1 — Copy directly to your project:
+```bash
+mkdir -p .claude/skills
+curl -o .claude/skills/mdocui.md https://raw.githubusercontent.com/mdocui/mdocui/main/SKILL.md
+```
+
+Option 2 — Reference in your project's `CLAUDE.md`:
+```markdown
+For mdocUI implementation, see: https://github.com/mdocui/mdocui/blob/main/SKILL.md
+```
+
+Option 3 — Personal skills (available in all projects):
+```bash
+mkdir -p ~/.claude/skills/mdocui
+curl -o ~/.claude/skills/mdocui/SKILL.md https://raw.githubusercontent.com/mdocui/mdocui/main/SKILL.md
+```
+
 ## License
 
 [MIT](LICENSE)
