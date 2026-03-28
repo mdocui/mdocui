@@ -273,7 +273,7 @@ pnpm playground
 
 ## Contributing
 
-Contributions are welcome. Please open an issue first to discuss what you'd like to change.
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 1. Fork the repo
 2. Create a feature branch (`git checkout -b feature/my-change`)
