@@ -12,6 +12,8 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v5
 
@@ -29,7 +31,50 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          PREV=$(git tag --sort=-v:refname | sed -n '2p')
+          if [ -z "$PREV" ]; then
+            echo "tag=" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=$PREV" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate release notes
+        id: notes
+        env:
+          PREV_TAG: ${{ steps.prev_tag.outputs.tag }}
+          CURR_TAG: ${{ github.ref_name }}
+        run: |
+          {
+            echo 'body<<RELEASE_EOF'
+            echo '## What'"'"'s Changed'
+            echo ''
+            if [ -n "${PREV_TAG}" ]; then
+              RANGE="${PREV_TAG}..${CURR_TAG}"
+            else
+              RANGE="${CURR_TAG}"
+            fi
+            git log "${RANGE}" --no-merges --pretty=format:"- **%s** (\`%h\`)"
+            echo ''
+            echo ''
+            if [ -n "${PREV_TAG}" ]; then
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${CURR_TAG}"
+            else
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/${CURR_TAG}"
+            fi
+            echo ''
+            echo '## Contributors'
+            echo ''
+            git log "${RANGE}" --no-merges --pretty=format:"%an" | sort -u | while read -r name; do
+              echo "- @${name}"
+            done
+            echo ''
+            echo 'RELEASE_EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create ${{ github.ref_name }} --generate-notes --title "${{ github.ref_name }}"
+        run: gh release create ${{ github.ref_name }} --title "${{ github.ref_name }}" --notes "${{ steps.notes.outputs.body }}"
