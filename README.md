@@ -288,22 +288,19 @@ Contributions are welcome. Please open an issue first to discuss what you'd like
 
 **Install as a Claude Code skill:**
 
-Option 1 — Copy directly to your project:
+Project-level (current project only):
 ```bash
-mkdir -p .claude/skills
-curl -o .claude/skills/mdocui.md https://raw.githubusercontent.com/mdocui/mdocui/main/SKILL.md
+mkdir -p .claude/skills/mdocui
+curl -o .claude/skills/mdocui/SKILL.md https://raw.githubusercontent.com/mdocui/mdocui/main/SKILL.md
 ```
 
-Option 2 — Reference in your project's `CLAUDE.md`:
-```markdown
-For mdocUI implementation, see: https://github.com/mdocui/mdocui/blob/main/SKILL.md
-```
-
-Option 3 — Personal skills (available in all projects):
+Personal (available in all your projects):
 ```bash
 mkdir -p ~/.claude/skills/mdocui
 curl -o ~/.claude/skills/mdocui/SKILL.md https://raw.githubusercontent.com/mdocui/mdocui/main/SKILL.md
 ```
+
+Then invoke with `/mdocui` in Claude Code.
 
 ## License
 
