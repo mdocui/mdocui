@@ -30,19 +30,16 @@ export function Renderer({
 	return (
 		<MdocUIProvider value={ctx}>
 			<div data-mdocui style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-				{grouped.map((item) => {
+				{grouped.map((item, idx) => {
 					if (item.type === 'button-row') {
-						const rowKey = item.nodes
-							.map((n) => (n.type === 'component' ? n.props.label : ''))
-							.join('-')
 						return (
 							<div
-								key={`br-${rowKey}`}
+								key={`br-${idx}`}
 								data-mdocui-button-row
 								style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
 							>
-								{item.nodes.map((node) => {
-									const nodeKey = node.type === 'component' ? `btn-${node.props.label}` : 'btn'
+								{item.nodes.map((node, j) => {
+									const nodeKey = node.type === 'component' ? `btn-${idx}-${j}` : `btn-${idx}-${j}`
 									return renderNode(node, nodeKey, ctx, renderProse, classNames)
 								})}
 							</div>
@@ -50,8 +47,8 @@ export function Renderer({
 					}
 					const nodeKey =
 						item.node.type === 'component'
-							? `${item.node.name}-${item.node.props.label ?? item.node.props.title ?? ''}`
-							: `prose-${item.node.content.slice(0, 20)}`
+							? `${item.node.name}-${idx}-${item.node.props.label ?? item.node.props.title ?? ''}`
+							: `prose-${idx}`
 					return renderNode(item.node, nodeKey, ctx, renderProse, classNames)
 				})}
 			</div>
