@@ -26,12 +26,13 @@ export function Chart({ props, className }: ComponentProps) {
 						>
 							<div style={{ fontSize: '11px', opacity: 0.6, marginBottom: '4px' }}>{val}</div>
 							<div
+								data-mdocui-chart-bar
 								style={{
 									height: `${Math.max((val / max) * 100, 4)}%`,
 									background: 'currentColor',
 									borderRadius: '4px 4px 0 0',
 									minHeight: '4px',
-									opacity: 0.3,
+									opacity: 0.25,
 								}}
 							/>
 							<div style={{ fontSize: '11px', marginTop: '6px', opacity: 0.5 }}>{labels[i]}</div>
@@ -152,21 +153,22 @@ export function Progress({ props, className }: ComponentProps) {
 				</div>
 			)}
 			<div
+				data-mdocui-progress-track
 				style={{
 					height: '8px',
 					background: 'currentColor',
 					borderRadius: '4px',
 					overflow: 'hidden',
-					opacity: 0.15,
+					opacity: 0.1,
 				}}
 			>
 				<div
+					data-mdocui-progress-fill
 					style={{
 						height: '100%',
 						width: `${pct}%`,
 						background: 'currentColor',
 						borderRadius: '4px',
-						opacity: 1,
 					}}
 				/>
 			</div>
