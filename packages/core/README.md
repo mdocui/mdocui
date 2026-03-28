@@ -155,7 +155,33 @@ export const myComponent = defineComponent({
 
 ### `generatePrompt`
 
-Generates a system prompt section from a registry that teaches an LLM the available components, tag syntax rules, and streaming guidelines.
+Generates a complete system prompt from a registry. The prompt merges two layers:
+
+**Library layer** (auto-generated from the registry):
+- TAG SYNTAX reference — self-closing and body tag forms
+- COMPONENTS list — all registered components with prop types and allowed children
+- COMPOSITION rules — nesting examples showing card > grid > stat, form > inputs, etc.
+- STREAMING GUIDELINE — prose-before-components rendering advice
+
+**App layer** (your options):
+- `preamble` — domain context ("You are an e-commerce assistant...")
+- `groups` — organize components under headings with domain-specific notes
+- `additionalRules` — domain rules ("Use stat inside grid for KPI dashboards")
+- `examples` — domain examples showing expected output format
+
+The final prompt structure:
+
+```
+[preamble]              ← your app context
+## TAG SYNTAX            ← auto from library
+## COMPONENTS            ← auto from registry + your groups
+## COMPOSITION           ← auto from library
+## STREAMING GUIDELINE   ← auto from library
+## RULES                 ← your additionalRules
+## EXAMPLE               ← your examples
+```
+
+You never write syntax docs or component signatures — `generatePrompt()` handles that from the registry. You only provide domain context and usage guidance.
 
 ```ts
 import { generatePrompt, ComponentRegistry } from '@mdocui/core'

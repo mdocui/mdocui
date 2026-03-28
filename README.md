@@ -83,7 +83,9 @@ Markdoc's `{% %}` delimiters are unambiguous — they never appear in normal pro
 pnpm add @mdocui/core @mdocui/react
 ```
 
-### 1. Define components and generate a system prompt
+### 1. Generate a system prompt
+
+`generatePrompt()` merges two layers into one prompt: the **library layer** (tag syntax, component signatures, composition rules — auto-generated from the registry) and your **app layer** (preamble, domain rules, examples). You never write syntax docs manually.
 
 ```typescript
 import { generatePrompt } from '@mdocui/core'
