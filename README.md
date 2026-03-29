@@ -302,6 +302,13 @@ curl -o ~/.claude/skills/mdocui/SKILL.md https://raw.githubusercontent.com/mdocu
 
 Then invoke with `/mdocui` in Claude Code.
 
+## Roadmap
+
+- `@mdocui/vue` — Vue renderer with the same 24 components
+- `@mdocui/svelte` — Svelte renderer
+- VS Code extension — syntax highlighting and autocomplete for `{% %}` tags
+- v1.0.0 — stable API, frozen component props, CHANGELOG
+
 ## License
 
 [MIT](LICENSE)
