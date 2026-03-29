@@ -1,6 +1,7 @@
 // @mdocui/core — Streaming Markdoc parser for LLM generative UI
 
 export { parseAttributes } from './attributes'
+export { allDefinitions, defaultGroups } from './definitions'
 export type { ParserOptions } from './parser'
 export { StreamingParser } from './parser'
 export { generatePrompt } from './prompt'

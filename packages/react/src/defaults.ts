@@ -1,4 +1,4 @@
-import { ComponentRegistry } from '@mdocui/core'
+import { allDefinitions, ComponentRegistry } from '@mdocui/core'
 import { Badge, Callout, CodeBlock, Image, Link } from './components/content'
 import { Chart, Progress, Stat, Table } from './components/data'
 import {
@@ -13,7 +13,6 @@ import {
 } from './components/interactive'
 import { Accordion, Card, Divider, Grid, Stack, Tab, Tabs } from './components/layout'
 import type { ComponentMap } from './context'
-import { allDefinitions, defaultGroups } from './definitions'
 
 export const defaultComponents: ComponentMap = {
 	stack: Stack,
@@ -47,5 +46,3 @@ export function createDefaultRegistry(): ComponentRegistry {
 	registry.registerAll(allDefinitions)
 	return registry
 }
-
-export { defaultGroups }

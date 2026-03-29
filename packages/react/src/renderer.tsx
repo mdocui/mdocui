@@ -1,5 +1,5 @@
 import type { ASTNode, ComponentNode, ProseNode } from '@mdocui/core'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { AnimateIn } from './animations'
 import type { ActionHandler, ComponentMap, RendererContext } from './context'
 import { MdocUIProvider } from './context'
@@ -112,7 +112,9 @@ function renderProseNode(
 	key: string,
 	renderProse?: (content: string, key: string) => React.ReactNode,
 ): React.ReactNode {
-	if (renderProse) return renderProse(node.content, key)
+	if (renderProse) {
+		return <React.Fragment key={key}>{renderProse(node.content, key)}</React.Fragment>
+	}
 	return <SimpleMarkdown key={key} content={node.content} dataKey={key} />
 }
 

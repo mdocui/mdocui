@@ -1,5 +1,5 @@
-import { defineComponent } from '@mdocui/core'
 import { z } from 'zod'
+import { defineComponent } from './registry'
 
 // ── Layout ──────────────────────────────────────────────
 
