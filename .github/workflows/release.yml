@@ -56,7 +56,7 @@ jobs:
             else
               RANGE="${CURR_TAG}"
             fi
-            git log "${RANGE}" --no-merges --pretty=format:"- **%s** (\`%h\`)"
+            git log "${RANGE}" --no-merges --pretty=format:"- **%s** (%h)"
             echo ''
             echo ''
             if [ -n "${PREV_TAG}" ]; then

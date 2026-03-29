@@ -5,12 +5,14 @@ export function Callout({ props, className, children }: ComponentProps) {
 	const type = (props.type as string) ?? 'info'
 	const title = props.title as string | undefined
 
+	const role = type === 'warning' || type === 'error' ? 'alert' : 'status'
+
 	return (
 		<div
 			className={className}
 			data-mdocui-callout
 			data-type={type}
-			role="alert"
+			role={role}
 			style={{
 				padding: '12px 16px',
 				borderLeft: '4px solid currentColor',
@@ -119,7 +121,12 @@ export function Link({ props, className, onAction, isStreaming }: ComponentProps
 			data-mdocui-link
 			href={url ?? '#'}
 			onClick={handleClick}
-			style={{ textDecoration: 'underline', cursor: 'pointer', color: 'inherit' }}
+			style={{
+				textDecoration: 'underline',
+				cursor: 'pointer',
+				color: 'inherit',
+				outline: 'revert',
+			}}
 		>
 			{label}
 		</a>

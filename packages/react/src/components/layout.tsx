@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useId, useState } from 'react'
 import type { ComponentProps } from '../context'
 
 export function Stack({ props, className, children }: ComponentProps) {
@@ -97,23 +97,29 @@ export function Tabs({ props, className, children }: ComponentProps) {
 	const [active, setActive] = useState(initialActive)
 	const childArray = React.Children.toArray(children)
 
+	const uid = useId()
+	const tabsId = `mdocui-tabs-${uid}`
+
 	return (
 		<div className={className} data-mdocui-tabs>
 			<div
 				role="tablist"
+				aria-label={labels.join(', ')}
 				style={{
 					display: 'flex',
 					gap: '4px',
-					borderBottom: '1px solid currentColor',
-					opacity: 0.2,
+					borderBottom: '1px solid color-mix(in srgb, currentColor 20%, transparent)',
 				}}
 			>
 				{labels.map((label, i) => (
 					<button
 						type="button"
 						key={label}
+						id={`${tabsId}-tab-${i}`}
 						role="tab"
 						aria-selected={i === active}
+						aria-controls={`${tabsId}-panel-${i}`}
+						tabIndex={i === active ? 0 : -1}
 						onClick={() => setActive(i)}
 						style={{
 							padding: '8px 16px',
@@ -123,13 +129,19 @@ export function Tabs({ props, className, children }: ComponentProps) {
 							cursor: 'pointer',
 							fontWeight: i === active ? 600 : 400,
 							color: 'inherit',
+							outline: 'revert',
 						}}
 					>
 						{label}
 					</button>
 				))}
 			</div>
-			<div role="tabpanel" style={{ paddingTop: '8px' }}>
+			<div
+				id={`${tabsId}-panel-${active}`}
+				role="tabpanel"
+				aria-labelledby={`${tabsId}-tab-${active}`}
+				style={{ paddingTop: '8px' }}
+			>
 				{childArray[active] ?? childArray[0]}
 			</div>
 		</div>

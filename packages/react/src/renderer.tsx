@@ -1,8 +1,10 @@
 import type { ASTNode, ComponentNode, ProseNode } from '@mdocui/core'
 import { useMemo } from 'react'
+import { AnimateIn } from './animations'
 import type { ActionHandler, ComponentMap, RendererContext } from './context'
 import { MdocUIProvider } from './context'
 import { defaultComponents } from './defaults'
+import { MdocUIErrorBoundary } from './error-boundary'
 import { SimpleMarkdown } from './prose'
 
 export interface RendererProps {
@@ -132,16 +134,21 @@ function renderComponentNode(
 			: undefined
 
 	return (
-		<Component
-			key={key}
-			name={node.name}
-			props={node.props}
-			className={classNames?.[node.name]}
-			onAction={ctx.onAction}
-			isStreaming={ctx.isStreaming}
-		>
-			{children}
-		</Component>
+		<div key={key} style={{ display: 'contents' }}>
+			<AnimateIn isStreaming={ctx.isStreaming}>
+				<MdocUIErrorBoundary componentName={node.name} resetKey={key}>
+					<Component
+						name={node.name}
+						props={node.props}
+						className={classNames?.[node.name]}
+						onAction={ctx.onAction}
+						isStreaming={ctx.isStreaming}
+					>
+						{children}
+					</Component>
+				</MdocUIErrorBoundary>
+			</AnimateIn>
+		</div>
 	)
 }
 

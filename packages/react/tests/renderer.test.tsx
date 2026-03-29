@@ -1,6 +1,7 @@
 import type { ActionEvent, ASTNode } from '@mdocui/core'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import type { ComponentProps } from '../src/context'
 import { defaultComponents } from '../src/defaults'
 import { Renderer } from '../src/renderer'
 
@@ -180,5 +181,95 @@ describe('Renderer', () => {
 			/>,
 		)
 		expect(screen.getByText('**bold**').tagName).toBe('EM')
+	})
+})
+
+describe('Component merging', () => {
+	it('uses all defaults when no custom components are passed', () => {
+		const nodes: ASTNode[] = [
+			{
+				type: 'component',
+				name: 'button',
+				props: { action: 'go', label: 'Default Button' },
+				children: [],
+				selfClosing: true,
+			},
+			{
+				type: 'component',
+				name: 'badge',
+				props: { label: 'Status' },
+				children: [],
+				selfClosing: true,
+			},
+		]
+		render(<Renderer nodes={nodes} />)
+		expect(screen.getByText('Default Button')).toBeDefined()
+		expect(screen.getByText('Status')).toBeDefined()
+	})
+
+	it('overrides one default component while keeping others', () => {
+		function CustomButton({ props }: ComponentProps) {
+			return <span data-testid="custom-button">{String(props.label)}-custom</span>
+		}
+
+		const nodes: ASTNode[] = [
+			{
+				type: 'component',
+				name: 'button',
+				props: { action: 'go', label: 'Click' },
+				children: [],
+				selfClosing: true,
+			},
+			{
+				type: 'component',
+				name: 'badge',
+				props: { label: 'Info' },
+				children: [],
+				selfClosing: true,
+			},
+		]
+		render(<Renderer nodes={nodes} components={{ button: CustomButton }} />)
+
+		// Custom button component is used
+		expect(screen.getByTestId('custom-button')).toBeDefined()
+		expect(screen.getByText('Click-custom')).toBeDefined()
+
+		// Default badge component still works
+		expect(screen.getByText('Info')).toBeDefined()
+	})
+})
+
+describe('Default prose rendering', () => {
+	it('uses SimpleMarkdown when no renderProse is provided', () => {
+		const nodes: ASTNode[] = [{ type: 'prose', content: 'Hello **bold** world' }]
+		const { container } = render(<Renderer nodes={nodes} />)
+
+		// SimpleMarkdown wraps content in [data-mdocui-prose]
+		expect(container.querySelector('[data-mdocui-prose]')).toBeTruthy()
+		// Bold text is rendered as <strong>
+		const strong = container.querySelector('strong')
+		expect(strong).toBeTruthy()
+		expect(strong?.textContent).toBe('bold')
+	})
+
+	it('renderProse override replaces SimpleMarkdown completely', () => {
+		const nodes: ASTNode[] = [{ type: 'prose', content: 'Hello **bold** world' }]
+		const { container } = render(
+			<Renderer
+				nodes={nodes}
+				renderProse={(content, key) => (
+					<div key={key} data-testid="custom-prose">
+						{content}
+					</div>
+				)}
+			/>,
+		)
+
+		// Custom renderProse is used instead of SimpleMarkdown
+		expect(screen.getByTestId('custom-prose')).toBeDefined()
+		// Raw markdown is passed through, not parsed
+		expect(screen.getByText('Hello **bold** world')).toBeDefined()
+		// SimpleMarkdown's data attribute is not present
+		expect(container.querySelector('[data-mdocui-prose]')).toBeNull()
 	})
 })

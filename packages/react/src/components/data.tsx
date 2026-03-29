@@ -8,7 +8,14 @@ export function Chart({ props, className }: ComponentProps) {
 	const max = values.reduce((a, b) => Math.max(a, b), 1)
 
 	return (
-		<div className={className} data-mdocui-chart data-type={type} style={{ padding: '12px 0' }}>
+		<div
+			className={className}
+			data-mdocui-chart
+			data-type={type}
+			role="img"
+			aria-label={title ?? `${type} chart`}
+			style={{ padding: '12px 0' }}
+		>
 			{title && <div style={{ fontWeight: 600, marginBottom: '12px' }}>{title}</div>}
 			{(type === 'bar' || type === 'line') && (
 				<div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '140px' }}>
@@ -138,7 +145,15 @@ export function Progress({ props, className }: ComponentProps) {
 	const pct = Math.min(100, Math.max(0, (value / max) * 100))
 
 	return (
-		<div className={className} data-mdocui-progress>
+		<div
+			className={className}
+			data-mdocui-progress
+			role="progressbar"
+			aria-valuenow={value}
+			aria-valuemin={0}
+			aria-valuemax={max}
+			aria-label={label ?? 'Progress'}
+		>
 			{label && (
 				<div
 					style={{

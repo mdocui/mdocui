@@ -39,6 +39,7 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 				color: 'inherit',
 				background: 'none',
 				border: '1px solid currentColor',
+				outline: 'revert',
 			}}
 		>
 			{label}
@@ -53,6 +54,8 @@ export function ButtonGroup({ props, className, children }: ComponentProps) {
 		<div
 			className={className}
 			data-mdocui-button-group
+			role="group"
+			aria-label={(props.label as string) ?? undefined}
 			style={{
 				display: 'flex',
 				flexDirection: direction === 'vertical' ? 'column' : 'row',
@@ -85,6 +88,8 @@ export function Input({ props, className }: ComponentProps) {
 				type={type}
 				placeholder={placeholder}
 				required={required}
+				aria-required={required || undefined}
+				aria-label={label ? undefined : name}
 				style={{
 					width: '100%',
 					padding: '8px 12px',
@@ -121,6 +126,8 @@ export function Textarea({ props, className }: ComponentProps) {
 				placeholder={placeholder}
 				rows={rows}
 				required={required}
+				aria-required={required || undefined}
+				aria-label={label ? undefined : name}
 				style={{
 					width: '100%',
 					padding: '8px 12px',
@@ -200,6 +207,8 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 				id={id}
 				name={name}
 				required={required}
+				aria-required={required || undefined}
+				aria-label={label ? undefined : name}
 				onChange={handleChange}
 				style={{
 					width: '100%',
@@ -282,6 +291,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 				data-mdocui-form
 				data-name={formName}
 				data-submitted
+				aria-hidden="true"
 				style={{
 					display: 'flex',
 					flexDirection: 'column',
@@ -300,6 +310,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 			className={className}
 			data-mdocui-form
 			data-name={formName}
+			aria-label={`${formName} form`}
 			onSubmit={handleSubmit}
 			style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
 		>

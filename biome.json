@@ -9,6 +9,10 @@
 			"recommended": true,
 			"suspicious": {
 				"noArrayIndexKey": "off"
+			},
+			"a11y": {
+				"useSemanticElements": "warn",
+				"useAriaPropsSupportedByRole": "warn"
 			}
 		}
 	},
