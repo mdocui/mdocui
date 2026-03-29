@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { StreamingParser } from '../src/parser'
 import type { ComponentNode, ProseNode } from '../src/types'
 
-const knownTags = new Set(['button', 'callout', 'chart', 'table'])
+const knownTags = new Set(['button', 'callout', 'card', 'chart', 'grid', 'stat', 'table'])
 
 describe('StreamingParser', () => {
 	it('parses prose-only input', () => {
@@ -87,9 +87,56 @@ describe('StreamingParser', () => {
 		expect(n3).toHaveLength(1)
 		const node = n3[0] as ComponentNode
 		expect(node.name).toBe('callout')
-		expect(node.children).toHaveLength(2)
-		expect((node.children[0] as ProseNode).content).toBe('Hello ')
-		expect((node.children[1] as ProseNode).content).toBe('world')
+		expect(node.children).toHaveLength(1)
+		expect((node.children[0] as ProseNode).content).toBe('Hello world')
+	})
+
+	it('merges consecutive prose across multiple write() calls', () => {
+		const p = new StreamingParser({ knownTags })
+		const chunks = ['Hello ', 'world, ', 'here is ', 'your ', 'visibility ', 'report.']
+
+		for (const chunk of chunks) {
+			p.write(chunk)
+		}
+		p.flush()
+
+		const nodes = p.getNodes()
+		const proseNodes = nodes.filter((n) => n.type === 'prose')
+		expect(proseNodes).toHaveLength(1)
+		expect((proseNodes[0] as ProseNode).content).toBe(
+			'Hello world, here is your visibility report.',
+		)
+	})
+
+	it('does not merge prose across component boundaries', () => {
+		const p = new StreamingParser({ knownTags })
+		p.write('Before ')
+		p.write('{% button action="go" label="Click" /%}')
+		p.write('After')
+		p.flush()
+
+		const nodes = p.getNodes()
+		expect(nodes).toHaveLength(3)
+		expect(nodes[0].type).toBe('prose')
+		expect((nodes[0] as ProseNode).content).toBe('Before ')
+		expect(nodes[1].type).toBe('component')
+		expect(nodes[2].type).toBe('prose')
+		expect((nodes[2] as ProseNode).content).toBe('After')
+	})
+
+	it('merges prose within body tags across chunks', () => {
+		const p = new StreamingParser({ knownTags })
+		p.write('{% card title="Test" %}')
+		p.write('Line one ')
+		p.write('continues here.')
+		p.write('{% /card %}')
+		p.flush()
+
+		const nodes = p.getNodes()
+		expect(nodes).toHaveLength(1)
+		const card = nodes[0] as ComponentNode
+		expect(card.children).toHaveLength(1)
+		expect((card.children[0] as ProseNode).content).toBe('Line one continues here.')
 	})
 
 	it('force-closes open tags on flush', () => {

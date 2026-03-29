@@ -30,7 +30,20 @@ export class StreamingParser {
 			newNodes.push(...this.processToken(token))
 		}
 
-		this.completedNodes.push(...newNodes)
+		// Merge leading prose node with last completed node if both are prose
+		if (
+			newNodes.length > 0 &&
+			newNodes[0].type === 'prose' &&
+			this.completedNodes.length > 0 &&
+			this.completedNodes[this.completedNodes.length - 1].type === 'prose'
+		) {
+			const lastCompleted = this.completedNodes[this.completedNodes.length - 1] as ProseNode
+			lastCompleted.content += (newNodes[0] as ProseNode).content
+			this.completedNodes.push(...newNodes.slice(1))
+		} else {
+			this.completedNodes.push(...newNodes)
+		}
+
 		return newNodes
 	}
 
@@ -105,11 +118,14 @@ export class StreamingParser {
 	private handleProse(content: string, out: ASTNode[]): void {
 		if (content.length === 0) return
 
-		const node: ProseNode = { type: 'prose', content }
-		if (this.isInBody()) {
-			this.currentFrame().children.push(node)
+		const target = this.isInBody() ? this.currentFrame().children : out
+		const last = target.length > 0 ? target[target.length - 1] : null
+
+		// Merge consecutive prose nodes instead of creating fragments
+		if (last && last.type === 'prose') {
+			last.content += content
 		} else {
-			out.push(node)
+			target.push({ type: 'prose', content } as ProseNode)
 		}
 	}
 

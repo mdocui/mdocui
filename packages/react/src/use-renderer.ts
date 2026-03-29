@@ -11,6 +11,7 @@ export interface UseRendererReturn {
 	meta: ParseMeta
 	isStreaming: boolean
 	push: (chunk: string) => void
+	replaceContent: (content: string) => void
 	done: () => void
 	reset: () => void
 }
@@ -57,6 +58,22 @@ export function useRenderer({ registry }: UseRendererOptions): UseRendererReturn
 		setIsStreaming(false)
 	}, [getParser])
 
+	const replaceContent = useCallback(
+		(content: string) => {
+			if (!streamingRef.current) {
+				streamingRef.current = true
+				setIsStreaming(true)
+			}
+			parserRef.current?.reset()
+			parserRef.current = null
+			const parser = getParser()
+			parser.write(content)
+			setNodes([...parser.getNodes()])
+			setMeta(parser.getMeta())
+		},
+		[getParser],
+	)
+
 	const reset = useCallback(() => {
 		parserRef.current?.reset()
 		parserRef.current = null
@@ -66,5 +83,5 @@ export function useRenderer({ registry }: UseRendererOptions): UseRendererReturn
 		setIsStreaming(false)
 	}, [])
 
-	return { nodes, meta, isStreaming, push, done, reset }
+	return { nodes, meta, isStreaming, push, replaceContent, done, reset }
 }
