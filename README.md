@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://mdocui.github.io">Documentation</a> · <a href="https://mdocui-demo.vercel.app">Live Demo</a> · <a href="https://www.npmjs.com/org/mdocui">npm</a>
+  <a href="https://mdocui.github.io">Documentation</a> · <a href="https://mdocui.vercel.app">Live Demo</a> · <a href="https://www.npmjs.com/org/mdocui">npm</a>
 </p>
 
 Generative UI library for LLMs using Markdoc `{% %}` tag syntax inline with markdown prose.
