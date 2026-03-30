@@ -233,5 +233,46 @@ describe('StreamingParser', () => {
 			p.reset()
 			expect(p.getMeta().errors).toHaveLength(0)
 		})
+
+		it('exposes pendingTag when tokenizer is buffering a tag', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('Hello {% chart labels=[')
+			const meta = p.getMeta()
+			expect(meta.isComplete).toBe(false)
+			expect(meta.pendingTag).toBe('chart')
+			expect(meta.bufferLength).toBeGreaterThan(0)
+		})
+
+		it('pendingTag is undefined when not buffering', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('Hello world')
+			const meta = p.getMeta()
+			expect(meta.isComplete).toBe(true)
+			expect(meta.pendingTag).toBeUndefined()
+			expect(meta.bufferLength).toBeUndefined()
+		})
+
+		it('pendingTag clears after tag completes', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% chart labels=["A"]')
+			expect(p.getMeta().pendingTag).toBe('chart')
+
+			p.write(' values=[1] /%}')
+			expect(p.getMeta().pendingTag).toBeUndefined()
+			expect(p.getMeta().isComplete).toBe(true)
+		})
+
+		it('handles trailing slash in pendingTag extraction', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% button/')
+			expect(p.getMeta().pendingTag).toBe('button')
+		})
+
+		it('pendingTag is undefined for closing tags', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% callout %}body{% /cal')
+			const meta = p.getMeta()
+			expect(meta.pendingTag).toBeUndefined()
+		})
 	})
 })

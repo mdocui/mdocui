@@ -39,7 +39,6 @@ export function Chart({ props, className }: ComponentProps) {
 									background: 'currentColor',
 									borderRadius: '4px 4px 0 0',
 									minHeight: '4px',
-									opacity: 0.25,
 								}}
 							/>
 							<div style={{ fontSize: '11px', marginTop: '6px', opacity: 0.5 }}>{labels[i]}</div>

@@ -57,6 +57,8 @@ export interface ParseMeta {
 	errors: ParseError[]
 	nodeCount: number
 	isComplete: boolean
+	pendingTag?: string
+	bufferLength?: number
 }
 
 export interface ValidationResult {

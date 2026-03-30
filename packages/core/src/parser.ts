@@ -80,10 +80,27 @@ export class StreamingParser {
 	}
 
 	getMeta(): ParseMeta {
+		const tokenizerState = this.tokenizer.getState()
+		const buffer = this.tokenizer.getBuffer()
+		const isBuffering = tokenizerState === 'IN_TAG' || tokenizerState === 'IN_STRING'
+
+		let pendingTag: string | undefined
+		if (isBuffering && buffer.length > 2) {
+			const inner = buffer.slice(2).trim()
+			const spaceIdx = inner.indexOf(' ')
+			const rawName = spaceIdx === -1 ? inner : inner.slice(0, spaceIdx)
+			const name = rawName.endsWith('/') ? rawName.slice(0, -1) : rawName
+			if (name && !name.startsWith('/')) {
+				pendingTag = name
+			}
+		}
+
 		return {
 			errors: [...this.errors],
 			nodeCount: this.completedNodes.length,
-			isComplete: this.bodyStack.length === 0,
+			isComplete: this.bodyStack.length === 0 && !isBuffering,
+			pendingTag: isBuffering ? pendingTag : undefined,
+			bufferLength: isBuffering ? buffer.length : undefined,
 		}
 	}
 

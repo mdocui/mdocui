@@ -1,4 +1,4 @@
-import type { ASTNode, ComponentNode, ProseNode } from '@mdocui/core'
+import type { ASTNode, ComponentNode, ParseMeta, ProseNode } from '@mdocui/core'
 import React, { useMemo } from 'react'
 import { AnimateIn } from './animations'
 import type { ActionHandler, ComponentMap, RendererContext } from './context'
@@ -6,13 +6,16 @@ import { MdocUIProvider } from './context'
 import { defaultComponents } from './defaults'
 import { MdocUIErrorBoundary } from './error-boundary'
 import { SimpleMarkdown } from './prose'
+import { ComponentShimmer } from './shimmer'
 
 export interface RendererProps {
 	nodes: ASTNode[]
 	components?: ComponentMap
 	onAction?: ActionHandler
 	isStreaming?: boolean
+	meta?: ParseMeta
 	renderProse?: (content: string, key: string) => React.ReactNode
+	renderPendingComponent?: ((pendingTag?: string) => React.ReactNode) | null
 	classNames?: Record<string, string>
 }
 
@@ -21,7 +24,9 @@ export function Renderer({
 	components,
 	onAction = noop,
 	isStreaming = false,
+	meta,
 	renderProse,
+	renderPendingComponent,
 	classNames,
 }: RendererProps) {
 	const merged = useMemo<ComponentMap>(
@@ -60,6 +65,15 @@ export function Renderer({
 							: `prose-${idx}`
 					return renderNode(item.node, nodeKey, ctx, renderProse, classNames)
 				})}
+				{isStreaming && meta?.pendingTag && renderPendingComponent !== null && (
+					<div key="mdocui-shimmer">
+						{renderPendingComponent ? (
+							renderPendingComponent(meta.pendingTag)
+						) : (
+							<ComponentShimmer pendingTag={meta.pendingTag} />
+						)}
+					</div>
+				)}
 			</div>
 		</MdocUIProvider>
 	)
