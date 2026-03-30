@@ -2,53 +2,58 @@ import { createElement } from 'react'
 
 /**
  * Lightweight built-in markdown renderer for prose nodes.
- * Handles bold, italic, inline code, links, headings (h1-h3),
- * unordered lists, and paragraph breaks. No external dependencies.
+ * Handles bold, italic, bold+italic, strikethrough, inline code,
+ * links, headings (h1-h3), unordered and ordered lists, and
+ * paragraph breaks. No external dependencies.
  *
  * Consumers who need full GFM support can override via the
  * `renderProse` prop on the Renderer.
  */
 
 interface InlineToken {
-	type: 'text' | 'bold' | 'italic' | 'code' | 'link'
+	type: 'text' | 'bold' | 'italic' | 'bolditalic' | 'strikethrough' | 'code' | 'link'
 	content: string
 	href?: string
 }
 
 function parseInline(text: string): InlineToken[] {
 	const tokens: InlineToken[] = []
-	// Order matters: bold before italic so ** is matched first
+	// Order matters: bold+italic (***) before bold (**) before italic (*)
 	const pattern =
-		/(\*\*(.+?)\*\*|__(.+?)__)|(\*(.+?)\*|_([^_]+?)_)|(`([^`]+?)`)|(\[([^\]]+?)\]\(([^)]+?)\))/g
+		/(\*\*\*(.+?)\*\*\*|___(.+?)___)|(~~(.+?)~~)|(\*\*(.+?)\*\*|__(.+?)__)|(\*(.+?)\*|_([^_]+?)_)|(`([^`]+?)`)|(\[([^\]]+?)\]\(([^)]+?)\))/g
 
 	let lastIndex = 0
 	let match: RegExpExecArray | null = pattern.exec(text)
 
 	while (match !== null) {
-		// Push any plain text before this match
 		if (match.index > lastIndex) {
 			tokens.push({ type: 'text', content: text.slice(lastIndex, match.index) })
 		}
 
 		if (match[1]) {
-			// Bold: **text** or __text__
-			tokens.push({ type: 'bold', content: match[2] ?? match[3] })
+			// Bold+italic: ***text*** or ___text___
+			tokens.push({ type: 'bolditalic', content: match[2] ?? match[3] })
 		} else if (match[4]) {
-			// Italic: *text* or _text_
-			tokens.push({ type: 'italic', content: match[5] ?? match[6] })
-		} else if (match[7]) {
-			// Inline code: `code`
-			tokens.push({ type: 'code', content: match[8] })
+			// Strikethrough: ~~text~~
+			tokens.push({ type: 'strikethrough', content: match[5] })
+		} else if (match[6]) {
+			// Bold: **text** or __text__
+			tokens.push({ type: 'bold', content: match[7] ?? match[8] })
 		} else if (match[9]) {
+			// Italic: *text* or _text_
+			tokens.push({ type: 'italic', content: match[10] ?? match[11] })
+		} else if (match[12]) {
+			// Inline code: `code`
+			tokens.push({ type: 'code', content: match[13] })
+		} else if (match[14]) {
 			// Link: [text](url)
-			tokens.push({ type: 'link', content: match[10], href: match[11] })
+			tokens.push({ type: 'link', content: match[15], href: match[16] })
 		}
 
 		lastIndex = match.index + match[0].length
 		match = pattern.exec(text)
 	}
 
-	// Remaining plain text
 	if (lastIndex < text.length) {
 		tokens.push({ type: 'text', content: text.slice(lastIndex) })
 	}
@@ -60,10 +65,14 @@ function renderInline(tokens: InlineToken[], keyPrefix: string): React.ReactNode
 	return tokens.map((token, i) => {
 		const key = `${keyPrefix}-${i}`
 		switch (token.type) {
+			case 'bolditalic':
+				return createElement('strong', { key }, createElement('em', null, token.content))
 			case 'bold':
 				return createElement('strong', { key }, token.content)
 			case 'italic':
 				return createElement('em', { key }, token.content)
+			case 'strikethrough':
+				return createElement('del', { key }, token.content)
 			case 'code':
 				return createElement(
 					'code',
@@ -91,51 +100,107 @@ function renderInline(tokens: InlineToken[], keyPrefix: string): React.ReactNode
 }
 
 interface Block {
-	type: 'heading' | 'list' | 'paragraph'
+	type: 'heading' | 'ulist' | 'olist' | 'paragraph'
 	level?: number // for headings: 1-3
 	items?: string[] // for lists
 	content?: string // for heading / paragraph
 }
 
+const HEADING_RE = /^(#{1,3})\s+(.+)$/
+const UL_RE = /^\s*[-*]\s+(.+)$/
+const OL_RE = /^\s*\d+[.)]\s+(.+)$/
+
 function parseBlocks(content: string): Block[] {
-	// Split on double newline for paragraphs
-	const paragraphs = content.split(/\n{2,}/)
+	const lines = content.split('\n')
 	const blocks: Block[] = []
+	let paraLines: string[] = []
 
-	for (const para of paragraphs) {
-		const trimmed = para.trim()
-		if (!trimmed) continue
+	const flushParagraph = () => {
+		if (paraLines.length > 0) {
+			const text = paraLines.join('\n').trim()
+			if (text) {
+				blocks.push({ type: 'paragraph', content: text })
+			}
+			paraLines = []
+		}
+	}
 
-		// Check for heading (# through ###)
-		const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/)
+	let i = 0
+	while (i < lines.length) {
+		const line = lines[i]
+		const trimmed = line.trim()
+
+		// Blank line — flush current paragraph
+		if (!trimmed) {
+			flushParagraph()
+			i++
+			continue
+		}
+
+		// Heading
+		const headingMatch = trimmed.match(HEADING_RE)
 		if (headingMatch) {
+			flushParagraph()
 			blocks.push({
 				type: 'heading',
 				level: headingMatch[1].length,
 				content: headingMatch[2],
 			})
+			i++
 			continue
 		}
 
-		// Check for unordered list (all lines start with - or *)
-		const lines = trimmed.split('\n')
-		const listPattern = /^\s*[-*]\s+(.+)$/
-		const isAllList = lines.every((line) => listPattern.test(line.trim()) || line.trim() === '')
-		if (isAllList && lines.some((line) => listPattern.test(line.trim()))) {
-			const items = lines
-				.map((line) => {
-					const m = line.trim().match(listPattern)
-					return m ? m[1] : null
-				})
-				.filter((item): item is string => item !== null)
-			blocks.push({ type: 'list', items })
+		// Unordered list — collect consecutive list items
+		const ulMatch = trimmed.match(UL_RE)
+		if (ulMatch) {
+			flushParagraph()
+			const items: string[] = [ulMatch[1]]
+			i++
+			while (i < lines.length) {
+				const nextTrimmed = lines[i].trim()
+				const nextUl = nextTrimmed.match(UL_RE)
+				if (nextUl) {
+					items.push(nextUl[1])
+					i++
+				} else if (!nextTrimmed) {
+					// blank line ends the list
+					break
+				} else {
+					break
+				}
+			}
+			blocks.push({ type: 'ulist', items })
 			continue
 		}
 
-		// Default: paragraph
-		blocks.push({ type: 'paragraph', content: trimmed })
+		// Ordered list — collect consecutive list items
+		const olMatch = trimmed.match(OL_RE)
+		if (olMatch) {
+			flushParagraph()
+			const items: string[] = [olMatch[1]]
+			i++
+			while (i < lines.length) {
+				const nextTrimmed = lines[i].trim()
+				const nextOl = nextTrimmed.match(OL_RE)
+				if (nextOl) {
+					items.push(nextOl[1])
+					i++
+				} else if (!nextTrimmed) {
+					break
+				} else {
+					break
+				}
+			}
+			blocks.push({ type: 'olist', items })
+			continue
+		}
+
+		// Regular text — accumulate into paragraph
+		paraLines.push(line)
+		i++
 	}
 
+	flushParagraph()
 	return blocks
 }
 
@@ -164,7 +229,7 @@ export function SimpleMarkdown({ content, dataKey }: SimpleMarkdownProps): React
 					return createElement(tag, { key: blockKey }, ...renderInline(inlineTokens, blockKey))
 				}
 
-				case 'list': {
+				case 'ulist': {
 					return createElement(
 						'ul',
 						{ key: blockKey, style: { margin: '0.25em 0', paddingLeft: '1.5em' } },
@@ -176,9 +241,19 @@ export function SimpleMarkdown({ content, dataKey }: SimpleMarkdownProps): React
 					)
 				}
 
+				case 'olist': {
+					return createElement(
+						'ol',
+						{ key: blockKey, style: { margin: '0.25em 0', paddingLeft: '1.5em' } },
+						(block.items ?? []).map((item, li) => {
+							const liKey = `${blockKey}-li${li}`
+							const inlineTokens = parseInline(item)
+							return createElement('li', { key: liKey }, ...renderInline(inlineTokens, liKey))
+						}),
+					)
+				}
+
 				default: {
-					const inlineTokens = parseInline(block.content ?? '')
-					// Replace single newlines with <br> within a paragraph
 					const text = block.content ?? ''
 					if (text.includes('\n')) {
 						const sublines = text.split('\n')
@@ -192,6 +267,7 @@ export function SimpleMarkdown({ content, dataKey }: SimpleMarkdownProps): React
 						})
 						return createElement('p', { key: blockKey, style: { margin: '0.25em 0' } }, ...children)
 					}
+					const inlineTokens = parseInline(text)
 					return createElement(
 						'p',
 						{ key: blockKey, style: { margin: '0.25em 0' } },

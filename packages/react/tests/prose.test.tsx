@@ -35,6 +35,35 @@ describe('SimpleMarkdown', () => {
 		})
 	})
 
+	describe('bold+italic rendering', () => {
+		it('renders ***text*** as <strong><em>', () => {
+			const { container } = render(<SimpleMarkdown content="Hello ***world***" dataKey="bi1" />)
+			const strong = container.querySelector('strong')
+			const em = strong?.querySelector('em')
+			expect(strong).toBeTruthy()
+			expect(em).toBeTruthy()
+			expect(em?.textContent).toBe('world')
+		})
+
+		it('renders ___text___ as <strong><em>', () => {
+			const { container } = render(<SimpleMarkdown content="Hello ___world___" dataKey="bi2" />)
+			const strong = container.querySelector('strong')
+			const em = strong?.querySelector('em')
+			expect(strong).toBeTruthy()
+			expect(em).toBeTruthy()
+			expect(em?.textContent).toBe('world')
+		})
+	})
+
+	describe('strikethrough rendering', () => {
+		it('renders ~~text~~ as <del>', () => {
+			const { container } = render(<SimpleMarkdown content="Hello ~~world~~" dataKey="s1" />)
+			const del = container.querySelector('del')
+			expect(del).toBeTruthy()
+			expect(del?.textContent).toBe('world')
+		})
+	})
+
 	describe('inline code', () => {
 		it('renders `code` as <code>', () => {
 			const { container } = render(<SimpleMarkdown content="Use `npm install`" dataKey="t5" />)
@@ -79,6 +108,28 @@ describe('SimpleMarkdown', () => {
 			expect(h3).toBeTruthy()
 			expect(h3?.textContent).toBe('Section')
 		})
+
+		it('renders heading followed by content on single newline', () => {
+			const { container } = render(
+				<SimpleMarkdown content={'### Order Summary\n- **Item:** Shirt\n- **Price:** $25.99'} dataKey="h-fix" />,
+			)
+			const h3 = container.querySelector('h3')
+			expect(h3).toBeTruthy()
+			expect(h3?.textContent).toBe('Order Summary')
+			const items = container.querySelectorAll('li')
+			expect(items.length).toBe(2)
+		})
+
+		it('renders heading between paragraphs without blank lines', () => {
+			const { container } = render(
+				<SimpleMarkdown content={'Some text\n## Heading\nMore text'} dataKey="h-mid" />,
+			)
+			const h2 = container.querySelector('h2')
+			expect(h2).toBeTruthy()
+			expect(h2?.textContent).toBe('Heading')
+			const paragraphs = container.querySelectorAll('p')
+			expect(paragraphs.length).toBe(2)
+		})
 	})
 
 	describe('unordered lists', () => {
@@ -93,6 +144,53 @@ describe('SimpleMarkdown', () => {
 			expect(items[0].textContent).toBe('Alpha')
 			expect(items[1].textContent).toBe('Beta')
 			expect(items[2].textContent).toBe('Gamma')
+		})
+
+		it('renders * items as <ul><li>', () => {
+			const { container } = render(
+				<SimpleMarkdown content={'* First\n* Second'} dataKey="ul-star" />,
+			)
+			const ul = container.querySelector('ul')
+			expect(ul).toBeTruthy()
+			const items = container.querySelectorAll('li')
+			expect(items.length).toBe(2)
+		})
+
+		it('renders list after paragraph with single newline', () => {
+			const { container } = render(
+				<SimpleMarkdown content={'Here are items:\n- One\n- Two\n- Three'} dataKey="ul-after" />,
+			)
+			const ul = container.querySelector('ul')
+			expect(ul).toBeTruthy()
+			const items = container.querySelectorAll('li')
+			expect(items.length).toBe(3)
+			const p = container.querySelector('p')
+			expect(p?.textContent).toBe('Here are items:')
+		})
+	})
+
+	describe('ordered lists', () => {
+		it('renders 1. items as <ol><li>', () => {
+			const { container } = render(
+				<SimpleMarkdown content={'1. First\n2. Second\n3. Third'} dataKey="ol1" />,
+			)
+			const ol = container.querySelector('ol')
+			expect(ol).toBeTruthy()
+			const items = container.querySelectorAll('li')
+			expect(items.length).toBe(3)
+			expect(items[0].textContent).toBe('First')
+			expect(items[1].textContent).toBe('Second')
+			expect(items[2].textContent).toBe('Third')
+		})
+
+		it('renders 1) items as <ol><li>', () => {
+			const { container } = render(
+				<SimpleMarkdown content={'1) Alpha\n2) Beta'} dataKey="ol2" />,
+			)
+			const ol = container.querySelector('ol')
+			expect(ol).toBeTruthy()
+			const items = container.querySelectorAll('li')
+			expect(items.length).toBe(2)
 		})
 	})
 
@@ -116,6 +214,24 @@ describe('SimpleMarkdown', () => {
 			expect(container.querySelector('strong')?.textContent).toBe('bold')
 			expect(container.querySelector('em')?.textContent).toBe('italic')
 			expect(container.querySelector('code')?.textContent).toBe('code')
+		})
+	})
+
+	describe('mixed block types', () => {
+		it('renders heading + list + paragraph without blank lines', () => {
+			const content = '### Summary\n- Item A\n- Item B\nSome closing text.'
+			const { container } = render(<SimpleMarkdown content={content} dataKey="mix1" />)
+			expect(container.querySelector('h3')?.textContent).toBe('Summary')
+			expect(container.querySelectorAll('li').length).toBe(2)
+			expect(container.querySelector('p')?.textContent).toBe('Some closing text.')
+		})
+
+		it('renders multiple headings with content between them', () => {
+			const content = '# Main\nIntro text\n## Section\n- Point 1\n- Point 2'
+			const { container } = render(<SimpleMarkdown content={content} dataKey="mix2" />)
+			expect(container.querySelector('h1')?.textContent).toBe('Main')
+			expect(container.querySelector('h2')?.textContent).toBe('Section')
+			expect(container.querySelectorAll('li').length).toBe(2)
 		})
 	})
 
