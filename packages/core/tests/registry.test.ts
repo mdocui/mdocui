@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 import { ComponentRegistry, defineComponent } from '../src/registry'
+import { table, chart, tabs, select } from '../src/definitions'
 
 const buttonDef = defineComponent({
 	name: 'button',
@@ -80,5 +81,62 @@ describe('ComponentRegistry', () => {
 		const result = reg.validate('unknown', {})
 		expect(result.valid).toBe(false)
 		expect(result.errors).toEqual(['Unknown component: unknown'])
+	})
+})
+
+describe('Coercion in built-in definitions', () => {
+	it('coerces numbers to strings in table rows', () => {
+			const reg = new ComponentRegistry()
+		reg.register(table)
+		const result = reg.validate('table', {
+			headers: ['Product', 'Units', 'Revenue'],
+			rows: [['Shoes', 842, '$33,680'], ['Hats', 631, '$18,930']],
+		})
+		expect(result.valid).toBe(true)
+		expect(result.props?.rows).toEqual([['Shoes', '842', '$33,680'], ['Hats', '631', '$18,930']])
+	})
+
+	it('coerces numbers to strings in table headers', () => {
+			const reg = new ComponentRegistry()
+		reg.register(table)
+		const result = reg.validate('table', {
+			headers: [1, 2, 3],
+			rows: [['a', 'b', 'c']],
+		})
+		expect(result.valid).toBe(true)
+		expect(result.props?.headers).toEqual(['1', '2', '3'])
+	})
+
+	it('coerces string values to numbers in chart', () => {
+			const reg = new ComponentRegistry()
+		reg.register(chart)
+		const result = reg.validate('chart', {
+			type: 'bar',
+			labels: ['Q1', 'Q2'],
+			values: ['100', '200'],
+		})
+		expect(result.valid).toBe(true)
+		expect(result.props?.values).toEqual([100, 200])
+	})
+
+	it('coerces numbers to strings in tabs labels', () => {
+			const reg = new ComponentRegistry()
+		reg.register(tabs)
+		const result = reg.validate('tabs', {
+			labels: [2024, 2025, 2026],
+		})
+		expect(result.valid).toBe(true)
+		expect(result.props?.labels).toEqual(['2024', '2025', '2026'])
+	})
+
+	it('coerces numbers to strings in select options', () => {
+			const reg = new ComponentRegistry()
+		reg.register(select)
+		const result = reg.validate('select', {
+			name: 'qty',
+			options: [1, 2, 3, 4, 5],
+		})
+		expect(result.valid).toBe(true)
+		expect(result.props?.options).toEqual(['1', '2', '3', '4', '5'])
 	})
 })

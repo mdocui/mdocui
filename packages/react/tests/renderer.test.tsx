@@ -239,6 +239,67 @@ describe('Component merging', () => {
 	})
 })
 
+describe('Child key uniqueness', () => {
+	it('generates unique keys for children of same-type siblings', () => {
+		const nodes: ASTNode[] = [
+			{
+				type: 'component',
+				name: 'grid',
+				props: { cols: 2 },
+				children: [
+					{
+						type: 'component',
+						name: 'card',
+						props: { title: 'Card A' },
+						children: [
+							{ type: 'component', name: 'stat', props: { label: 'Revenue', value: '$1M' }, children: [], selfClosing: true },
+							{ type: 'component', name: 'chart', props: { type: 'bar', labels: ['A'], values: [1] }, children: [], selfClosing: true },
+						],
+						selfClosing: false,
+					},
+					{
+						type: 'component',
+						name: 'card',
+						props: { title: 'Card B' },
+						children: [
+							{ type: 'component', name: 'chart', props: { type: 'bar', labels: ['B'], values: [2] }, children: [], selfClosing: true },
+							{ type: 'component', name: 'stat', props: { label: 'Orders', value: '500' }, children: [], selfClosing: true },
+						],
+						selfClosing: false,
+					},
+				],
+				selfClosing: false,
+			},
+		]
+		// Should render without React key warnings
+		const { container } = render(<Renderer nodes={nodes} components={defaultComponents} />)
+		expect(container.querySelectorAll('[data-mdocui-card]').length).toBe(2)
+		expect(container.querySelectorAll('[data-mdocui-stat]').length).toBe(2)
+		expect(container.querySelectorAll('[data-mdocui-chart]').length).toBe(2)
+	})
+
+	it('generates unique keys for mixed prose and component children', () => {
+		const nodes: ASTNode[] = [
+			{
+				type: 'component',
+				name: 'card',
+				props: { title: 'Mixed' },
+				children: [
+					{ type: 'prose', content: 'Intro text' },
+					{ type: 'component', name: 'stat', props: { label: 'X', value: '1' }, children: [], selfClosing: true },
+					{ type: 'prose', content: 'Middle text' },
+					{ type: 'component', name: 'stat', props: { label: 'Y', value: '2' }, children: [], selfClosing: true },
+				],
+				selfClosing: false,
+			},
+		]
+		const { container } = render(<Renderer nodes={nodes} components={defaultComponents} />)
+		expect(container.querySelectorAll('[data-mdocui-stat]').length).toBe(2)
+		expect(screen.getByText('Intro text')).toBeDefined()
+		expect(screen.getByText('Middle text')).toBeDefined()
+	})
+})
+
 describe('Default prose rendering', () => {
 	it('uses SimpleMarkdown when no renderProse is provided', () => {
 		const nodes: ASTNode[] = [{ type: 'prose', content: 'Hello **bold** world' }]

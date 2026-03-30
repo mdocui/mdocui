@@ -58,7 +58,7 @@ export const tabs = defineComponent({
 	name: 'tabs',
 	description: 'Tabbed content container — each child tab has a label',
 	props: z.object({
-		labels: z.array(z.string()).describe('Tab labels in order'),
+		labels: z.array(z.coerce.string()).describe('Tab labels in order'),
 		active: z.number().optional().describe('Zero-based index of active tab'),
 	}),
 	children: ['tab'],
@@ -118,7 +118,7 @@ export const select = defineComponent({
 	props: z.object({
 		name: z.string().describe('Field name for form state'),
 		label: z.string().optional().describe('Select label'),
-		options: z.array(z.string()).describe('List of option values'),
+		options: z.array(z.coerce.string()).describe('List of option values'),
 		placeholder: z.string().optional().describe('Placeholder text'),
 		required: z.boolean().optional().describe('Whether selection is required'),
 	}),
@@ -177,8 +177,8 @@ export const chart = defineComponent({
 	description: 'Data visualization',
 	props: z.object({
 		type: z.enum(['bar', 'line', 'pie', 'donut']).describe('Chart type'),
-		labels: z.array(z.string()).describe('Category labels'),
-		values: z.array(z.number()).describe('Data values'),
+		labels: z.array(z.coerce.string()).describe('Category labels'),
+		values: z.array(z.coerce.number()).describe('Data values'),
 		title: z.string().optional().describe('Chart title'),
 	}),
 	children: 'none',
@@ -188,8 +188,8 @@ export const table = defineComponent({
 	name: 'table',
 	description: 'Data table with headers and rows',
 	props: z.object({
-		headers: z.array(z.string()).describe('Column header labels'),
-		rows: z.array(z.array(z.string())).describe('Row data as string arrays'),
+		headers: z.array(z.coerce.string()).describe('Column header labels'),
+		rows: z.array(z.array(z.coerce.string())).describe('Row data as string arrays'),
 		caption: z.string().optional().describe('Table caption'),
 	}),
 	children: 'none',
