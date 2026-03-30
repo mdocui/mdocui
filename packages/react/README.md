@@ -94,8 +94,52 @@ Renders an `ASTNode[]` tree into React elements using a component map.
 | `components` | `ComponentMap` | all 24 built-ins | Custom components merged on top of defaults (see below) |
 | `onAction` | `ActionHandler` | no-op | Callback for interactive events |
 | `isStreaming` | `boolean` | `false` | Whether the LLM is still streaming |
+| `registry` | `ComponentRegistry` | — | Optional registry for prop validation warnings (dev aid) |
+| `meta` | `ParseMeta` | — | Parse metadata from `useRenderer` — enables shimmer for pending components |
 | `renderProse` | `(content: string, key: string) => ReactNode` | built-in `SimpleMarkdown` | Custom renderer for prose nodes (see below) |
+| `renderPendingComponent` | `((tag?: string) => ReactNode) \| null` | built-in `ComponentShimmer` | Custom shimmer during streaming. Pass `null` to disable |
 | `classNames` | `Record<string, string>` | — | Per-component CSS class overrides |
+
+---
+
+## Prop Validation
+
+Pass a `registry` to get `console.warn` messages when the LLM sends invalid props:
+
+```tsx
+const registry = createDefaultRegistry()
+
+<Renderer nodes={nodes} registry={registry} />
+// console.warn: [mdocui] <chart> invalid props: Expected string, received number
+```
+
+Validation only runs **after streaming ends** and only for components registered in the given registry. No performance cost during streaming, no noise for unregistered components.
+
+---
+
+## Streaming Shimmer
+
+When a component tag is being buffered during streaming, the Renderer shows a skeleton placeholder. Pass `meta` from `useRenderer` to enable it:
+
+```tsx
+const { nodes, meta, isStreaming } = useRenderer({ registry })
+
+<Renderer nodes={nodes} isStreaming={isStreaming} meta={meta} />
+```
+
+Override the shimmer globally:
+
+```tsx
+<Renderer
+  renderPendingComponent={(tag) => <MyShimmer tagName={tag} />}
+/>
+```
+
+Disable it:
+
+```tsx
+<Renderer renderPendingComponent={null} />
+```
 
 ---
 

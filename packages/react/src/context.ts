@@ -1,4 +1,4 @@
-import type { ActionEvent } from '@mdocui/core'
+import type { ActionEvent, ComponentRegistry } from '@mdocui/core'
 import { createContext, useContext } from 'react'
 
 export type ActionHandler = (event: ActionEvent) => void
@@ -17,6 +17,7 @@ export interface RendererContext {
 	components: ComponentMap
 	onAction: ActionHandler
 	isStreaming: boolean
+	registry?: ComponentRegistry
 }
 
 const MdocUIContext = createContext<RendererContext | null>(null)

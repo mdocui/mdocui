@@ -1,4 +1,4 @@
-import type { ASTNode, ComponentNode, ParseMeta, ProseNode } from '@mdocui/core'
+import type { ASTNode, ComponentNode, ComponentRegistry, ParseMeta, ProseNode } from '@mdocui/core'
 import React, { useMemo } from 'react'
 import { AnimateIn } from './animations'
 import type { ActionHandler, ComponentMap, RendererContext } from './context'
@@ -11,6 +11,7 @@ import { ComponentShimmer } from './shimmer'
 export interface RendererProps {
 	nodes: ASTNode[]
 	components?: ComponentMap
+	registry?: ComponentRegistry
 	onAction?: ActionHandler
 	isStreaming?: boolean
 	meta?: ParseMeta
@@ -22,6 +23,7 @@ export interface RendererProps {
 export function Renderer({
 	nodes,
 	components,
+	registry,
 	onAction = noop,
 	isStreaming = false,
 	meta,
@@ -35,8 +37,8 @@ export function Renderer({
 	)
 
 	const ctx = useMemo<RendererContext>(
-		() => ({ components: merged, onAction, isStreaming }),
-		[merged, onAction, isStreaming],
+		() => ({ components: merged, onAction, isStreaming, registry }),
+		[merged, onAction, isStreaming, registry],
 	)
 
 	const grouped = groupConsecutiveButtons(nodes)
@@ -141,6 +143,13 @@ function renderComponentNode(
 ): React.ReactNode {
 	const Component = ctx.components[node.name]
 	if (!Component) return null
+
+	if (ctx.registry && !ctx.isStreaming && ctx.registry.has(node.name)) {
+		const validation = ctx.registry.validate(node.name, node.props)
+		if (!validation.valid) {
+			console.warn(`[mdocui] <${node.name}> invalid props:`, validation.errors.join(', '))
+		}
+	}
 
 	const children =
 		node.children.length > 0
