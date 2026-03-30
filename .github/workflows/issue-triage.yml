@@ -1,0 +1,40 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Assign and label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          TITLE: ${{ github.event.issue.title }}
+          BODY: ${{ github.event.issue.body }}
+        run: |
+          # Auto-assign to pnutmath
+          gh issue edit "$ISSUE_URL" --add-assignee pnutmath
+
+          # Auto-label based on title/body keywords
+          LABELS=""
+
+          CONTENT=$(echo "$TITLE $BODY" | tr '[:upper:]' '[:lower:]')
+
+          if echo "$CONTENT" | grep -qE "bug|crash|error|fail|broken|fix"; then
+            LABELS="bug"
+          elif echo "$CONTENT" | grep -qE "feature|request|add|support|new"; then
+            LABELS="enhancement"
+          elif echo "$CONTENT" | grep -qE "docs|documentation|readme|typo"; then
+            LABELS="documentation"
+          elif echo "$CONTENT" | grep -qE "question|how to|help"; then
+            LABELS="question"
+          fi
+
+          if [ -n "$LABELS" ]; then
+            gh issue edit "$ISSUE_URL" --add-label "$LABELS"
+          fi
