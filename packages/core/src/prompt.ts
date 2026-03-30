@@ -118,40 +118,35 @@ interface ZodField {
 }
 
 function resolveType(def: ZodDef): string {
-	// Zod 4: uses _def.type string instead of _def.typeName
-	const type = (def.type as string) ?? (def.typeName as string) ?? ''
+	const type = (def.type as string) ?? ''
 
-	if (
-		type === 'optional' ||
-		type === 'default' ||
-		type === 'ZodOptional' ||
-		type === 'ZodDefault'
-	) {
+	if (type === 'optional' || type === 'default') {
 		return resolveType(def.innerType?._def ?? {})
 	}
 
-	if (type === 'enum' || type === 'ZodEnum') {
-		// Zod 4: _def.entries is { a: 'a', b: 'b' }; Zod 3: _def.values is ['a', 'b']
+	if (type === 'nullable') {
+		const inner = resolveType(def.innerType?._def ?? {})
+		return inner ? `${inner} | null` : 'null'
+	}
+
+	if (type === 'enum') {
 		const entries = def.entries as Record<string, string> | undefined
-		const values = def.values as string[] | undefined
 		if (entries)
 			return Object.values(entries)
 				.map((v) => `"${v}"`)
 				.join(' | ')
-		if (values) return values.map((v) => `"${v}"`).join(' | ')
 		return 'enum'
 	}
 
-	if (type === 'array' || type === 'ZodArray') {
-		// Zod 4: _def.element; Zod 3: _def.type
-		const inner = def.element?._def ?? def.type?._def
+	if (type === 'array') {
+		const inner = def.element?._def
 		if (inner) return `${resolveType(inner)}[]`
 		return 'array'
 	}
 
-	if (type === 'string' || type === 'ZodString') return 'string'
-	if (type === 'number' || type === 'ZodNumber') return 'number'
-	if (type === 'boolean' || type === 'ZodBoolean') return 'boolean'
+	if (type === 'string') return 'string'
+	if (type === 'number') return 'number'
+	if (type === 'boolean') return 'boolean'
 
 	return ''
 }
@@ -173,7 +168,7 @@ function formatComponent(def: ComponentDefinition): string {
 	const lines = [`{% ${def.name} ${sig}${closing}`, `  ${def.description}`]
 
 	for (const [name, field] of Object.entries(shape)) {
-		const desc = field._def.description ?? ''
+		const desc = (field as { description?: string }).description ?? ''
 		const typeStr = resolveType(field._def)
 		const opt = field.isOptional() ? ' (optional)' : ''
 		const typeHint = typeStr ? ` — ${typeStr}` : ''

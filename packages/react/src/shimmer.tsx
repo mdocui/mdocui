@@ -3,21 +3,14 @@ import { useInsertionEffect } from 'react'
 
 const SHIMMER_KEYFRAMES_ID = 'mdocui-shimmer-keyframes'
 
-let shimmerInjected = false
-
 function ensureShimmerKeyframes(): void {
-	if (shimmerInjected) return
 	if (typeof document === 'undefined') return
-	if (document.getElementById(SHIMMER_KEYFRAMES_ID)) {
-		shimmerInjected = true
-		return
-	}
+	if (document.getElementById(SHIMMER_KEYFRAMES_ID)) return
 
 	const style = document.createElement('style')
 	style.id = SHIMMER_KEYFRAMES_ID
 	style.textContent = `@keyframes mdocui-shimmer { 0% { opacity: 0.15; } 50% { opacity: 0.35; } 100% { opacity: 0.15; } }`
 	document.head.appendChild(style)
-	shimmerInjected = true
 }
 
 export interface ComponentShimmerProps {

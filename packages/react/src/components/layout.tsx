@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react'
+import React, { useCallback, useId, useRef, useState } from 'react'
 import type { ComponentProps } from '../context'
 
 export function Stack({ props, className, children }: ComponentProps) {
@@ -99,12 +99,27 @@ export function Tabs({ props, className, children }: ComponentProps) {
 
 	const uid = useId()
 	const tabsId = `mdocui-tabs-${uid}`
+	const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			let next = active
+			if (e.key === 'ArrowRight') next = (active + 1) % labels.length
+			else if (e.key === 'ArrowLeft') next = (active - 1 + labels.length) % labels.length
+			else return
+			e.preventDefault()
+			setActive(next)
+			tabRefs.current[next]?.focus()
+		},
+		[active, labels.length],
+	)
 
 	return (
 		<div className={className} data-mdocui-tabs>
 			<div
 				role="tablist"
 				aria-label={labels.join(', ')}
+				onKeyDown={handleKeyDown}
 				style={{
 					display: 'flex',
 					gap: '4px',
@@ -115,6 +130,9 @@ export function Tabs({ props, className, children }: ComponentProps) {
 					<button
 						type="button"
 						key={label}
+						ref={(el) => {
+							tabRefs.current[i] = el
+						}}
 						id={`${tabsId}-tab-${i}`}
 						role="tab"
 						aria-selected={i === active}

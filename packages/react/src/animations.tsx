@@ -4,21 +4,14 @@ import { useInsertionEffect } from 'react'
 const KEYFRAMES_ID = 'mdocui-animate-keyframes'
 const ANIMATION_NAME = 'mdocui-fade-in'
 
-let stylesInjected = false
-
 function ensureKeyframes(): void {
-	if (stylesInjected) return
 	if (typeof document === 'undefined') return
-	if (document.getElementById(KEYFRAMES_ID)) {
-		stylesInjected = true
-		return
-	}
+	if (document.getElementById(KEYFRAMES_ID)) return
 
 	const style = document.createElement('style')
 	style.id = KEYFRAMES_ID
 	style.textContent = `@keyframes ${ANIMATION_NAME} { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }`
 	document.head.appendChild(style)
-	stylesInjected = true
 }
 
 export interface AnimateInProps {

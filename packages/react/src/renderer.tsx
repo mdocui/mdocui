@@ -64,9 +64,7 @@ export function Renderer({
 						)
 					}
 					const nodeKey =
-						item.node.type === 'component'
-							? `${item.node.name}-${idx}-${item.node.props.label ?? item.node.props.title ?? ''}`
-							: `prose-${idx}`
+						item.node.type === 'component' ? `${item.node.name}-${idx}` : `prose-${idx}`
 					return renderNode(item.node, nodeKey, ctx, renderProse, classNames)
 				})}
 				{isStreaming && meta?.pendingTag && renderPendingComponent !== null && (

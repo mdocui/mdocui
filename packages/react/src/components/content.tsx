@@ -51,7 +51,8 @@ export function Badge({ props, className }: ComponentProps) {
 }
 
 export function Image({ props, className }: ComponentProps) {
-	const src = props.src as string
+	const rawSrc = props.src as string
+	const src = rawSrc && !/^(javascript|data):/i.test(rawSrc) ? rawSrc : undefined
 	const alt = props.alt as string
 	const width = props.width as number | undefined
 	const height = props.height as number | undefined

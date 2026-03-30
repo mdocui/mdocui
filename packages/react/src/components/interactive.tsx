@@ -147,10 +147,12 @@ export function Textarea({ props, className }: ComponentProps) {
 export function Toggle({ props, className, onAction, isStreaming }: ComponentProps) {
 	const name = props.name as string
 	const label = props.label as string
-	const checked = (props.checked as boolean) ?? false
+	const initialChecked = (props.checked as boolean) ?? false
+	const [isChecked, setIsChecked] = useState(initialChecked)
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (isStreaming) return
+		setIsChecked(e.target.checked)
 		onAction({
 			type: 'select_change',
 			action: `change:${name}`,
@@ -168,9 +170,9 @@ export function Toggle({ props, className, onAction, isStreaming }: ComponentPro
 			<input
 				type="checkbox"
 				role="switch"
-				aria-checked={checked}
+				aria-checked={isChecked}
 				name={name}
-				defaultChecked={checked}
+				checked={isChecked}
 				onChange={handleChange}
 			/>
 			<span>{label}</span>
