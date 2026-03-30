@@ -19,6 +19,8 @@ Generative UI library for LLMs using Markdoc `{% %}` tag syntax inline with mark
 
 LLMs write natural markdown **and** drop interactive UI components in the same stream — charts, buttons, forms, tables, cards, and more. No custom DSL to learn, no JSON blocks, no JSX confusion.
 
+**Key features:** built-in prose rendering, component merging, CLI scaffolder, error boundaries, streaming animations, shimmer placeholders, prop validation, context data passthrough, and configurable prompt verbosity.
+
 ```
 The Q4 results show strong growth across all segments.
 

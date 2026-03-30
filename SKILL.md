@@ -49,6 +49,7 @@ const systemPrompt = generatePrompt(registry, {
   groups: defaultGroups,                          // component organization
   additionalRules: ['Use charts for data'],       // domain-specific guidance
   examples: ['{% chart type="bar" ... /%}'],      // expected output format
+  verbosity: 'default',                           // 'minimal' | 'default' | 'detailed'
 })
 // Pass systemPrompt as the system message to your LLM
 ```
@@ -56,6 +57,8 @@ const systemPrompt = generatePrompt(registry, {
 The prompt merges two layers:
 - **Library layer** (auto): tag syntax, component signatures, composition rules
 - **App layer** (yours): preamble, rules, examples, groups
+
+The `verbosity` option controls prompt size: `minimal` (compact, tag names only), `default` (signatures + basic rules), `detailed` (full descriptions + examples).
 
 ### 3. Render with React
 
@@ -65,7 +68,7 @@ import { Renderer, defaultComponents, useRenderer, createDefaultRegistry } from 
 const registry = createDefaultRegistry()
 
 function Chat() {
-  const { nodes, isStreaming, push, done } = useRenderer({ registry })
+  const { nodes, isStreaming, push, done, meta } = useRenderer({ registry })
 
   // Feed LLM chunks: push(chunk)
   // When stream ends: done()
@@ -74,12 +77,16 @@ function Chat() {
     <Renderer
       nodes={nodes}
       components={defaultComponents}
+      registry={registry}                // enables Zod prop validation after stream ends
       isStreaming={isStreaming}
+      meta={meta}                        // enables shimmer placeholders for pending tags
+      contextData={{ userId: '123' }}    // arbitrary data passed to all components
       classNames={{ button: 'bg-blue-600 text-white', card: 'border-zinc-700' }}
       onAction={(event) => {
         if (event.action === 'continue') sendMessage(event.label)
       }}
       renderProse={(text, key) => <ReactMarkdown key={key}>{text}</ReactMarkdown>}
+      renderPendingComponent={(pendingTag) => <MyShimmer tag={pendingTag} />}  // or null to disable
     />
   )
 }
@@ -131,6 +138,23 @@ interface ComponentProps {
   className?: string
   onAction: ActionHandler
   isStreaming: boolean
+}
+```
+
+## Renderer Props
+
+```typescript
+interface RendererProps {
+  nodes: ASTNode[]                    // parsed AST from useRenderer
+  components?: ComponentMap           // component map (default: defaultComponents)
+  registry?: ComponentRegistry        // enables Zod prop validation after streaming
+  onAction?: ActionHandler            // single callback for all interactions
+  isStreaming?: boolean               // true while LLM is still streaming
+  meta?: ParseMeta                    // parser metadata (enables shimmer for pending tags)
+  contextData?: Record<string, unknown>  // arbitrary data passed to all components
+  renderProse?: (content: string, key: string) => React.ReactNode
+  renderPendingComponent?: ((pendingTag?: string) => React.ReactNode) | null  // custom shimmer, or null to disable
+  classNames?: Record<string, string> // per-component Tailwind/CSS classes
 }
 ```
 
