@@ -15,6 +15,7 @@ export interface RendererProps {
 	onAction?: ActionHandler
 	isStreaming?: boolean
 	meta?: ParseMeta
+	contextData?: Record<string, unknown>
 	renderProse?: (content: string, key: string) => React.ReactNode
 	renderPendingComponent?: ((pendingTag?: string) => React.ReactNode) | null
 	classNames?: Record<string, string>
@@ -27,6 +28,7 @@ export function Renderer({
 	onAction = noop,
 	isStreaming = false,
 	meta,
+	contextData,
 	renderProse,
 	renderPendingComponent,
 	classNames,
@@ -37,8 +39,8 @@ export function Renderer({
 	)
 
 	const ctx = useMemo<RendererContext>(
-		() => ({ components: merged, onAction, isStreaming, registry }),
-		[merged, onAction, isStreaming, registry],
+		() => ({ components: merged, onAction, isStreaming, registry, contextData }),
+		[merged, onAction, isStreaming, registry, contextData],
 	)
 
 	const grouped = groupConsecutiveButtons(nodes)

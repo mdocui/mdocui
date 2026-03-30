@@ -18,6 +18,7 @@ export interface RendererContext {
 	onAction: ActionHandler
 	isStreaming: boolean
 	registry?: ComponentRegistry
+	contextData?: Record<string, unknown>
 }
 
 const MdocUIContext = createContext<RendererContext | null>(null)

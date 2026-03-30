@@ -98,6 +98,7 @@ Renders an `ASTNode[]` tree into React elements using a component map.
 | `meta` | `ParseMeta` | — | Parse metadata from `useRenderer` — enables shimmer for pending components |
 | `renderProse` | `(content: string, key: string) => ReactNode` | built-in `SimpleMarkdown` | Custom renderer for prose nodes (see below) |
 | `renderPendingComponent` | `((tag?: string) => ReactNode) \| null` | built-in `ComponentShimmer` | Custom shimmer during streaming. Pass `null` to disable |
+| `contextData` | `Record<string, unknown>` | — | App-level data accessible to all components via `useMdocUI()` |
 | `classNames` | `Record<string, string>` | — | Per-component CSS class overrides |
 
 ---
@@ -283,6 +284,29 @@ function MyCard({ props, children }: ComponentProps) {
 
 ---
 
+## Context Data
+
+Pass app-level data to components without prop drilling. Useful for brand colors, account info, router, or any data the LLM doesn't generate:
+
+```tsx
+<Renderer
+  nodes={nodes}
+  contextData={{ brandColor: '#E8845C', accountName: 'Acme Corp' }}
+/>
+```
+
+Components access it via `useMdocUI()`:
+
+```tsx
+function MyChart({ props }: ComponentProps) {
+  const { contextData } = useMdocUI()
+  const color = (contextData?.brandColor as string) ?? 'currentColor'
+  return <div style={{ color }}>{/* chart */}</div>
+}
+```
+
+---
+
 ## Context
 
 `useMdocUI()` provides the renderer context from inside any component in the tree:
@@ -291,7 +315,7 @@ function MyCard({ props, children }: ComponentProps) {
 import { useMdocUI } from '@mdocui/react'
 
 function MyComponent() {
-  const { onAction, isStreaming, formState, setFormField } = useMdocUI()
+  const { onAction, isStreaming, contextData } = useMdocUI()
   // ...
 }
 ```

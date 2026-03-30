@@ -216,6 +216,7 @@ const prompt = generatePrompt(registry, {
 | `additionalRules` | `string[]` | Extra rules appended as a bullet list |
 | `examples` | `string[]` | Example markup blocks appended at the end |
 | `groups` | `ComponentGroup[]` | Groups components under named headings with optional notes |
+| `verbosity` | `'minimal' \| 'default' \| 'detailed'` | Prompt detail level. `minimal` outputs only component signatures (~90% fewer tokens). Default includes syntax docs, composition examples, and streaming guidelines |
 
 ---
 
