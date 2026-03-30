@@ -44,6 +44,7 @@ export interface PromptOptions {
 	additionalRules?: string[]
 	examples?: string[]
 	groups?: ComponentGroup[]
+	verbosity?: 'minimal' | 'default' | 'detailed'
 }
 
 export interface ParseError {
