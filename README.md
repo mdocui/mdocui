@@ -299,10 +299,23 @@ Then invoke with `/mdocui` in Claude Code.
 
 ## Roadmap
 
-- `@mdocui/vue` — Vue renderer with the same 24 components
-- `@mdocui/svelte` — Svelte renderer
+**Renderers**
+- `@mdocui/vue` — Vue 3 renderer
+- `@mdocui/svelte` — Svelte 5 renderer
+- `@mdocui/solid` — SolidJS renderer
+
+**Integrations**
+- `@mdocui/nextjs` — App Router helpers, RSC-safe imports, route handler template
+- `@mdocui/vercel-ai` — Vercel AI SDK `useChat` to `useRenderer` bridge
+
+**Developer tools**
+- `@mdocui/devtools` — browser panel for AST inspection, parse meta, streaming state
 - VS Code extension — syntax highlighting and autocomplete for `{% %}` tags
+
+**Milestone**
 - v1.0.0 — stable API, frozen component props, CHANGELOG
+
+Have an idea? [Open a suggestion issue](https://github.com/mdocui/mdocui/issues/new?labels=enhancement&title=Suggestion:+).
 
 ## License
 
