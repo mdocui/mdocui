@@ -154,8 +154,7 @@ function renderComponentNode(
 	const children =
 		node.children.length > 0
 			? node.children.map((child, i) => {
-					const childId =
-						child.type === 'component' ? `${child.name}-${i}` : `p-${i}`
+					const childId = child.type === 'component' ? `${child.name}-${i}` : `p-${i}`
 					return renderNode(child, `${key}-${childId}`, ctx, renderProse, classNames)
 				})
 			: undefined

@@ -111,7 +111,10 @@ describe('SimpleMarkdown', () => {
 
 		it('renders heading followed by content on single newline', () => {
 			const { container } = render(
-				<SimpleMarkdown content={'### Order Summary\n- **Item:** Shirt\n- **Price:** $25.99'} dataKey="h-fix" />,
+				<SimpleMarkdown
+					content={'### Order Summary\n- **Item:** Shirt\n- **Price:** $25.99'}
+					dataKey="h-fix"
+				/>,
 			)
 			const h3 = container.querySelector('h3')
 			expect(h3).toBeTruthy()
@@ -184,9 +187,7 @@ describe('SimpleMarkdown', () => {
 		})
 
 		it('renders 1) items as <ol><li>', () => {
-			const { container } = render(
-				<SimpleMarkdown content={'1) Alpha\n2) Beta'} dataKey="ol2" />,
-			)
+			const { container } = render(<SimpleMarkdown content={'1) Alpha\n2) Beta'} dataKey="ol2" />)
 			const ol = container.querySelector('ol')
 			expect(ol).toBeTruthy()
 			const items = container.querySelectorAll('li')

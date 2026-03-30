@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
+import { chart, select, table, tabs } from '../src/definitions'
 import { ComponentRegistry, defineComponent } from '../src/registry'
-import { table, chart, tabs, select } from '../src/definitions'
 
 const buttonDef = defineComponent({
 	name: 'button',
@@ -86,18 +86,24 @@ describe('ComponentRegistry', () => {
 
 describe('Coercion in built-in definitions', () => {
 	it('coerces numbers to strings in table rows', () => {
-			const reg = new ComponentRegistry()
+		const reg = new ComponentRegistry()
 		reg.register(table)
 		const result = reg.validate('table', {
 			headers: ['Product', 'Units', 'Revenue'],
-			rows: [['Shoes', 842, '$33,680'], ['Hats', 631, '$18,930']],
+			rows: [
+				['Shoes', 842, '$33,680'],
+				['Hats', 631, '$18,930'],
+			],
 		})
 		expect(result.valid).toBe(true)
-		expect(result.props?.rows).toEqual([['Shoes', '842', '$33,680'], ['Hats', '631', '$18,930']])
+		expect(result.props?.rows).toEqual([
+			['Shoes', '842', '$33,680'],
+			['Hats', '631', '$18,930'],
+		])
 	})
 
 	it('coerces numbers to strings in table headers', () => {
-			const reg = new ComponentRegistry()
+		const reg = new ComponentRegistry()
 		reg.register(table)
 		const result = reg.validate('table', {
 			headers: [1, 2, 3],
@@ -108,7 +114,7 @@ describe('Coercion in built-in definitions', () => {
 	})
 
 	it('coerces string values to numbers in chart', () => {
-			const reg = new ComponentRegistry()
+		const reg = new ComponentRegistry()
 		reg.register(chart)
 		const result = reg.validate('chart', {
 			type: 'bar',
@@ -120,7 +126,7 @@ describe('Coercion in built-in definitions', () => {
 	})
 
 	it('coerces numbers to strings in tabs labels', () => {
-			const reg = new ComponentRegistry()
+		const reg = new ComponentRegistry()
 		reg.register(tabs)
 		const result = reg.validate('tabs', {
 			labels: [2024, 2025, 2026],
@@ -130,7 +136,7 @@ describe('Coercion in built-in definitions', () => {
 	})
 
 	it('coerces numbers to strings in select options', () => {
-			const reg = new ComponentRegistry()
+		const reg = new ComponentRegistry()
 		reg.register(select)
 		const result = reg.validate('select', {
 			name: 'qty',
