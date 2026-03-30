@@ -40,10 +40,11 @@ Body tags: `{% tagname %} content {% /tagname %}`
 ### 2. System prompt is auto-generated
 
 ```typescript
-import { generatePrompt } from '@mdocui/core'
-import { createDefaultRegistry, defaultGroups } from '@mdocui/react'
+import { ComponentRegistry, generatePrompt, allDefinitions, defaultGroups } from '@mdocui/core'
 
-const registry = createDefaultRegistry()
+const registry = new ComponentRegistry()
+registry.registerAll(allDefinitions)
+
 const systemPrompt = generatePrompt(registry, {
   preamble: 'You are a helpful assistant.',      // your domain context
   groups: defaultGroups,                          // component organization
@@ -53,6 +54,8 @@ const systemPrompt = generatePrompt(registry, {
 })
 // Pass systemPrompt as the system message to your LLM
 ```
+
+`allDefinitions` and `defaultGroups` are exported from both `@mdocui/core` and `@mdocui/react`.
 
 The prompt merges two layers:
 - **Library layer** (auto): tag syntax, component signatures, composition rules
@@ -238,8 +241,7 @@ onAction={(event) => {
 ## Streaming API Route (Next.js)
 
 ```typescript
-import { ComponentRegistry, generatePrompt } from '@mdocui/core'
-import { allDefinitions, defaultGroups } from '@mdocui/react'
+import { ComponentRegistry, generatePrompt, allDefinitions, defaultGroups } from '@mdocui/core'
 
 const registry = new ComponentRegistry()
 registry.registerAll(allDefinitions)
@@ -250,6 +252,98 @@ export async function POST(req: Request) {
   // Pass systemPrompt as system message to any LLM
   // Stream response as text/plain — the client parser handles the rest
 }
+```
+
+## Common Patterns
+
+### Grid whitespace fix
+
+The streaming parser emits whitespace prose nodes between component tags. Inside a `grid`, these take up grid cells and break layout. Fix by skipping whitespace-only prose:
+
+```tsx
+renderProse={(text, key) => {
+  if (!text.trim()) return null
+  return (
+    <div key={key}>
+      <SimpleMarkdown content={text} dataKey={key} />
+    </div>
+  )
+}}
+```
+
+Or via CSS as a fallback:
+
+```css
+[data-mdocui-grid] > div:has(> [data-mdocui-prose]:only-child) {
+  display: none !important;
+}
+```
+
+### Product card layout (PLP/PDP)
+
+Compose existing components for shopping-style product cards:
+
+```
+{% grid cols=3 %}
+{% card %}
+{% image src="https://example.com/shoe.jpg" alt="Running Shoe" /%}
+
+**Running Shoe Pro**
+
+**$149.99** · 4.8★ · {% badge label="In Stock" variant="success" /%}
+
+Lightweight mesh with responsive cushioning.
+
+{% button action="continue" label="View Running Shoe Pro" variant="primary" /%}
+{% /card %}
+{% /grid %}
+```
+
+Use prose for price/rating (not `stat` — it renders too large for product cards). Include the product name in button labels so follow-up messages have context.
+
+### Styling via CSS data attributes
+
+All components render `data-mdocui-*` attributes. Style them globally without classNames:
+
+```css
+[data-mdocui-card] { border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+[data-mdocui-stat][data-trend="up"] > div:last-child { color: #16a34a; }
+[data-mdocui-stat][data-trend="down"] > div:last-child { color: #dc2626; }
+[data-mdocui-callout][data-type="warning"] { background: #fffbeb; border-left-color: #d97706; }
+[data-mdocui-badge][data-variant="success"] { background: #dcfce7; color: #15803d; }
+```
+
+### Disable shimmer flicker
+
+The built-in shimmer flickers during streaming because `pendingTag` toggles rapidly as each tag opens/closes. Disable it and use a simple typing indicator instead:
+
+```tsx
+<Renderer renderPendingComponent={null} />
+```
+
+## Built-in Prose Rendering (SimpleMarkdown)
+
+`SimpleMarkdown` is a zero-dependency markdown renderer for prose nodes. Supports:
+- **Inline**: bold (`**`), italic (`*`), bold+italic (`***`), strikethrough (`~~`), inline code, links
+- **Block**: headings (h1-h3), unordered lists (`-`/`*`), ordered lists (`1.`/`1)`), paragraphs
+
+Headings and lists are detected line-by-line — no blank line separation required.
+
+Override with a full markdown renderer if you need GFM tables, images, or nested lists:
+
+```tsx
+<Renderer
+  renderProse={(text, key) => <ReactMarkdown key={key}>{text}</ReactMarkdown>}
+/>
+```
+
+To skip rendering whitespace-only prose (fixes grid layout issues with whitespace nodes):
+
+```tsx
+renderProse={(text, key) => {
+  if (!text.trim()) return null
+  return <SimpleMarkdown content={text} dataKey={key} />
+}}
 ```
 
 ## Key Principles
@@ -267,3 +361,4 @@ export async function POST(req: Request) {
 - npm: https://www.npmjs.com/org/mdocui
 - Docs: https://mdocui.github.io
 - Examples: https://github.com/mdocui/examples
+- Live Demo: https://mdocui.vercel.app
