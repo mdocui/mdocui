@@ -222,19 +222,12 @@ const shadcnComponents = {
 
 ## Architecture
 
-```
-LLM token stream
-      |
-  Tokenizer --- character-by-character, tracks IN_PROSE / IN_TAG / IN_STRING
-      |
-  StreamingParser --- buffers incomplete tags, emits ASTNode[]
-      |
-  ComponentRegistry --- validates tag names + props via Zod schemas
-      |
-  Renderer --- maps AST nodes to React components (or Vue, Svelte, etc.)
-      |
-  Live UI
-```
+| Layer | Role |
+|-------|------|
+| **Tokenizer** | Character-by-character lexer, tracks `IN_PROSE` / `IN_TAG` / `IN_STRING` states |
+| **StreamingParser** | Buffers incomplete tags, merges prose, emits `ASTNode[]` |
+| **ComponentRegistry** | Validates tag names and props via Zod schemas |
+| **Renderer** | Maps AST nodes to React components with error boundaries and animations |
 
 The core is framework-agnostic. `@mdocui/react` is one adapter — Vue, Svelte, and Angular adapters can follow the same pattern.
 
