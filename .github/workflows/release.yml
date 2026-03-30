@@ -65,6 +65,10 @@ jobs:
               echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/${CURR_TAG}"
             fi
             echo ''
+            echo '## Packages'
+            echo ''
+            echo '[![core](https://img.shields.io/npm/v/@mdocui/core?label=%40mdocui%2Fcore&color=blue)](https://www.npmjs.com/package/@mdocui/core) [![react](https://img.shields.io/npm/v/@mdocui/react?label=%40mdocui%2Freact&color=blue)](https://www.npmjs.com/package/@mdocui/react) [![cli](https://img.shields.io/npm/v/@mdocui/cli?label=%40mdocui%2Fcli&color=blue)](https://www.npmjs.com/package/@mdocui/cli)'
+            echo ''
             echo '## Contributors'
             echo ''
             git log "${RANGE}" --no-merges --pretty=format:"%an" | sort -u | while read -r name; do
