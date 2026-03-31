@@ -19,13 +19,27 @@ export async function preview(cwd: string, options?: PreviewOptions) {
 		console.log('No config found — all tags treated as known')
 	}
 
+	const MAX_BODY_SIZE = 1024 * 1024 // 1MB
+
 	const server = http.createServer((req, res) => {
 		if (req.method === 'POST' && req.url === '/api/parse') {
 			let body = ''
+			let size = 0
+			let aborted = false
 			req.on('data', (chunk: Buffer) => {
+				if (aborted) return
+				size += chunk.length
+				if (size > MAX_BODY_SIZE) {
+					aborted = true
+					res.writeHead(413, { 'Content-Type': 'application/json' })
+					res.end(JSON.stringify({ error: 'Request body too large (max 1MB)' }))
+					req.destroy()
+					return
+				}
 				body += chunk.toString()
 			})
 			req.on('end', () => {
+				if (aborted) return
 				try {
 					const { content } = JSON.parse(body) as { content: string }
 					const parser = new StreamingParser(
@@ -56,7 +70,7 @@ export async function preview(cwd: string, options?: PreviewOptions) {
 		res.end('Not found')
 	})
 
-	server.listen(port, () => {
+	server.listen(port, '127.0.0.1', () => {
 		console.log(`\nmdocui preview server running at:\n`)
 		console.log(`  http://localhost:${port}\n`)
 		console.log('Press Ctrl+C to stop.\n')
@@ -480,8 +494,11 @@ This is an informational alert with **markdown** inside.
     // inline code
     html = html.replace(/\`([^\`]+)\`/g, '<code>$1</code>');
 
-    // links
-    html = html.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank">$1</a>');
+    // links — sanitize dangerous protocols
+    html = html.replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, function(m, text, url) {
+      if (/^(https?:\\/\\/|\\/)/.test(url)) return '<a href="' + url + '" target="_blank">' + text + '</a>';
+      return text;
+    });
 
     // unordered lists
     html = html.replace(/^- (.+)$/gm, '<li>$1</li>');

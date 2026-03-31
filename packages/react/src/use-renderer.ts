@@ -60,16 +60,15 @@ export function useRenderer({ registry }: UseRendererOptions): UseRendererReturn
 
 	const replaceContent = useCallback(
 		(content: string) => {
-			if (!streamingRef.current) {
-				streamingRef.current = true
-				setIsStreaming(true)
-			}
 			parserRef.current?.reset()
 			parserRef.current = null
 			const parser = getParser()
 			parser.write(content)
+			parser.flush()
 			setNodes([...parser.getNodes()])
 			setMeta(parser.getMeta())
+			streamingRef.current = false
+			setIsStreaming(false)
 		},
 		[getParser],
 	)

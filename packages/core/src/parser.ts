@@ -31,6 +31,7 @@ export class StreamingParser {
 		}
 
 		// Merge leading prose node with last completed node if both are prose
+		// Create a fresh node instead of mutating the previously-returned one
 		if (
 			newNodes.length > 0 &&
 			newNodes[0].type === 'prose' &&
@@ -38,7 +39,11 @@ export class StreamingParser {
 			this.completedNodes[this.completedNodes.length - 1].type === 'prose'
 		) {
 			const lastCompleted = this.completedNodes[this.completedNodes.length - 1] as ProseNode
-			lastCompleted.content += (newNodes[0] as ProseNode).content
+			const merged: ProseNode = {
+				type: 'prose',
+				content: lastCompleted.content + (newNodes[0] as ProseNode).content,
+			}
+			this.completedNodes[this.completedNodes.length - 1] = merged
 			this.completedNodes.push(...newNodes.slice(1))
 		} else {
 			this.completedNodes.push(...newNodes)
@@ -71,7 +76,23 @@ export class StreamingParser {
 			}
 		}
 
-		this.completedNodes.push(...newNodes)
+		// Merge leading prose node with last completed if both prose (same as write())
+		if (
+			newNodes.length > 0 &&
+			newNodes[0].type === 'prose' &&
+			this.completedNodes.length > 0 &&
+			this.completedNodes[this.completedNodes.length - 1].type === 'prose'
+		) {
+			const lastCompleted = this.completedNodes[this.completedNodes.length - 1] as ProseNode
+			const merged: ProseNode = {
+				type: 'prose',
+				content: lastCompleted.content + (newNodes[0] as ProseNode).content,
+			}
+			this.completedNodes[this.completedNodes.length - 1] = merged
+			this.completedNodes.push(...newNodes.slice(1))
+		} else {
+			this.completedNodes.push(...newNodes)
+		}
 		return newNodes
 	}
 

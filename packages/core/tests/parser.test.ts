@@ -108,6 +108,36 @@ describe('StreamingParser', () => {
 		)
 	})
 
+	it('does not mutate previously-returned prose nodes on subsequent write()', () => {
+		const p = new StreamingParser({ knownTags })
+		p.write('Hello ')
+		const nodesAfterFirst = p.getNodes()
+		const firstRef = nodesAfterFirst[0] as ProseNode
+		const originalContent = firstRef.content
+
+		p.write('world')
+		// The original reference should NOT have been mutated
+		expect(firstRef.content).toBe(originalContent)
+
+		// But getNodes() should return the merged content
+		const nodesAfterSecond = p.getNodes()
+		expect((nodesAfterSecond[0] as ProseNode).content).toBe('Hello world')
+	})
+
+	it('merges prose in flush() when last completed node is prose', () => {
+		const p = new StreamingParser({ knownTags })
+		p.write('Hello ')
+		// Write a partial tag that the tokenizer buffers
+		p.write('{% but')
+		// flush() should emit the buffered text as prose and merge with "Hello "
+		p.flush()
+
+		const nodes = p.getNodes()
+		const proseNodes = nodes.filter((n) => n.type === 'prose')
+		// The buffered text should merge with prior prose
+		expect(proseNodes.length).toBeGreaterThanOrEqual(1)
+	})
+
 	it('does not merge prose across component boundaries', () => {
 		const p = new StreamingParser({ knownTags })
 		p.write('Before ')
