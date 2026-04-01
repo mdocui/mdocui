@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { allDefinitions, button, callout, chart, image, progress, select, stat, table, tabs } from '../src/definitions'
+import {
+	allDefinitions,
+	button,
+	callout,
+	chart,
+	image,
+	progress,
+	select,
+	stat,
+	table,
+	tabs,
+} from '../src/definitions'
 import { ComponentRegistry, defineComponent } from '../src/registry'
 
 const buttonDef = defineComponent({

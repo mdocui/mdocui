@@ -14,12 +14,16 @@ export function Stack({ props, className, children }: ComponentProps) {
 			data-direction={direction}
 			data-gap={gap}
 			data-align={align}
-			style={themed ? undefined : {
-				display: 'flex',
-				flexDirection: direction === 'horizontal' ? 'row' : 'column',
-				gap: gapValue(gap),
-				alignItems: alignValue(align),
-			}}
+			style={
+				themed
+					? undefined
+					: {
+							display: 'flex',
+							flexDirection: direction === 'horizontal' ? 'row' : 'column',
+							gap: gapValue(gap),
+							alignItems: alignValue(align),
+						}
+			}
 		>
 			{children}
 		</div>
@@ -36,11 +40,15 @@ export function Grid({ props, className, children }: ComponentProps) {
 			className={className}
 			data-mdocui-grid
 			data-cols={cols}
-			style={themed ? undefined : {
-				display: 'grid',
-				gridTemplateColumns: `repeat(${cols}, 1fr)`,
-				gap: gapValue(gap),
-			}}
+			style={
+				themed
+					? undefined
+					: {
+							display: 'grid',
+							gridTemplateColumns: `repeat(${cols}, 1fr)`,
+							gap: gapValue(gap),
+						}
+			}
 		>
 			{children}
 		</div>
@@ -56,15 +64,22 @@ export function Card({ props, className, children }: ComponentProps) {
 			className={className}
 			data-mdocui-card
 			data-variant={(props.variant as string) ?? 'default'}
-			style={themed ? undefined : {
-				border: '1px solid currentColor',
-				borderRadius: '8px',
-				padding: '16px',
-				opacity: 0.8,
-			}}
+			style={
+				themed
+					? undefined
+					: {
+							border: '1px solid currentColor',
+							borderRadius: '8px',
+							padding: '16px',
+							opacity: 0.8,
+						}
+			}
 		>
 			{title && (
-				<div data-mdocui-card-title style={themed ? undefined : { fontWeight: 600, marginBottom: '8px' }}>
+				<div
+					data-mdocui-card-title
+					style={themed ? undefined : { fontWeight: 600, marginBottom: '8px' }}
+				>
 					{title}
 				</div>
 			)}
@@ -79,7 +94,11 @@ export function Divider({ className }: ComponentProps) {
 		<hr
 			className={className}
 			data-mdocui-divider
-			style={themed ? undefined : { border: 'none', borderTop: '1px solid currentColor', margin: '8px 0', opacity: 0.2 }}
+			style={
+				themed
+					? undefined
+					: { border: 'none', borderTop: '1px solid currentColor', margin: '8px 0', opacity: 0.2 }
+			}
 		/>
 	)
 }
@@ -91,8 +110,15 @@ export function Accordion({ props, className, children }: ComponentProps) {
 
 	return (
 		<details className={className} data-mdocui-accordion open={open || undefined}>
-			<summary data-mdocui-accordion-summary style={themed ? undefined : { cursor: 'pointer', fontWeight: 500 }}>{title}</summary>
-			<div data-mdocui-accordion-body style={themed ? undefined : { paddingTop: '8px' }}>{children}</div>
+			<summary
+				data-mdocui-accordion-summary
+				style={themed ? undefined : { cursor: 'pointer', fontWeight: 500 }}
+			>
+				{title}
+			</summary>
+			<div data-mdocui-accordion-body style={themed ? undefined : { paddingTop: '8px' }}>
+				{children}
+			</div>
 		</details>
 	)
 }
@@ -129,11 +155,15 @@ export function Tabs({ props, className, children }: ComponentProps) {
 				data-mdocui-tablist
 				aria-label={labels.join(', ')}
 				onKeyDown={handleKeyDown}
-				style={themed ? undefined : {
-					display: 'flex',
-					gap: '4px',
-					borderBottom: '1px solid color-mix(in srgb, currentColor 20%, transparent)',
-				}}
+				style={
+					themed
+						? undefined
+						: {
+								display: 'flex',
+								gap: '4px',
+								borderBottom: '1px solid color-mix(in srgb, currentColor 20%, transparent)',
+							}
+				}
 			>
 				{labels.map((label, i) => (
 					<button
@@ -149,16 +179,20 @@ export function Tabs({ props, className, children }: ComponentProps) {
 						aria-controls={`${tabsId}-panel-${i}`}
 						tabIndex={i === active ? 0 : -1}
 						onClick={() => setActive(i)}
-						style={themed ? undefined : {
-							padding: '8px 16px',
-							background: 'none',
-							border: 'none',
-							borderBottom: i === active ? '2px solid currentColor' : '2px solid transparent',
-							cursor: 'pointer',
-							fontWeight: i === active ? 600 : 400,
-							color: 'inherit',
-							outline: 'revert',
-						}}
+						style={
+							themed
+								? undefined
+								: {
+										padding: '8px 16px',
+										background: 'none',
+										border: 'none',
+										borderBottom: i === active ? '2px solid currentColor' : '2px solid transparent',
+										cursor: 'pointer',
+										fontWeight: i === active ? 600 : 400,
+										color: 'inherit',
+										outline: 'revert',
+									}
+						}
 					>
 						{label}
 					</button>

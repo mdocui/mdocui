@@ -126,7 +126,11 @@ export class Tokenizer {
 		if (inner.length === 0) return
 
 		if (inner.startsWith('/')) {
-			this.tokens.push({ type: TokenType.TAG_CLOSE, raw, name: inner.slice(1).trim().split(/\s/)[0] })
+			this.tokens.push({
+				type: TokenType.TAG_CLOSE,
+				raw,
+				name: inner.slice(1).trim().split(/\s/)[0],
+			})
 			return
 		}
 

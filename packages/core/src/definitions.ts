@@ -3,10 +3,7 @@ import { defineComponent } from './registry'
 
 /** Case-insensitive enum — LLMs often output "Up" instead of "up". */
 function ciEnum<T extends [string, ...string[]]>(values: T) {
-	return z.preprocess(
-		(v) => (typeof v === 'string' ? v.toLowerCase() : v),
-		z.enum(values),
-	)
+	return z.preprocess((v) => (typeof v === 'string' ? v.toLowerCase() : v), z.enum(values))
 }
 
 // ── Layout ──────────────────────────────────────────────
@@ -209,11 +206,14 @@ export const stat = defineComponent({
 		value: z.string().describe('Metric value'),
 		change: z.string().optional().describe('Change indicator like "+12%" or "-3%"'),
 		trend: z
-			.preprocess((v) => {
-				if (typeof v !== 'string') return v
-				const lower = v.toLowerCase()
-				return lower === 'flat' || lower === 'stable' ? 'neutral' : lower
-			}, z.enum(['up', 'down', 'neutral']))
+			.preprocess(
+				(v) => {
+					if (typeof v !== 'string') return v
+					const lower = v.toLowerCase()
+					return lower === 'flat' || lower === 'stable' ? 'neutral' : lower
+				},
+				z.enum(['up', 'down', 'neutral']),
+			)
 			.optional()
 			.describe('Trend direction'),
 	}),

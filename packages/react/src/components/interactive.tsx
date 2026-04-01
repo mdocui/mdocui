@@ -33,16 +33,20 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 			data-disabled={isDisabled || undefined}
 			disabled={isDisabled}
 			onClick={handleClick}
-			style={themed ? undefined : {
-				padding: '8px 16px',
-				borderRadius: '6px',
-				cursor: isDisabled ? 'not-allowed' : 'pointer',
-				opacity: isDisabled ? 0.5 : 1,
-				color: 'inherit',
-				background: 'none',
-				border: '1px solid currentColor',
-				outline: 'revert',
-			}}
+			style={
+				themed
+					? undefined
+					: {
+							padding: '8px 16px',
+							borderRadius: '6px',
+							cursor: isDisabled ? 'not-allowed' : 'pointer',
+							opacity: isDisabled ? 0.5 : 1,
+							color: 'inherit',
+							background: 'none',
+							border: '1px solid currentColor',
+							outline: 'revert',
+						}
+			}
 		>
 			{label}
 		</button>
@@ -60,11 +64,15 @@ export function ButtonGroup({ props, className, children }: ComponentProps) {
 			data-direction={direction}
 			role="group"
 			aria-label={(props.label as string) ?? undefined}
-			style={themed ? undefined : {
-				display: 'flex',
-				flexDirection: direction === 'vertical' ? 'column' : 'row',
-				gap: '8px',
-			}}
+			style={
+				themed
+					? undefined
+					: {
+							display: 'flex',
+							flexDirection: direction === 'vertical' ? 'column' : 'row',
+							gap: '8px',
+						}
+			}
 		>
 			{children}
 		</div>
@@ -83,7 +91,11 @@ export function Input({ props, className }: ComponentProps) {
 	return (
 		<div className={className} data-mdocui-input>
 			{label && (
-				<label htmlFor={id} data-mdocui-label style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+				<label
+					htmlFor={id}
+					data-mdocui-label
+					style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}
+				>
 					{label}
 				</label>
 			)}
@@ -95,16 +107,20 @@ export function Input({ props, className }: ComponentProps) {
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
-				style={themed ? undefined : {
-					width: '100%',
-					padding: '8px 12px',
-					border: '1px solid currentColor',
-					borderRadius: '6px',
-					boxSizing: 'border-box',
-					background: 'transparent',
-					color: 'inherit',
-					opacity: 0.8,
-				}}
+				style={
+					themed
+						? undefined
+						: {
+								width: '100%',
+								padding: '8px 12px',
+								border: '1px solid currentColor',
+								borderRadius: '6px',
+								boxSizing: 'border-box',
+								background: 'transparent',
+								color: 'inherit',
+								opacity: 0.8,
+							}
+				}
 			/>
 		</div>
 	)
@@ -122,7 +138,11 @@ export function Textarea({ props, className }: ComponentProps) {
 	return (
 		<div className={className} data-mdocui-textarea>
 			{label && (
-				<label htmlFor={id} data-mdocui-label style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+				<label
+					htmlFor={id}
+					data-mdocui-label
+					style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}
+				>
 					{label}
 				</label>
 			)}
@@ -134,17 +154,21 @@ export function Textarea({ props, className }: ComponentProps) {
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
-				style={themed ? undefined : {
-					width: '100%',
-					padding: '8px 12px',
-					border: '1px solid currentColor',
-					borderRadius: '6px',
-					boxSizing: 'border-box',
-					resize: 'vertical',
-					background: 'transparent',
-					color: 'inherit',
-					opacity: 0.8,
-				}}
+				style={
+					themed
+						? undefined
+						: {
+								width: '100%',
+								padding: '8px 12px',
+								border: '1px solid currentColor',
+								borderRadius: '6px',
+								boxSizing: 'border-box',
+								resize: 'vertical',
+								background: 'transparent',
+								color: 'inherit',
+								opacity: 0.8,
+							}
+				}
 			/>
 		</div>
 	)
@@ -172,7 +196,11 @@ export function Toggle({ props, className, onAction, isStreaming }: ComponentPro
 		<label
 			className={className}
 			data-mdocui-toggle
-			style={themed ? undefined : { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+			style={
+				themed
+					? undefined
+					: { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }
+			}
 		>
 			<input
 				type="checkbox"
@@ -209,7 +237,11 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 	return (
 		<div className={className} data-mdocui-select>
 			{label && (
-				<label htmlFor={id} data-mdocui-label style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+				<label
+					htmlFor={id}
+					data-mdocui-label
+					style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}
+				>
 					{label}
 				</label>
 			)}
@@ -220,15 +252,19 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
 				onChange={handleChange}
-				style={themed ? undefined : {
-					width: '100%',
-					padding: '8px 12px',
-					border: '1px solid currentColor',
-					borderRadius: '6px',
-					background: 'transparent',
-					color: 'inherit',
-					opacity: 0.8,
-				}}
+				style={
+					themed
+						? undefined
+						: {
+								width: '100%',
+								padding: '8px 12px',
+								border: '1px solid currentColor',
+								borderRadius: '6px',
+								background: 'transparent',
+								color: 'inherit',
+								opacity: 0.8,
+							}
+				}
 			>
 				{placeholder && <option value="">{placeholder}</option>}
 				{options.map((opt) => (
@@ -261,7 +297,11 @@ export function Checkbox({ props, className, onAction, isStreaming }: ComponentP
 		<label
 			className={className}
 			data-mdocui-checkbox
-			style={themed ? undefined : { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+			style={
+				themed
+					? undefined
+					: { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }
+			}
 		>
 			<input type="checkbox" name={name} defaultChecked={checked} onChange={handleChange} />
 			<span>{label}</span>
@@ -304,13 +344,17 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 				data-name={formName}
 				data-submitted
 				aria-hidden="true"
-				style={themed ? { opacity: 0.5, pointerEvents: 'none' } : {
-					display: 'flex',
-					flexDirection: 'column',
-					gap: '12px',
-					opacity: 0.5,
-					pointerEvents: 'none',
-				}}
+				style={
+					themed
+						? { opacity: 0.5, pointerEvents: 'none' }
+						: {
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '12px',
+								opacity: 0.5,
+								pointerEvents: 'none',
+							}
+				}
 			>
 				{children}
 			</div>

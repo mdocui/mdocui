@@ -1,5 +1,5 @@
-import { ComponentRegistry, allDefinitions } from '@mdocui/core'
-import { renderHook, act } from '@testing-library/react'
+import { allDefinitions, ComponentRegistry } from '@mdocui/core'
+import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { useRenderer } from '../src/use-renderer'
 
@@ -27,10 +27,7 @@ describe('useRenderer', () => {
 			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
 
 			act(() => {
-				result.current.replaceContent(
-					'Hello {% stat label="Rev"',
-					{ streaming: true },
-				)
+				result.current.replaceContent('Hello {% stat label="Rev"', { streaming: true })
 			})
 
 			expect(result.current.isStreaming).toBe(true)
@@ -41,10 +38,9 @@ describe('useRenderer', () => {
 			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
 
 			act(() => {
-				result.current.replaceContent(
-					'Some text\n{% chart type="bar" labels=["A","B"]',
-					{ streaming: true },
-				)
+				result.current.replaceContent('Some text\n{% chart type="bar" labels=["A","B"]', {
+					streaming: true,
+				})
 			})
 
 			expect(result.current.isStreaming).toBe(true)
@@ -56,10 +52,9 @@ describe('useRenderer', () => {
 			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
 
 			act(() => {
-				result.current.replaceContent(
-					'Hello {% stat label="Rev" value="$1M" /%}',
-					{ streaming: true },
-				)
+				result.current.replaceContent('Hello {% stat label="Rev" value="$1M" /%}', {
+					streaming: true,
+				})
 			})
 
 			expect(result.current.isStreaming).toBe(true)
@@ -104,10 +99,9 @@ describe('useRenderer', () => {
 			expect(result.current.meta.pendingTag).toBe('stat')
 
 			act(() => {
-				result.current.replaceContent(
-					'Hello {% stat label="Rev" value="$1M" /%}',
-					{ streaming: true },
-				)
+				result.current.replaceContent('Hello {% stat label="Rev" value="$1M" /%}', {
+					streaming: true,
+				})
 			})
 			// Tag is complete now but still streaming
 			expect(result.current.isStreaming).toBe(true)
