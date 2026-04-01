@@ -202,7 +202,13 @@ export const stat = defineComponent({
 		label: z.string().describe('Metric name'),
 		value: z.string().describe('Metric value'),
 		change: z.string().optional().describe('Change indicator like "+12%" or "-3%"'),
-		trend: z.enum(['up', 'down', 'neutral']).optional().describe('Trend direction'),
+		trend: z
+			.preprocess(
+				(v) => (typeof v === 'string' && (v.toLowerCase() === 'flat' || v.toLowerCase() === 'stable') ? 'neutral' : typeof v === 'string' ? v.toLowerCase() : v),
+				z.enum(['up', 'down', 'neutral']),
+			)
+			.optional()
+			.describe('Trend direction'),
 	}),
 	children: 'none',
 })

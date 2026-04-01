@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { chart, select, table, tabs } from '../src/definitions'
+import { chart, select, stat, table, tabs } from '../src/definitions'
 import { ComponentRegistry, defineComponent } from '../src/registry'
 
 const buttonDef = defineComponent({
@@ -144,5 +144,22 @@ describe('Coercion in built-in definitions', () => {
 		})
 		expect(result.valid).toBe(true)
 		expect(result.props?.options).toEqual(['1', '2', '3', '4', '5'])
+	})
+
+	it('maps "flat" and "stable" trend aliases to "neutral" in stat', () => {
+		const reg = new ComponentRegistry()
+		reg.register(stat)
+
+		const flat = reg.validate('stat', { label: 'Revenue', value: '$1M', trend: 'flat' })
+		expect(flat.valid).toBe(true)
+		expect(flat.props?.trend).toBe('neutral')
+
+		const stable = reg.validate('stat', { label: 'Revenue', value: '$1M', trend: 'stable' })
+		expect(stable.valid).toBe(true)
+		expect(stable.props?.trend).toBe('neutral')
+
+		const up = reg.validate('stat', { label: 'Revenue', value: '$1M', trend: 'Up' })
+		expect(up.valid).toBe(true)
+		expect(up.props?.trend).toBe('up')
 	})
 })
