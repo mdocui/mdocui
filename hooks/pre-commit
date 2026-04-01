@@ -1,0 +1,6 @@
+#!/bin/sh
+# Pre-commit hook: run biome check on staged files
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR -- 'packages/*.ts' 'packages/*.tsx' | tr '\n' ' ')
+if [ -n "$STAGED" ]; then
+  pnpm biome check $STAGED
+fi

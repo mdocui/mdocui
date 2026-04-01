@@ -22,6 +22,11 @@ Thanks for your interest in contributing to mdocUI! This guide will help you get
    ```bash
    pnpm test
    ```
+6. Set up the pre-commit hook (runs Biome lint before each commit):
+   ```bash
+   cp hooks/pre-commit .git/hooks/pre-commit
+   chmod +x .git/hooks/pre-commit
+   ```
 
 ## Development Workflow
 
