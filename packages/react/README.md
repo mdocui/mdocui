@@ -67,6 +67,7 @@ const { nodes, meta, isStreaming, push, done, reset } = useRenderer({ registry }
 | `meta` | `ParseMeta` | Parse errors, node count, completion status |
 | `isStreaming` | `boolean` | `true` between the first `push` and `done` |
 | `push(chunk)` | `(chunk: string) => void` | Feed a text chunk from the LLM stream |
+| `replaceContent(content, options?)` | `(content: string, options?: ReplaceContentOptions) => void` | Replace all content at once. Pass `{ streaming: true }` to keep shimmer/pendingTag active (for AG-UI style transports that provide accumulated content). Call `done()` when finished. |
 | `done()` | `() => void` | Signal the stream has ended; flushes the parser |
 | `reset()` | `() => void` | Clear all state for a new conversation turn |
 
@@ -99,7 +100,7 @@ Renders an `ASTNode[]` tree into React elements using a component map.
 | `renderProse` | `(content: string, key: string) => ReactNode` | built-in `SimpleMarkdown` | Custom renderer for prose nodes (see below) |
 | `renderPendingComponent` | `((tag?: string) => ReactNode) \| null` | built-in `ComponentShimmer` | Custom shimmer during streaming. Pass `null` to disable |
 | `contextData` | `Record<string, unknown>` | — | App-level data accessible to all components via `useMdocUI()` |
-| `classNames` | `Record<string, string>` | — | Per-component CSS class overrides |
+| `classNames` | `Record<string, string>` | — | Per-component CSS class overrides. When a className is provided, decorative inline styles are omitted so your CSS has full control via `[data-mdocui-*]` selectors |
 
 ---
 
@@ -163,7 +164,7 @@ Any markdown library works -- `react-markdown`, `marked`, `markdown-it`, etc.
 
 ---
 
-## Components (22)
+## Components (24)
 
 All default components are available via `defaultComponents` and registered in `createDefaultRegistry()`.
 
@@ -179,15 +180,17 @@ All default components are available via `defaultComponents` and registered in `
 | Tabs | `tabs` | Tabbed container. Props: `labels`, `active?` |
 | Tab | `tab` | Single tab panel inside `tabs`. Props: `label` |
 
-### Interactive (6)
+### Interactive (8)
 
 | Component | Tag | Description |
 |-----------|-----|-------------|
 | Button | `button` | Action button. Props: `action`, `label`, `variant?`, `disabled?` |
 | ButtonGroup | `button-group` | Row of buttons. Props: `direction?` |
 | Input | `input` | Text input field. Props: `name`, `label?`, `placeholder?`, `type?`, `required?` |
+| Textarea | `textarea` | Multi-line text input. Props: `name`, `label?`, `placeholder?`, `rows?`, `required?` |
 | Select | `select` | Dropdown select. Props: `name`, `label?`, `options`, `placeholder?`, `required?` |
 | Checkbox | `checkbox` | Toggle checkbox. Props: `name`, `label`, `checked?` |
+| Toggle | `toggle` | On/off switch. Props: `name`, `label`, `checked?` |
 | Form | `form` | Groups inputs; submits collected state. Props: `name`, `action?` |
 
 ### Data (4)

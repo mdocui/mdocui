@@ -101,7 +101,7 @@ Typed store of component definitions. Used to generate the `knownTags` set for t
 import { ComponentRegistry, defineComponent } from '@mdocui/core'
 import { z } from 'zod'
 
-const registry = new ComponentRegistry()
+const registry = new ComponentRegistry({ coerce: true }) // LLM-friendly mode
 
 registry.register(
   defineComponent({
@@ -129,6 +129,12 @@ registry.knownTags()        // Set<string>
 const result = registry.validate('alert', { severity: 'info' })
 // { valid: true, errors: [], props: { severity: 'info' } }
 ```
+
+#### `RegistryOptions`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `coerce` | `boolean` | `false` | LLM-friendly mode: when validation fails, fall back to raw props instead of rejecting. Built-in definitions use `z.coerce.*` and case-insensitive enums, so most LLM output validates. The fallback is a safety net for edge cases. |
 
 ---
 
@@ -302,6 +308,8 @@ interface ParseMeta {
   errors: ParseError[]
   nodeCount: number
   isComplete: boolean
+  pendingTag?: string    // tag name being buffered (e.g. "chart")
+  bufferLength?: number  // bytes buffered for the pending tag
 }
 ```
 
