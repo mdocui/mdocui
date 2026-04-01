@@ -6,8 +6,24 @@ export function defineComponent(definition: ComponentDefinition): ComponentDefin
 	return definition
 }
 
+export interface RegistryOptions {
+	/**
+	 * LLM-friendly mode: when validation fails, fall back to raw props
+	 * instead of rejecting. Use with z.coerce.* in definitions for best results.
+	 *
+	 * WARNING: When fallback activates, props bypass all type guarantees.
+	 * Component renderers must be defensive about prop types.
+	 */
+	coerce?: boolean
+}
+
 export class ComponentRegistry {
 	private components = new Map<string, ComponentDefinition>()
+	private coerce: boolean
+
+	constructor(options?: RegistryOptions) {
+		this.coerce = options?.coerce ?? false
+	}
 
 	register(definition: ComponentDefinition): this {
 		this.components.set(definition.name, definition)
@@ -48,6 +64,11 @@ export class ComponentRegistry {
 		const result = def.props.safeParse(props)
 		if (result.success) {
 			return { valid: true, errors: [], props: result.data as Record<string, unknown> }
+		}
+
+		// In coerce mode, fall back to raw props instead of rejecting
+		if (this.coerce) {
+			return { valid: true, errors: [], props }
 		}
 
 		return {

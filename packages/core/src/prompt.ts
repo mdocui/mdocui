@@ -129,6 +129,18 @@ function resolveType(def: ZodDef): string {
 		return inner ? `${inner} | null` : 'null'
 	}
 
+	// Unwrap preprocess/transform/pipe (e.g. ciEnum case-normalization, z.coerce.*)
+	if (type === 'pipe') {
+		const inner = def.out?._def
+		if (inner) return resolveType(inner)
+		return ''
+	}
+	if (type === 'effects') {
+		const inner = def.innerType?._def ?? def.schema?._def
+		if (inner) return resolveType(inner)
+		return ''
+	}
+
 	if (type === 'enum') {
 		const entries = def.entries as Record<string, string> | undefined
 		if (entries)

@@ -1,16 +1,23 @@
 import { z } from 'zod'
 import { defineComponent } from './registry'
 
+/** Case-insensitive enum — LLMs often output "Up" instead of "up". */
+function ciEnum<T extends [string, ...string[]]>(values: T) {
+	return z.preprocess(
+		(v) => (typeof v === 'string' ? v.toLowerCase() : v),
+		z.enum(values),
+	)
+}
+
 // ── Layout ──────────────────────────────────────────────
 
 export const stack = defineComponent({
 	name: 'stack',
 	description: 'Vertical or horizontal flex container',
 	props: z.object({
-		direction: z.enum(['vertical', 'horizontal']).optional().describe('Stack direction'),
-		gap: z.enum(['none', 'sm', 'md', 'lg']).optional().describe('Spacing between children'),
-		align: z
-			.enum(['start', 'center', 'end', 'stretch'])
+		direction: ciEnum(['vertical', 'horizontal']).optional().describe('Stack direction'),
+		gap: ciEnum(['none', 'sm', 'md', 'lg']).optional().describe('Spacing between children'),
+		align: ciEnum(['start', 'center', 'end', 'stretch'])
 			.optional()
 			.describe('Cross-axis alignment'),
 	}),
@@ -21,8 +28,8 @@ export const grid = defineComponent({
 	name: 'grid',
 	description: 'CSS grid layout with configurable columns',
 	props: z.object({
-		cols: z.number().optional().describe('Number of columns'),
-		gap: z.enum(['none', 'sm', 'md', 'lg']).optional().describe('Grid gap'),
+		cols: z.coerce.number().optional().describe('Number of columns'),
+		gap: ciEnum(['none', 'sm', 'md', 'lg']).optional().describe('Grid gap'),
 	}),
 	children: 'any',
 })
@@ -32,7 +39,7 @@ export const card = defineComponent({
 	description: 'Bordered content container with optional title',
 	props: z.object({
 		title: z.string().optional().describe('Card heading'),
-		variant: z.enum(['default', 'outlined', 'elevated']).optional().describe('Card style'),
+		variant: ciEnum(['default', 'outlined', 'elevated']).optional().describe('Card style'),
 	}),
 	children: 'any',
 })
@@ -49,7 +56,7 @@ export const accordion = defineComponent({
 	description: 'Collapsible content section',
 	props: z.object({
 		title: z.string().describe('Accordion header text'),
-		open: z.boolean().optional().describe('Whether expanded by default'),
+		open: z.coerce.boolean().optional().describe('Whether expanded by default'),
 	}),
 	children: 'any',
 })
@@ -59,7 +66,7 @@ export const tabs = defineComponent({
 	description: 'Tabbed content container — each child tab has a label',
 	props: z.object({
 		labels: z.array(z.coerce.string()).describe('Tab labels in order'),
-		active: z.number().optional().describe('Zero-based index of active tab'),
+		active: z.coerce.number().optional().describe('Zero-based index of active tab'),
 	}),
 	children: ['tab'],
 })
@@ -81,11 +88,10 @@ export const button = defineComponent({
 	props: z.object({
 		action: z.string().describe('Action identifier — "continue" sends label as new message'),
 		label: z.string().describe('Button text'),
-		variant: z
-			.enum(['primary', 'secondary', 'outline', 'ghost'])
+		variant: ciEnum(['primary', 'secondary', 'outline', 'ghost'])
 			.optional()
 			.describe('Visual style'),
-		disabled: z.boolean().optional().describe('Whether button is disabled'),
+		disabled: z.coerce.boolean().optional().describe('Whether button is disabled'),
 	}),
 	children: 'none',
 })
@@ -94,7 +100,7 @@ export const buttonGroup = defineComponent({
 	name: 'button-group',
 	description: 'Row of related buttons',
 	props: z.object({
-		direction: z.enum(['horizontal', 'vertical']).optional().describe('Layout direction'),
+		direction: ciEnum(['horizontal', 'vertical']).optional().describe('Layout direction'),
 	}),
 	children: ['button'],
 })
@@ -106,8 +112,8 @@ export const input = defineComponent({
 		name: z.string().describe('Field name for form state'),
 		label: z.string().optional().describe('Input label'),
 		placeholder: z.string().optional().describe('Placeholder text'),
-		type: z.enum(['text', 'email', 'password', 'number', 'url']).optional().describe('Input type'),
-		required: z.boolean().optional().describe('Whether field is required'),
+		type: ciEnum(['text', 'email', 'password', 'number', 'url']).optional().describe('Input type'),
+		required: z.coerce.boolean().optional().describe('Whether field is required'),
 	}),
 	children: 'none',
 })
@@ -120,7 +126,7 @@ export const select = defineComponent({
 		label: z.string().optional().describe('Select label'),
 		options: z.array(z.coerce.string()).describe('List of option values'),
 		placeholder: z.string().optional().describe('Placeholder text'),
-		required: z.boolean().optional().describe('Whether selection is required'),
+		required: z.coerce.boolean().optional().describe('Whether selection is required'),
 	}),
 	children: 'none',
 })
@@ -131,7 +137,7 @@ export const checkbox = defineComponent({
 	props: z.object({
 		name: z.string().describe('Field name for form state'),
 		label: z.string().describe('Checkbox label text'),
-		checked: z.boolean().optional().describe('Default checked state'),
+		checked: z.coerce.boolean().optional().describe('Default checked state'),
 	}),
 	children: 'none',
 })
@@ -143,8 +149,8 @@ export const textarea = defineComponent({
 		name: z.string().describe('Field name for form state'),
 		label: z.string().optional().describe('Textarea label'),
 		placeholder: z.string().optional().describe('Placeholder text'),
-		rows: z.number().optional().describe('Number of visible rows'),
-		required: z.boolean().optional().describe('Whether field is required'),
+		rows: z.coerce.number().optional().describe('Number of visible rows'),
+		required: z.coerce.boolean().optional().describe('Whether field is required'),
 	}),
 	children: 'none',
 })
@@ -155,7 +161,7 @@ export const toggle = defineComponent({
 	props: z.object({
 		name: z.string().describe('Field name for form state'),
 		label: z.string().describe('Toggle label'),
-		checked: z.boolean().optional().describe('Default on/off state'),
+		checked: z.coerce.boolean().optional().describe('Default on/off state'),
 	}),
 	children: 'none',
 })
@@ -176,7 +182,7 @@ export const chart = defineComponent({
 	name: 'chart',
 	description: 'Data visualization',
 	props: z.object({
-		type: z.enum(['bar', 'line', 'pie', 'donut']).describe('Chart type'),
+		type: ciEnum(['bar', 'line', 'pie', 'donut']).describe('Chart type'),
 		labels: z.array(z.coerce.string()).describe('Category labels'),
 		values: z.array(z.coerce.number()).describe('Data values'),
 		title: z.string().optional().describe('Chart title'),
@@ -203,10 +209,11 @@ export const stat = defineComponent({
 		value: z.string().describe('Metric value'),
 		change: z.string().optional().describe('Change indicator like "+12%" or "-3%"'),
 		trend: z
-			.preprocess(
-				(v) => (typeof v === 'string' && (v.toLowerCase() === 'flat' || v.toLowerCase() === 'stable') ? 'neutral' : typeof v === 'string' ? v.toLowerCase() : v),
-				z.enum(['up', 'down', 'neutral']),
-			)
+			.preprocess((v) => {
+				if (typeof v !== 'string') return v
+				const lower = v.toLowerCase()
+				return lower === 'flat' || lower === 'stable' ? 'neutral' : lower
+			}, z.enum(['up', 'down', 'neutral']))
 			.optional()
 			.describe('Trend direction'),
 	}),
@@ -217,9 +224,9 @@ export const progress = defineComponent({
 	name: 'progress',
 	description: 'Progress bar',
 	props: z.object({
-		value: z.number().describe('Current value (0-100)'),
+		value: z.coerce.number().describe('Current value (0-100)'),
 		label: z.string().optional().describe('Progress label'),
-		max: z.number().optional().describe('Maximum value — defaults to 100'),
+		max: z.coerce.number().optional().describe('Maximum value — defaults to 100'),
 	}),
 	children: 'none',
 })
@@ -230,7 +237,7 @@ export const callout = defineComponent({
 	name: 'callout',
 	description: 'Highlighted message block for alerts and notices',
 	props: z.object({
-		type: z.enum(['info', 'warning', 'error', 'success']).describe('Callout severity'),
+		type: ciEnum(['info', 'warning', 'error', 'success']).describe('Callout severity'),
 		title: z.string().optional().describe('Callout heading'),
 	}),
 	children: 'any',
@@ -241,8 +248,7 @@ export const badge = defineComponent({
 	description: 'Inline label or tag',
 	props: z.object({
 		label: z.string().describe('Badge text'),
-		variant: z
-			.enum(['default', 'success', 'warning', 'error', 'info'])
+		variant: ciEnum(['default', 'success', 'warning', 'error', 'info'])
 			.optional()
 			.describe('Color variant'),
 	}),
@@ -255,8 +261,8 @@ export const image = defineComponent({
 	props: z.object({
 		src: z.string().describe('Image URL'),
 		alt: z.string().describe('Alt text for accessibility'),
-		width: z.number().optional().describe('Width in pixels'),
-		height: z.number().optional().describe('Height in pixels'),
+		width: z.coerce.number().optional().describe('Width in pixels'),
+		height: z.coerce.number().optional().describe('Height in pixels'),
 	}),
 	children: 'none',
 })

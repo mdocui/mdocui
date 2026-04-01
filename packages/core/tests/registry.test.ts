@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { chart, select, stat, table, tabs } from '../src/definitions'
+import { allDefinitions, button, callout, chart, image, progress, select, stat, table, tabs } from '../src/definitions'
 import { ComponentRegistry, defineComponent } from '../src/registry'
 
 const buttonDef = defineComponent({
@@ -161,5 +161,67 @@ describe('Coercion in built-in definitions', () => {
 		const up = reg.validate('stat', { label: 'Revenue', value: '$1M', trend: 'Up' })
 		expect(up.valid).toBe(true)
 		expect(up.props?.trend).toBe('up')
+	})
+
+	it('case-insensitive enums across components', () => {
+		const reg = new ComponentRegistry()
+		reg.registerAll([callout, button, chart])
+
+		const r1 = reg.validate('callout', { type: 'Info' })
+		expect(r1.valid).toBe(true)
+		expect(r1.props?.type).toBe('info')
+
+		const r2 = reg.validate('button', { action: 'go', label: 'Go', variant: 'Primary' })
+		expect(r2.valid).toBe(true)
+		expect(r2.props?.variant).toBe('primary')
+
+		const r3 = reg.validate('chart', { type: 'Bar', labels: ['A'], values: [1] })
+		expect(r3.valid).toBe(true)
+		expect(r3.props?.type).toBe('bar')
+	})
+
+	it('coerces string numbers in progress and image', () => {
+		const reg = new ComponentRegistry()
+		reg.registerAll([progress, image])
+
+		const r1 = reg.validate('progress', { value: '75', max: '100' })
+		expect(r1.valid).toBe(true)
+		expect(r1.props?.value).toBe(75)
+		expect(r1.props?.max).toBe(100)
+
+		const r2 = reg.validate('image', { src: 'a.png', alt: 'test', width: '300', height: '200' })
+		expect(r2.valid).toBe(true)
+		expect(r2.props?.width).toBe(300)
+		expect(r2.props?.height).toBe(200)
+	})
+})
+
+describe('Registry coerce mode', () => {
+	it('falls back to raw props on validation failure when coerce=true', () => {
+		const reg = new ComponentRegistry({ coerce: true })
+		reg.register(buttonDef)
+
+		// Completely invalid props — coerce mode returns raw props
+		const result = reg.validate('button', { action: 123, label: 456, extra: 'field' })
+		expect(result.valid).toBe(true)
+		expect(result.props).toEqual({ action: 123, label: 456, extra: 'field' })
+	})
+
+	it('still returns parsed props when validation succeeds in coerce mode', () => {
+		const reg = new ComponentRegistry({ coerce: true })
+		reg.register(buttonDef)
+
+		const result = reg.validate('button', { action: 'go', label: 'Click' })
+		expect(result.valid).toBe(true)
+		expect(result.props).toEqual({ action: 'go', label: 'Click' })
+	})
+
+	it('rejects invalid props when coerce=false (default)', () => {
+		const reg = new ComponentRegistry()
+		reg.register(buttonDef)
+
+		const result = reg.validate('button', { action: 123 })
+		expect(result.valid).toBe(false)
+		expect(result.errors.length).toBeGreaterThan(0)
 	})
 })
