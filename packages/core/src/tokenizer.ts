@@ -126,19 +126,20 @@ export class Tokenizer {
 		if (inner.length === 0) return
 
 		if (inner.startsWith('/')) {
-			this.tokens.push({ type: TokenType.TAG_CLOSE, raw, name: inner.slice(1).trim() })
+			this.tokens.push({ type: TokenType.TAG_CLOSE, raw, name: inner.slice(1).trim().split(/\s/)[0] })
 			return
 		}
 
 		const selfClosing = inner.endsWith('/')
 		const content = selfClosing ? inner.slice(0, -1).trim() : inner
-		const spaceIdx = content.indexOf(' ')
+		const wsMatch = content.match(/\s/)
+		const wsIdx = wsMatch?.index ?? -1
 
 		this.tokens.push({
 			type: selfClosing ? TokenType.TAG_SELF_CLOSE : TokenType.TAG_OPEN,
 			raw,
-			name: spaceIdx === -1 ? content : content.slice(0, spaceIdx),
-			attrs: spaceIdx === -1 ? '' : content.slice(spaceIdx + 1).trim(),
+			name: wsIdx === -1 ? content : content.slice(0, wsIdx),
+			attrs: wsIdx === -1 ? '' : content.slice(wsIdx + 1).trim(),
 			selfClosing,
 		})
 	}

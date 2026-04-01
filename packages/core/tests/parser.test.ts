@@ -305,4 +305,65 @@ describe('StreamingParser', () => {
 			expect(meta.pendingTag).toBeUndefined()
 		})
 	})
+
+	describe('multiline tags', () => {
+		it('parses self-closing tag split across lines', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% stat\n  label="Revenue"\n  value="$1M"\n/%}')
+			p.flush()
+			const nodes = p.getNodes()
+			expect(nodes).toHaveLength(1)
+			const node = nodes[0] as ComponentNode
+			expect(node.name).toBe('stat')
+			expect(node.props).toEqual({ label: 'Revenue', value: '$1M' })
+		})
+
+		it('parses multiline tag streamed line-by-line', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% chart\n')
+			p.write('  type="bar"\n')
+			p.write('  labels=["Q1","Q2"]\n')
+			p.write('  values=[100,200]\n')
+			p.write('/%}')
+			p.flush()
+			const nodes = p.getNodes()
+			expect(nodes).toHaveLength(1)
+			const node = nodes[0] as ComponentNode
+			expect(node.name).toBe('chart')
+			expect(node.props.type).toBe('bar')
+		})
+
+		it('parses multiline body tag with newline after name', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% callout\n  type="info"\n%}Content{% /callout %}')
+			p.flush()
+			const nodes = p.getNodes()
+			expect(nodes).toHaveLength(1)
+			const node = nodes[0] as ComponentNode
+			expect(node.name).toBe('callout')
+			expect(node.props.type).toBe('info')
+		})
+
+		it('parses tag with tab-separated attributes', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% stat\tlabel="Revenue"\tvalue="$1M" /%}')
+			p.flush()
+			const nodes = p.getNodes()
+			expect(nodes).toHaveLength(1)
+			const node = nodes[0] as ComponentNode
+			expect(node.name).toBe('stat')
+			expect(node.props).toEqual({ label: 'Revenue', value: '$1M' })
+		})
+
+		it('parses multiline tag with CRLF line endings', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('{% stat\r\n  label="Revenue"\r\n  value="$1M"\r\n/%}')
+			p.flush()
+			const nodes = p.getNodes()
+			expect(nodes).toHaveLength(1)
+			const node = nodes[0] as ComponentNode
+			expect(node.name).toBe('stat')
+			expect(node.props).toEqual({ label: 'Revenue', value: '$1M' })
+		})
+	})
 })
