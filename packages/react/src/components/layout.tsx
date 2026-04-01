@@ -5,6 +5,7 @@ export function Stack({ props, className, children }: ComponentProps) {
 	const direction = (props.direction as string) ?? 'vertical'
 	const gap = (props.gap as string) ?? 'md'
 	const align = (props.align as string) ?? 'stretch'
+	const themed = !!className
 
 	return (
 		<div
@@ -13,7 +14,7 @@ export function Stack({ props, className, children }: ComponentProps) {
 			data-direction={direction}
 			data-gap={gap}
 			data-align={align}
-			style={{
+			style={themed ? undefined : {
 				display: 'flex',
 				flexDirection: direction === 'horizontal' ? 'row' : 'column',
 				gap: gapValue(gap),
@@ -28,12 +29,14 @@ export function Stack({ props, className, children }: ComponentProps) {
 export function Grid({ props, className, children }: ComponentProps) {
 	const cols = (props.cols as number) ?? 2
 	const gap = (props.gap as string) ?? 'md'
+	const themed = !!className
 
 	return (
 		<div
 			className={className}
 			data-mdocui-grid
-			style={{
+			data-cols={cols}
+			style={themed ? undefined : {
 				display: 'grid',
 				gridTemplateColumns: `repeat(${cols}, 1fr)`,
 				gap: gapValue(gap),
@@ -46,13 +49,14 @@ export function Grid({ props, className, children }: ComponentProps) {
 
 export function Card({ props, className, children }: ComponentProps) {
 	const title = props.title as string | undefined
+	const themed = !!className
 
 	return (
 		<div
 			className={className}
 			data-mdocui-card
 			data-variant={(props.variant as string) ?? 'default'}
-			style={{
+			style={themed ? undefined : {
 				border: '1px solid currentColor',
 				borderRadius: '8px',
 				padding: '16px',
@@ -60,7 +64,7 @@ export function Card({ props, className, children }: ComponentProps) {
 			}}
 		>
 			{title && (
-				<div data-mdocui-card-title style={{ fontWeight: 600, marginBottom: '8px' }}>
+				<div data-mdocui-card-title style={themed ? undefined : { fontWeight: 600, marginBottom: '8px' }}>
 					{title}
 				</div>
 			)}
@@ -70,11 +74,12 @@ export function Card({ props, className, children }: ComponentProps) {
 }
 
 export function Divider({ className }: ComponentProps) {
+	const themed = !!className
 	return (
 		<hr
 			className={className}
 			data-mdocui-divider
-			style={{ border: 'none', borderTop: '1px solid currentColor', margin: '8px 0', opacity: 0.2 }}
+			style={themed ? undefined : { border: 'none', borderTop: '1px solid currentColor', margin: '8px 0', opacity: 0.2 }}
 		/>
 	)
 }
@@ -82,11 +87,12 @@ export function Divider({ className }: ComponentProps) {
 export function Accordion({ props, className, children }: ComponentProps) {
 	const title = props.title as string
 	const open = (props.open as boolean) ?? false
+	const themed = !!className
 
 	return (
 		<details className={className} data-mdocui-accordion open={open || undefined}>
-			<summary style={{ cursor: 'pointer', fontWeight: 500 }}>{title}</summary>
-			<div style={{ paddingTop: '8px' }}>{children}</div>
+			<summary data-mdocui-accordion-summary style={themed ? undefined : { cursor: 'pointer', fontWeight: 500 }}>{title}</summary>
+			<div data-mdocui-accordion-body style={themed ? undefined : { paddingTop: '8px' }}>{children}</div>
 		</details>
 	)
 }
@@ -114,13 +120,16 @@ export function Tabs({ props, className, children }: ComponentProps) {
 		[active, labels.length],
 	)
 
+	const themed = !!className
+
 	return (
 		<div className={className} data-mdocui-tabs>
 			<div
 				role="tablist"
+				data-mdocui-tablist
 				aria-label={labels.join(', ')}
 				onKeyDown={handleKeyDown}
-				style={{
+				style={themed ? undefined : {
 					display: 'flex',
 					gap: '4px',
 					borderBottom: '1px solid color-mix(in srgb, currentColor 20%, transparent)',
@@ -135,11 +144,12 @@ export function Tabs({ props, className, children }: ComponentProps) {
 						}}
 						id={`${tabsId}-tab-${i}`}
 						role="tab"
+						data-mdocui-tab-button
 						aria-selected={i === active}
 						aria-controls={`${tabsId}-panel-${i}`}
 						tabIndex={i === active ? 0 : -1}
 						onClick={() => setActive(i)}
-						style={{
+						style={themed ? undefined : {
 							padding: '8px 16px',
 							background: 'none',
 							border: 'none',
@@ -157,8 +167,9 @@ export function Tabs({ props, className, children }: ComponentProps) {
 			<div
 				id={`${tabsId}-panel-${active}`}
 				role="tabpanel"
+				data-mdocui-tabpanel
 				aria-labelledby={`${tabsId}-tab-${active}`}
-				style={{ paddingTop: '8px' }}
+				style={themed ? undefined : { paddingTop: '8px' }}
 			>
 				{childArray[active] ?? childArray[0]}
 			</div>

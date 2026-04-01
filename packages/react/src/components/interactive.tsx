@@ -8,6 +8,7 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 	const variant = (props.variant as string) ?? 'primary'
 	const disabled = (props.disabled as boolean) ?? false
 	const [clicked, setClicked] = useState(false)
+	const themed = !!className
 
 	const isDisabled = isStreaming || disabled || clicked
 
@@ -29,9 +30,10 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 			className={className}
 			data-mdocui-button
 			data-variant={variant}
+			data-disabled={isDisabled || undefined}
 			disabled={isDisabled}
 			onClick={handleClick}
-			style={{
+			style={themed ? undefined : {
 				padding: '8px 16px',
 				borderRadius: '6px',
 				cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -49,14 +51,16 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 
 export function ButtonGroup({ props, className, children }: ComponentProps) {
 	const direction = (props.direction as string) ?? 'horizontal'
+	const themed = !!className
 
 	return (
 		<div
 			className={className}
 			data-mdocui-button-group
+			data-direction={direction}
 			role="group"
 			aria-label={(props.label as string) ?? undefined}
-			style={{
+			style={themed ? undefined : {
 				display: 'flex',
 				flexDirection: direction === 'vertical' ? 'column' : 'row',
 				gap: '8px',
@@ -74,11 +78,12 @@ export function Input({ props, className }: ComponentProps) {
 	const type = (props.type as string) ?? 'text'
 	const required = (props.required as boolean) ?? false
 	const id = `mdocui-${name}`
+	const themed = !!className
 
 	return (
 		<div className={className} data-mdocui-input>
 			{label && (
-				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+				<label htmlFor={id} data-mdocui-label style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}>
 					{label}
 				</label>
 			)}
@@ -90,7 +95,7 @@ export function Input({ props, className }: ComponentProps) {
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
-				style={{
+				style={themed ? undefined : {
 					width: '100%',
 					padding: '8px 12px',
 					border: '1px solid currentColor',
@@ -112,11 +117,12 @@ export function Textarea({ props, className }: ComponentProps) {
 	const rows = (props.rows as number) ?? 3
 	const required = (props.required as boolean) ?? false
 	const id = `mdocui-${name}`
+	const themed = !!className
 
 	return (
 		<div className={className} data-mdocui-textarea>
 			{label && (
-				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+				<label htmlFor={id} data-mdocui-label style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}>
 					{label}
 				</label>
 			)}
@@ -128,7 +134,7 @@ export function Textarea({ props, className }: ComponentProps) {
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
-				style={{
+				style={themed ? undefined : {
 					width: '100%',
 					padding: '8px 12px',
 					border: '1px solid currentColor',
@@ -149,6 +155,7 @@ export function Toggle({ props, className, onAction, isStreaming }: ComponentPro
 	const label = props.label as string
 	const initialChecked = (props.checked as boolean) ?? false
 	const [isChecked, setIsChecked] = useState(initialChecked)
+	const themed = !!className
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (isStreaming) return
@@ -165,7 +172,7 @@ export function Toggle({ props, className, onAction, isStreaming }: ComponentPro
 		<label
 			className={className}
 			data-mdocui-toggle
-			style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+			style={themed ? undefined : { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
 		>
 			<input
 				type="checkbox"
@@ -187,6 +194,7 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 	const placeholder = props.placeholder as string | undefined
 	const required = (props.required as boolean) ?? false
 	const id = `mdocui-${name}`
+	const themed = !!className
 
 	const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (isStreaming) return
@@ -201,7 +209,7 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 	return (
 		<div className={className} data-mdocui-select>
 			{label && (
-				<label htmlFor={id} style={{ display: 'block', marginBottom: '4px', fontWeight: 500 }}>
+				<label htmlFor={id} data-mdocui-label style={themed ? undefined : { display: 'block', marginBottom: '4px', fontWeight: 500 }}>
 					{label}
 				</label>
 			)}
@@ -212,7 +220,7 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
 				onChange={handleChange}
-				style={{
+				style={themed ? undefined : {
 					width: '100%',
 					padding: '8px 12px',
 					border: '1px solid currentColor',
@@ -237,6 +245,7 @@ export function Checkbox({ props, className, onAction, isStreaming }: ComponentP
 	const name = props.name as string
 	const label = props.label as string
 	const checked = (props.checked as boolean) ?? false
+	const themed = !!className
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (isStreaming) return
@@ -252,7 +261,7 @@ export function Checkbox({ props, className, onAction, isStreaming }: ComponentP
 		<label
 			className={className}
 			data-mdocui-checkbox
-			style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+			style={themed ? undefined : { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
 		>
 			<input type="checkbox" name={name} defaultChecked={checked} onChange={handleChange} />
 			<span>{label}</span>
@@ -264,6 +273,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 	const formName = props.name as string
 	const action = (props.action as string) ?? `submit:${formName}`
 	const [submitted, setSubmitted] = useState(false)
+	const themed = !!className
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -294,7 +304,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 				data-name={formName}
 				data-submitted
 				aria-hidden="true"
-				style={{
+				style={themed ? { opacity: 0.5, pointerEvents: 'none' } : {
 					display: 'flex',
 					flexDirection: 'column',
 					gap: '12px',
@@ -314,7 +324,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 			data-name={formName}
 			aria-label={`${formName} form`}
 			onSubmit={handleSubmit}
-			style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+			style={themed ? undefined : { display: 'flex', flexDirection: 'column', gap: '12px' }}
 		>
 			{children}
 		</form>

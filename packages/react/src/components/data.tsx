@@ -6,6 +6,7 @@ export function Chart({ props, className }: ComponentProps) {
 	const values = Array.isArray(props.values) ? (props.values as number[]).map(Number) : []
 	const title = props.title as string | undefined
 	const max = values.reduce((a, b) => Math.max(a, b), 1)
+	const themed = !!className
 
 	return (
 		<div
@@ -14,14 +15,19 @@ export function Chart({ props, className }: ComponentProps) {
 			data-type={type}
 			role="img"
 			aria-label={title ?? `${type} chart`}
-			style={{ padding: '12px 0' }}
+			style={themed ? undefined : { padding: '12px 0' }}
 		>
-			{title && <div style={{ fontWeight: 600, marginBottom: '12px' }}>{title}</div>}
+			{title && (
+				<div data-mdocui-chart-title style={themed ? undefined : { fontWeight: 600, marginBottom: '12px' }}>
+					{title}
+				</div>
+			)}
 			{(type === 'bar' || type === 'line') && (
-				<div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '140px' }}>
+				<div data-mdocui-chart-bars style={{ display: 'flex', alignItems: 'flex-end', gap: themed ? undefined : '6px', height: themed ? undefined : '140px' }}>
 					{values.map((val, i) => (
 						<div
 							key={labels[i] ?? i}
+							data-mdocui-chart-col
 							style={{
 								flex: 1,
 								textAlign: 'center',
@@ -31,28 +37,27 @@ export function Chart({ props, className }: ComponentProps) {
 								height: '100%',
 							}}
 						>
-							<div style={{ fontSize: '11px', opacity: 0.6, marginBottom: '4px' }}>{val}</div>
+							<div data-mdocui-chart-value style={themed ? undefined : { fontSize: '11px', opacity: 0.6, marginBottom: '4px' }}>{val}</div>
 							<div
 								data-mdocui-chart-bar
 								style={{
 									height: `${Math.max((val / max) * 100, 4)}%`,
 									background: 'currentColor',
-									borderRadius: '4px 4px 0 0',
-									minHeight: '4px',
+									...(themed ? {} : { borderRadius: '4px 4px 0 0', minHeight: '4px' }),
 								}}
 							/>
-							<div style={{ fontSize: '11px', marginTop: '6px', opacity: 0.5 }}>{labels[i]}</div>
+							<div data-mdocui-chart-label style={themed ? undefined : { fontSize: '11px', marginTop: '6px', opacity: 0.5 }}>{labels[i]}</div>
 						</div>
 					))}
 				</div>
 			)}
 			{(type === 'pie' || type === 'donut') && (
-				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+				<div data-mdocui-chart-legend style={{ display: 'flex', gap: themed ? undefined : '12px', flexWrap: 'wrap' }}>
 					{labels.map((label, i) => {
 						const total = values.reduce((a, b) => a + b, 0)
 						const pct = total > 0 ? Math.round((values[i] / total) * 100) : 0
 						return (
-							<span key={label} style={{ fontSize: '13px' }}>
+							<span key={label} data-mdocui-chart-legend-item style={themed ? undefined : { fontSize: '13px' }}>
 								{label}: {values[i]} ({pct}%)
 							</span>
 						)
@@ -67,15 +72,16 @@ export function Table({ props, className }: ComponentProps) {
 	const headers = Array.isArray(props.headers) ? props.headers : []
 	const rows = Array.isArray(props.rows) ? props.rows : []
 	const caption = props.caption as string | undefined
+	const themed = !!className
 
 	return (
 		<table
 			className={className}
 			data-mdocui-table
-			style={{ width: '100%', borderCollapse: 'collapse' }}
+			style={themed ? undefined : { width: '100%', borderCollapse: 'collapse' }}
 		>
 			{caption && (
-				<caption style={{ textAlign: 'left', fontWeight: 600, marginBottom: '8px' }}>
+				<caption data-mdocui-table-caption style={themed ? undefined : { textAlign: 'left', fontWeight: 600, marginBottom: '8px' }}>
 					{caption}
 				</caption>
 			)}
@@ -84,7 +90,7 @@ export function Table({ props, className }: ComponentProps) {
 					{headers.map((h) => (
 						<th
 							key={h}
-							style={{
+							style={themed ? undefined : {
 								textAlign: 'left',
 								padding: '8px',
 								borderBottom: '2px solid currentColor',
@@ -108,7 +114,7 @@ export function Table({ props, className }: ComponentProps) {
 								return (
 									<td
 										key={cellKey}
-										style={{ padding: '8px', borderBottom: '1px solid currentColor', opacity: 0.8 }}
+										style={themed ? undefined : { padding: '8px', borderBottom: '1px solid currentColor', opacity: 0.8 }}
 									>
 										{cell}
 									</td>
@@ -127,12 +133,13 @@ export function Stat({ props, className }: ComponentProps) {
 	const value = props.value as string
 	const change = props.change as string | undefined
 	const trend = (props.trend as string) ?? 'neutral'
+	const themed = !!className
 
 	return (
-		<div className={className} data-mdocui-stat data-trend={trend} style={{ padding: '8px 0' }}>
-			<div style={{ fontSize: '13px', opacity: 0.6 }}>{label}</div>
-			<div style={{ fontSize: '24px', fontWeight: 700 }}>{value}</div>
-			{change && <div style={{ fontSize: '13px' }}>{change}</div>}
+		<div className={className} data-mdocui-stat data-trend={trend} style={themed ? undefined : { padding: '8px 0' }}>
+			<div data-mdocui-stat-label style={themed ? undefined : { fontSize: '13px', opacity: 0.6 }}>{label}</div>
+			<div data-mdocui-stat-value style={themed ? undefined : { fontSize: '24px', fontWeight: 700 }}>{value}</div>
+			{change && <div data-mdocui-stat-change style={themed ? undefined : { fontSize: '13px' }}>{change}</div>}
 		</div>
 	)
 }
@@ -142,6 +149,7 @@ export function Progress({ props, className }: ComponentProps) {
 	const label = props.label as string | undefined
 	const max = Number(props.max) || 100
 	const pct = Math.min(100, Math.max(0, (value / max) * 100))
+	const themed = !!className
 
 	return (
 		<div
@@ -155,7 +163,8 @@ export function Progress({ props, className }: ComponentProps) {
 		>
 			{label && (
 				<div
-					style={{
+					data-mdocui-progress-label
+					style={themed ? undefined : {
 						fontSize: '13px',
 						marginBottom: '4px',
 						display: 'flex',
@@ -163,12 +172,12 @@ export function Progress({ props, className }: ComponentProps) {
 					}}
 				>
 					<span>{label}</span>
-					<span style={{ opacity: 0.6 }}>{Math.round(pct)}%</span>
+					<span data-mdocui-progress-pct style={themed ? undefined : { opacity: 0.6 }}>{Math.round(pct)}%</span>
 				</div>
 			)}
 			<div
 				data-mdocui-progress-track
-				style={{
+				style={themed ? undefined : {
 					height: '8px',
 					background: 'currentColor',
 					borderRadius: '4px',
@@ -179,10 +188,12 @@ export function Progress({ props, className }: ComponentProps) {
 				<div
 					data-mdocui-progress-fill
 					style={{
-						height: '100%',
 						width: `${pct}%`,
-						background: 'currentColor',
-						borderRadius: '4px',
+						...(themed ? {} : {
+							height: '100%',
+							background: 'currentColor',
+							borderRadius: '4px',
+						}),
 					}}
 				/>
 			</div>
