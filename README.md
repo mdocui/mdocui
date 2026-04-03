@@ -24,6 +24,10 @@ LLMs write natural markdown **and** drop interactive UI components in the same s
 
 **Key features:** built-in prose rendering, component merging, CLI scaffolder, error boundaries, streaming animations, shimmer placeholders, prop validation, context data passthrough, and configurable prompt verbosity.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mdocui/.github/main/assets/demo.gif" alt="mdocUI demo — streaming dashboard with charts, stats, and tables" width="800">
+</p>
+
 ```
 The Q4 results show strong growth across all segments.
 
