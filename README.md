@@ -9,11 +9,14 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-6.0-blue" alt="TypeScript"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node-%E2%89%A522-green" alt="Node"></a>
+  <a href="#"><img src="https://img.shields.io/badge/Status-Alpha-orange" alt="Alpha"></a>
 </p>
 
 <p align="center">
   <a href="https://mdocui.github.io">Documentation</a> · <a href="https://mdocui.vercel.app">Live Demo</a> · <a href="https://www.npmjs.com/org/mdocui">npm</a>
 </p>
+
+> **Alpha** -- mdocUI is under active development. The API may change between minor versions. We follow [semver](https://semver.org/) and will reach 1.0 once the API stabilizes.
 
 Generative UI library for LLMs using Markdoc `{% %}` tag syntax inline with markdown prose.
 
@@ -83,9 +86,9 @@ Markdoc's `{% %}` delimiters are unambiguous — they never appear in normal pro
 
 | Package | Description | Status |
 |---------|-------------|--------|
-| [`@mdocui/core`](packages/core) | Streaming parser, tokenizer, component registry, prompt generator | Stable |
-| [`@mdocui/react`](packages/react) | React renderer, 24 default components, `useRenderer` hook | Stable |
-| [`@mdocui/cli`](packages/cli) | Scaffold, generate system prompts, preview | Stable |
+| [`@mdocui/core`](packages/core) | Streaming parser, tokenizer, component registry, prompt generator | Alpha |
+| [`@mdocui/react`](packages/react) | React renderer, 24 default components, `useRenderer` hook | Alpha |
+| [`@mdocui/cli`](packages/cli) | Scaffold, generate system prompts, preview | Alpha |
 
 ## Quick Start
 
