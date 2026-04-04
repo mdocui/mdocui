@@ -10,6 +10,7 @@
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-6.0-blue" alt="TypeScript"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node-%E2%89%A522-green" alt="Node"></a>
   <a href="#"><img src="https://img.shields.io/badge/Status-Alpha-orange" alt="Alpha"></a>
+  <a href="https://github.com/sponsors/pnutmath"><img src="https://img.shields.io/github/sponsors/pnutmath?style=flat-square&label=Sponsor" alt="Sponsor pnutmath"></a>
 </p>
 
 <p align="center">
