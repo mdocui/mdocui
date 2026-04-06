@@ -14,8 +14,8 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 
 	const handleClick = () => {
 		if (isDisabled) return
-		// Exclude known button props; everything else forwarded as params
-		const { action: _a, label: _l, disabled: _d, variant: _v, ...rest } = props
+		const knownKeys = new Set(['action', 'label', 'disabled', 'variant'])
+		const rest = Object.fromEntries(Object.entries(props).filter(([k]) => !knownKeys.has(k)))
 		const event: ActionEvent = {
 			type: 'button_click',
 			action,
@@ -61,6 +61,7 @@ export function ButtonGroup({ props, className, children }: ComponentProps) {
 	const themed = !!className
 
 	return (
+		// biome-ignore lint/a11y/useSemanticElements: fieldset carries browser default border/padding that breaks unstyled layout
 		<div
 			className={className}
 			data-mdocui-button-group
