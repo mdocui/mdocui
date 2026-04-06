@@ -121,6 +121,38 @@ describe('Interactive components', () => {
 		expect(handler).not.toHaveBeenCalled()
 	})
 
+	it('forwards extra props as params on button_click', () => {
+		const handler = vi.fn()
+		renderNodes(
+			[
+				componentNode('button', {
+					action: 'open_article',
+					label: 'View',
+					url: '/a/1',
+					articleId: 'a1',
+				}),
+			],
+			handler,
+		)
+		fireEvent.click(screen.getByText('View'))
+		expect(handler).toHaveBeenCalledWith(
+			expect.objectContaining({
+				type: 'button_click',
+				action: 'open_article',
+				label: 'View',
+				params: { url: '/a/1', articleId: 'a1' },
+			}),
+		)
+	})
+
+	it('omits params on button_click when no extra props', () => {
+		const handler = vi.fn()
+		renderNodes([componentNode('button', { action: 'go', label: 'Go' })], handler)
+		fireEvent.click(screen.getByText('Go'))
+		const event = handler.mock.calls[0][0]
+		expect(event.params).toBeUndefined()
+	})
+
 	it('renders button-group', () => {
 		renderNodes([
 			componentNode('button-group', { direction: 'horizontal' }, [

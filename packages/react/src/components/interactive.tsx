@@ -14,11 +14,14 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 
 	const handleClick = () => {
 		if (isDisabled) return
+		// Exclude known button props; everything else forwarded as params
+		const { action: _a, label: _l, disabled: _d, variant: _v, ...rest } = props
 		const event: ActionEvent = {
 			type: 'button_click',
 			action,
 			label,
 			tagName: 'button',
+			...(Object.keys(rest).length > 0 && { params: rest }),
 		}
 		onAction(event)
 		setClicked(true)

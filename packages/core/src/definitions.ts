@@ -82,14 +82,16 @@ export const tab = defineComponent({
 export const button = defineComponent({
 	name: 'button',
 	description: 'Clickable action button',
-	props: z.object({
-		action: z.string().describe('Action identifier — "continue" sends label as new message'),
-		label: z.string().describe('Button text'),
-		variant: ciEnum(['primary', 'secondary', 'outline', 'ghost'])
-			.optional()
-			.describe('Visual style'),
-		disabled: z.coerce.boolean().optional().describe('Whether button is disabled'),
-	}),
+	props: z
+		.object({
+			action: z.string().describe('Action identifier — "continue" sends label as new message'),
+			label: z.string().describe('Button text'),
+			variant: ciEnum(['primary', 'secondary', 'outline', 'ghost'])
+				.optional()
+				.describe('Visual style'),
+			disabled: z.coerce.boolean().optional().describe('Whether button is disabled'),
+		})
+		.passthrough(),
 	children: 'none',
 })
 

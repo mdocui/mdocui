@@ -30,7 +30,7 @@ export class ComponentRegistry {
 		return this
 	}
 
-	registerAll(definitions: ComponentDefinition[]): this {
+	registerAll(definitions: readonly ComponentDefinition[]): this {
 		for (const def of definitions) this.register(def)
 		return this
 	}
