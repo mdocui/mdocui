@@ -157,6 +157,25 @@ export const myComponent = defineComponent({
 })
 ```
 
+#### Always add `.describe()` to every prop
+
+`generatePrompt()` sources prop descriptions directly from Zod's `.describe()`. **Without it, the generated prompt shows a blank description and the LLM will guess — producing hallucinated field names, wrong types, and malformed values at runtime.**
+
+Always describe:
+- **Array props** — type alone (`string[]`) tells the LLM nothing about element shape
+- **Enum props** — add context for when each variant should be used
+- **Any prop whose purpose isn't obvious from its name**
+
+```ts
+// ❌ LLM sees:  labels — string[]:
+labels: z.array(z.string()),
+
+// ✓ LLM sees:  labels — string[]: Category labels for the X-axis, e.g. ["Q1","Q2","Q3"]
+labels: z.array(z.string()).describe('Category labels for the X-axis, e.g. ["Q1","Q2","Q3"]'),
+```
+
+The built-in definitions in `packages/core/src/definitions.ts` follow this convention throughout — use them as a reference.
+
 ---
 
 ### `generatePrompt`
