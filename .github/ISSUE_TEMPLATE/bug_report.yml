@@ -1,0 +1,58 @@
+name: Bug Report
+description: Something is broken in mdocui
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in as much detail as possible.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package is affected?
+      multiple: true
+      options:
+        - "@mdocui/core"
+        - "@mdocui/react"
+        - "@mdocui/cli"
+        - Unknown / Multiple
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: A code snippet or repo link that reproduces the issue.
+      render: typescript
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Node version, framework, renderer (React / other).
+      placeholder: |
+        @mdocui/core: x.y.z
+        @mdocui/react: x.y.z
+        Node: 20.x
+        Framework: Next.js 15
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Error messages, screenshots, or anything else relevant.

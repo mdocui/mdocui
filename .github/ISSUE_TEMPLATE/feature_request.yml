@@ -1,0 +1,52 @@
+name: Feature Request
+description: Suggest a new tag, API, or behavior for mdocui
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to propose new Markdoc tags, renderer APIs, schema options, or CLI features.
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      description: Which package would this affect?
+      multiple: true
+      options:
+        - "@mdocui/core"
+        - "@mdocui/react"
+        - "@mdocui/cli"
+        - New package
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that mdocui doesn't support today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: |
+        Describe the API or tag syntax you have in mind.
+        If proposing a new Markdoc tag, show the expected `.mdoc` syntax and the rendered output.
+      render: markdown
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds or other approaches you've tried?
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
