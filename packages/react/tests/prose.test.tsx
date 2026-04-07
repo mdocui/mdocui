@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { SimpleMarkdown } from '../src/prose'
 
@@ -264,8 +264,10 @@ describe('SimpleMarkdown', () => {
 
 	describe('plain text passthrough', () => {
 		it('renders plain text without any formatting elements', () => {
-			render(<SimpleMarkdown content="Just plain text" dataKey="t13" />)
-			expect(screen.getByText('Just plain text')).toBeDefined()
+			const { container } = render(<SimpleMarkdown content="Just plain text" dataKey="t13" />)
+			const p = container.querySelector('p')
+			expect(p).toBeTruthy()
+			expect(p?.textContent).toBe('Just plain text')
 		})
 
 		it('wraps plain text in a paragraph', () => {
