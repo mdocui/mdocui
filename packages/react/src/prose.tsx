@@ -20,7 +20,7 @@ function parseInline(text: string): InlineToken[] {
 	const tokens: InlineToken[] = []
 	// Order matters: bold+italic (***) before bold (**) before italic (*)
 	const pattern =
-		/(\*\*\*(.+?)\*\*\*|___(.+?)___)|(~~(.+?)~~)|(\*\*(.+?)\*\*|__(.+?)__)|(\*(.+?)\*|_([^_]+?)_)|(`([^`]+?)`)|(\[([^\]]+?)\]\(([^)]+?)\))/g
+		/(\*\*\*([^*]+?)\*\*\*|___([^_]+?)___)|(~~([^~]+?)~~)|(\*\*([^*]+?)\*\*|__([^_]+?)__)|(\*([^*\n]+?)\*|_([^_\n]+?)_)|(`([^`]+)`)|(\[([^\]\[]+)\]\(([^)\s]+)\))/g
 
 	let lastIndex = 0
 	let match: RegExpExecArray | null = pattern.exec(text)
@@ -106,9 +106,9 @@ interface Block {
 	content?: string // for heading / paragraph
 }
 
-const HEADING_RE = /^(#{1,3})\s+(.+)$/
-const UL_RE = /^\s*[-*]\s+(.+)$/
-const OL_RE = /^\s*\d+[.)]\s+(.+)$/
+const HEADING_RE = /^(#{1,3})[ \t]+(.+)$/
+const UL_RE = /^[-*][ \t]+(.+)$/
+const OL_RE = /^\d+[.)][ \t]+(.+)$/
 
 function parseBlocks(content: string): Block[] {
 	const lines = content.split('\n')
