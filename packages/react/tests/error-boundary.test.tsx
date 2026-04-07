@@ -106,6 +106,78 @@ describe('MdocUIErrorBoundary', () => {
 		expect(container.textContent).toContain('Component "widget" failed to render.')
 	})
 
+	it('shows last valid children when component throws after a successful render', () => {
+		const { container, rerender } = render(
+			<MdocUIErrorBoundary componentName="chart">
+				<GoodComponent />
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('Works fine')
+
+		rerender(
+			<MdocUIErrorBoundary componentName="chart">
+				<ThrowingComponent />
+			</MdocUIErrorBoundary>,
+		)
+		// Last valid output shown — no error fallback
+		expect(container.textContent).toContain('Works fine')
+		expect(container.querySelector('[data-mdocui-error]')).toBeNull()
+	})
+
+	it('recovers to new children after resetKey changes following a last-valid state', () => {
+		const { container, rerender } = render(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k1">
+				<GoodComponent />
+			</MdocUIErrorBoundary>,
+		)
+
+		rerender(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k1">
+				<ThrowingComponent />
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('Works fine') // last valid shown
+
+		rerender(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k2">
+				<span>New content</span>
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('New content')
+		expect(container.querySelector('[data-mdocui-error]')).toBeNull()
+	})
+
+	it('shows last valid children when component throws again after a resetKey reset', () => {
+		const { container, rerender } = render(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k1">
+				<GoodComponent />
+			</MdocUIErrorBoundary>,
+		)
+		rerender(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k1">
+				<ThrowingComponent />
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('Works fine')
+
+		rerender(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k2">
+				<GoodComponent />
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('Works fine')
+
+		// After reset, the successful reset render is captured as last-valid.
+		// A subsequent throw shows that snapshot, not the error fallback.
+		rerender(
+			<MdocUIErrorBoundary componentName="chart" resetKey="k2">
+				<ThrowingComponent />
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('Works fine')
+		expect(container.querySelector('[data-mdocui-error]')).toBeNull()
+	})
+
 	it('stays in error state when resetKey is undefined throughout', () => {
 		const { container, rerender } = render(
 			<MdocUIErrorBoundary componentName="widget">

@@ -1,6 +1,8 @@
 import type { ErrorInfo, ReactNode } from 'react'
 import { Component } from 'react'
 
+const NO_SNAPSHOT = Symbol('no-snapshot')
+
 interface MdocUIErrorBoundaryProps {
 	componentName?: string
 	resetKey?: string
@@ -17,6 +19,8 @@ export class MdocUIErrorBoundary extends Component<
 	MdocUIErrorBoundaryProps,
 	MdocUIErrorBoundaryState
 > {
+	private lastValidChildren: ReactNode | typeof NO_SNAPSHOT = NO_SNAPSHOT
+
 	constructor(props: MdocUIErrorBoundaryProps) {
 		super(props)
 		this.state = { hasError: false, error: null, prevResetKey: props.resetKey }
@@ -39,17 +43,38 @@ export class MdocUIErrorBoundary extends Component<
 		return null
 	}
 
+	componentDidMount(): void {
+		if (!this.state.hasError && this.props.children != null) {
+			this.lastValidChildren = this.props.children
+		}
+	}
+
+	componentDidUpdate(
+		_prevProps: MdocUIErrorBoundaryProps,
+		prevState: MdocUIErrorBoundaryState,
+	): void {
+		if (prevState.hasError && !this.state.hasError) {
+			this.lastValidChildren = NO_SNAPSHOT
+		}
+		if (!this.state.hasError && this.props.children != null) {
+			this.lastValidChildren = this.props.children
+		}
+	}
+
 	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
 		const name = this.props.componentName ?? 'unknown'
 		console.error(
 			`[mdocui] Component <${name}> threw an error during render:`,
 			error,
-			errorInfo.componentStack,
+			errorInfo.componentStack ?? '',
 		)
 	}
 
 	render() {
 		if (this.state.hasError) {
+			if (this.lastValidChildren !== NO_SNAPSHOT) {
+				return this.lastValidChildren
+			}
 			const name = this.props.componentName
 			return (
 				<div
