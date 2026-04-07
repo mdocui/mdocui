@@ -20,7 +20,7 @@ function parseInline(text: string): InlineToken[] {
 	const tokens: InlineToken[] = []
 	// Order matters: bold+italic (***) before bold (**) before italic (*)
 	const pattern =
-		/(\*\*\*([^*]+?)\*\*\*|___([^_]+?)___)|(~~([^~]+?)~~)|(\*\*([^*]+?)\*\*|__([^_]+?)__)|(\*([^*\n]+?)\*|_([^_\n]+?)_)|(`([^`]+)`)|(\[([^\][]+)\]\(([^)\s]+)\))/g
+		/(\*\*\*([^*]+?)\*\*\*|___([^_]+?)___)|(~~([^~]+?)~~)|(\*\*([^*]+?)\*\*|__([^_]+?)__)|(\*([^*]+?)\*|_([^_]+?)_)|(`([^`]+)`)|(\[([^\][]+)\]\(([^)\s]+)\))/g
 
 	let lastIndex = 0
 	let match: RegExpExecArray | null = pattern.exec(text)
