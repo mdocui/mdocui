@@ -10,6 +10,60 @@ function createRegistry() {
 }
 
 describe('useRenderer', () => {
+	describe('push', () => {
+		it('sets isStreaming=true on first push', async () => {
+			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
+
+			await act(async () => {
+				result.current.push('Hello world')
+			})
+
+			expect(result.current.isStreaming).toBe(true)
+		})
+
+		it('updates nodes after push via RAF', async () => {
+			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
+
+			await act(async () => {
+				result.current.push('Hello world')
+			})
+
+			expect(result.current.nodes.length).toBeGreaterThan(0)
+		})
+
+		it('done() flushes final state and clears isStreaming', async () => {
+			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
+
+			await act(async () => {
+				result.current.push('Hello {% stat label="Rev" value="$1M" /%}')
+			})
+
+			await act(async () => {
+				result.current.done()
+			})
+
+			expect(result.current.isStreaming).toBe(false)
+			expect(result.current.meta.isComplete).toBe(true)
+			expect(result.current.nodes.length).toBeGreaterThan(0)
+		})
+
+		it('renders latest state when multiple pushes arrive in same frame', async () => {
+			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
+
+			await act(async () => {
+				result.current.push('Hello ')
+				result.current.push('**world**')
+				result.current.push(' how are you')
+			})
+
+			expect(result.current.nodes.length).toBeGreaterThan(0)
+			const prose = result.current.nodes.find((n) => n.type === 'prose')
+			// all three chunks must be present — verifies coalescing read latest parser state
+			expect(prose?.content).toContain('Hello')
+			expect(prose?.content).toContain('how are you')
+		})
+	})
+
 	describe('replaceContent', () => {
 		it('defaults to non-streaming (flush + isStreaming=false)', () => {
 			const { result } = renderHook(() => useRenderer({ registry: createRegistry() }))
@@ -110,7 +164,10 @@ describe('useRenderer', () => {
 				result.current.done()
 			})
 			expect(result.current.isStreaming).toBe(false)
-			expect(result.current.nodes.length).toBe(2) // prose + stat
+			expect(result.current.nodes.some((n) => n.type === 'prose')).toBe(true)
+			expect(result.current.nodes.some((n) => n.type === 'component' && n.name === 'stat')).toBe(
+				true,
+			)
 		})
 	})
 })

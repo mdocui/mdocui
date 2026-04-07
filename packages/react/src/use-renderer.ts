@@ -1,6 +1,6 @@
 import type { ASTNode, ParseMeta } from '@mdocui/core'
 import { type ComponentRegistry, StreamingParser } from '@mdocui/core'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseRendererOptions {
 	registry: ComponentRegistry
@@ -28,9 +28,14 @@ export interface UseRendererReturn {
 export function useRenderer({ registry }: UseRendererOptions): UseRendererReturn {
 	const parserRef = useRef<StreamingParser | null>(null)
 	const registryRef = useRef(registry)
+	// NOTE: registry is captured once at parser creation time. If registry changes
+	// after the first push(), call reset() first to pick up the new tag definitions.
 	registryRef.current = registry
 
 	const streamingRef = useRef(false)
+	const doneRef = useRef(false)
+	const rafRef = useRef<number | null>(null)
+
 	const [nodes, setNodes] = useState<ASTNode[]>([])
 	const [meta, setMeta] = useState<ParseMeta>({ errors: [], nodeCount: 0, isComplete: true })
 	const [isStreaming, setIsStreaming] = useState(false)
@@ -46,29 +51,50 @@ export function useRenderer({ registry }: UseRendererOptions): UseRendererReturn
 
 	const push = useCallback(
 		(chunk: string) => {
+			if (doneRef.current) return
 			if (!streamingRef.current) {
 				streamingRef.current = true
 				setIsStreaming(true)
 			}
-			const parser = getParser()
-			parser.write(chunk)
-			setNodes([...parser.getNodes()])
-			setMeta(parser.getMeta())
+			getParser().write(chunk)
+
+			// Schedule a render for the next frame if one isn't already pending.
+			// This guarantees at most one React update per frame (~60fps) regardless
+			// of how fast tokens arrive, while always rendering the latest parser state.
+			if (rafRef.current === null) {
+				rafRef.current = requestAnimationFrame(() => {
+					rafRef.current = null
+					const current = parserRef.current
+					if (!current) return
+					setNodes([...current.getNodes()])
+					setMeta(current.getMeta())
+				})
+			}
 		},
 		[getParser],
 	)
 
 	const done = useCallback(() => {
+		if (rafRef.current !== null) {
+			cancelAnimationFrame(rafRef.current)
+			rafRef.current = null
+		}
 		const parser = getParser()
 		parser.flush()
 		setNodes([...parser.getNodes()])
 		setMeta(parser.getMeta())
 		streamingRef.current = false
+		doneRef.current = true
 		setIsStreaming(false)
 	}, [getParser])
 
 	const replaceContent = useCallback(
 		(content: string, options?: ReplaceContentOptions) => {
+			if (rafRef.current !== null) {
+				cancelAnimationFrame(rafRef.current)
+				rafRef.current = null
+			}
+			doneRef.current = false
 			parserRef.current?.reset()
 			parserRef.current = null
 			const parser = getParser()
@@ -90,12 +116,23 @@ export function useRenderer({ registry }: UseRendererOptions): UseRendererReturn
 	)
 
 	const reset = useCallback(() => {
+		if (rafRef.current !== null) {
+			cancelAnimationFrame(rafRef.current)
+			rafRef.current = null
+		}
+		doneRef.current = false
 		parserRef.current?.reset()
 		parserRef.current = null
 		setNodes([])
 		setMeta({ errors: [], nodeCount: 0, isComplete: true })
 		streamingRef.current = false
 		setIsStreaming(false)
+	}, [])
+
+	useEffect(() => {
+		return () => {
+			if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+		}
 	}, [])
 
 	return { nodes, meta, isStreaming, push, replaceContent, done, reset }

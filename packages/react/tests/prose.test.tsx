@@ -7,14 +7,14 @@ describe('SimpleMarkdown', () => {
 		it('renders **text** as <strong>', () => {
 			const { container } = render(<SimpleMarkdown content="Hello **world**" dataKey="t1" />)
 			const strong = container.querySelector('strong')
-			expect(strong).toBeTruthy()
+			expect(strong).not.toBeNull()
 			expect(strong?.textContent).toBe('world')
 		})
 
 		it('renders __text__ as <strong>', () => {
 			const { container } = render(<SimpleMarkdown content="Hello __world__" dataKey="t2" />)
 			const strong = container.querySelector('strong')
-			expect(strong).toBeTruthy()
+			expect(strong).not.toBeNull()
 			expect(strong?.textContent).toBe('world')
 		})
 	})
@@ -23,14 +23,14 @@ describe('SimpleMarkdown', () => {
 		it('renders *text* as <em>', () => {
 			const { container } = render(<SimpleMarkdown content="Hello *world*" dataKey="t3" />)
 			const em = container.querySelector('em')
-			expect(em).toBeTruthy()
+			expect(em).not.toBeNull()
 			expect(em?.textContent).toBe('world')
 		})
 
 		it('renders _text_ as <em>', () => {
 			const { container } = render(<SimpleMarkdown content="Hello _world_" dataKey="t4" />)
 			const em = container.querySelector('em')
-			expect(em).toBeTruthy()
+			expect(em).not.toBeNull()
 			expect(em?.textContent).toBe('world')
 		})
 	})
@@ -40,8 +40,9 @@ describe('SimpleMarkdown', () => {
 			const { container } = render(<SimpleMarkdown content="Hello ***world***" dataKey="bi1" />)
 			const strong = container.querySelector('strong')
 			const em = strong?.querySelector('em')
-			expect(strong).toBeTruthy()
-			expect(em).toBeTruthy()
+			expect(strong).not.toBeNull()
+			expect(em).not.toBeNull()
+			expect(em?.parentElement).toBe(strong)
 			expect(em?.textContent).toBe('world')
 		})
 
@@ -49,8 +50,9 @@ describe('SimpleMarkdown', () => {
 			const { container } = render(<SimpleMarkdown content="Hello ___world___" dataKey="bi2" />)
 			const strong = container.querySelector('strong')
 			const em = strong?.querySelector('em')
-			expect(strong).toBeTruthy()
-			expect(em).toBeTruthy()
+			expect(strong).not.toBeNull()
+			expect(em).not.toBeNull()
+			expect(em?.parentElement).toBe(strong)
 			expect(em?.textContent).toBe('world')
 		})
 	})
@@ -91,6 +93,7 @@ describe('SimpleMarkdown', () => {
 				<SimpleMarkdown content="[click](javascript:alert(1))" dataKey="t-xss1" />,
 			)
 			const link = container.querySelector('a')
+			expect(link).toBeTruthy()
 			expect(link?.getAttribute('href')).toBeNull()
 		})
 
@@ -99,6 +102,28 @@ describe('SimpleMarkdown', () => {
 				<SimpleMarkdown content="[click](//evil.com)" dataKey="t-xss2" />,
 			)
 			const link = container.querySelector('a')
+			expect(link).toBeTruthy()
+			expect(link?.getAttribute('href')).toBeNull()
+		})
+
+		it('blocks data: URIs', () => {
+			const { container } = render(
+				<SimpleMarkdown
+					content="[click](data:text/html,<script>alert(1)</script>)"
+					dataKey="t-xss3"
+				/>,
+			)
+			const link = container.querySelector('a')
+			expect(link).toBeTruthy()
+			expect(link?.getAttribute('href')).toBeNull()
+		})
+
+		it('blocks vbscript: hrefs', () => {
+			const { container } = render(
+				<SimpleMarkdown content="[click](vbscript:msgbox(1))" dataKey="t-xss4" />,
+			)
+			const link = container.querySelector('a')
+			expect(link).toBeTruthy()
 			expect(link?.getAttribute('href')).toBeNull()
 		})
 
