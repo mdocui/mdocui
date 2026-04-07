@@ -217,7 +217,7 @@ describe('Interactive components', () => {
 		expect(screen.getByText('I agree')).toBeDefined()
 	})
 
-	it('fires select_change on checkbox toggle', () => {
+	it('fires select_change event when checkbox is toggled', () => {
 		const handler = vi.fn()
 		const { container } = renderNodes(
 			[componentNode('checkbox', { name: 'terms', label: 'Accept terms' })],
@@ -225,6 +225,7 @@ describe('Interactive components', () => {
 		)
 		const cb = container.querySelector('input[type="checkbox"]') as HTMLInputElement
 		fireEvent.click(cb)
+		expect(cb.checked).toBe(true)
 		expect(handler).toHaveBeenCalledOnce()
 		const event: ActionEvent = handler.mock.calls[0][0]
 		expect(event.type).toBe('select_change')

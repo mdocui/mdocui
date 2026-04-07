@@ -284,11 +284,12 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 export function Checkbox({ props, className, onAction, isStreaming }: ComponentProps) {
 	const name = props.name as string
 	const label = props.label as string
-	const checked = (props.checked as boolean) ?? false
+	const [isChecked, setIsChecked] = useState((props.checked as boolean) ?? false)
 	const themed = !!className
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (isStreaming) return
+		setIsChecked(e.target.checked)
 		onAction({
 			type: 'select_change',
 			action: `change:${name}`,
@@ -307,7 +308,7 @@ export function Checkbox({ props, className, onAction, isStreaming }: ComponentP
 					: { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }
 			}
 		>
-			<input type="checkbox" name={name} defaultChecked={checked} onChange={handleChange} />
+			<input type="checkbox" name={name} checked={isChecked} onChange={handleChange} />
 			<span>{label}</span>
 		</label>
 	)
@@ -325,9 +326,10 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 
 		const formData = new FormData(e.currentTarget)
 		const state: Record<string, unknown> = {}
-		formData.forEach((value, key) => {
-			state[key] = value
-		})
+		for (const key of new Set(formData.keys())) {
+			const values = formData.getAll(key)
+			state[key] = values.length === 1 ? values[0] : values
+		}
 
 		const event: ActionEvent = {
 			type: 'form_submit',

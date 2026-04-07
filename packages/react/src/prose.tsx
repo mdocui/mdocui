@@ -16,16 +16,33 @@ interface InlineToken {
 	href?: string
 }
 
+// Order matters: bold+italic (***) before bold (**) before italic (*)
+const INLINE_PATTERN =
+	/(\*\*\*([^*]+?)\*\*\*|___([^_]+?)___)|(~~([^~]+?)~~)|(\*\*([^*]+?)\*\*|__([^_]+?)__)|(\*([^*\n]+?)\*|_([^_\n]+?)_)|(`([^`]+)`)|(\[([^\][]+)\]\(([^)\s]+)\))/g
+
+function sanitizeHref(href?: string): string | undefined {
+	if (!href) return undefined
+	const trimmed = href.trim()
+	const lower = trimmed.toLowerCase()
+	if (
+		lower.startsWith('http://') ||
+		lower.startsWith('https://') ||
+		lower.startsWith('mailto:') ||
+		lower.startsWith('tel:') ||
+		(trimmed.startsWith('/') && !trimmed.startsWith('//')) ||
+		trimmed.startsWith('#') ||
+		trimmed.startsWith('?')
+	) {
+		return trimmed
+	}
+	return undefined
+}
+
 function parseInline(text: string): InlineToken[] {
 	const tokens: InlineToken[] = []
-	// Order matters: bold+italic (***) before bold (**) before italic (*)
-	const pattern =
-		/(\*\*\*([^*]+?)\*\*\*|___([^_]+?)___)|(~~([^~]+?)~~)|(\*\*([^*]+?)\*\*|__([^_]+?)__)|(\*([^*\n]+?)\*|_([^_\n]+?)_)|(`([^`]+)`)|(\[([^\][]+)\]\(([^)\s]+)\))/g
-
 	let lastIndex = 0
-	let match: RegExpExecArray | null = pattern.exec(text)
 
-	while (match !== null) {
+	for (const match of text.matchAll(INLINE_PATTERN)) {
 		if (match.index > lastIndex) {
 			tokens.push({ type: 'text', content: text.slice(lastIndex, match.index) })
 		}
@@ -51,7 +68,6 @@ function parseInline(text: string): InlineToken[] {
 		}
 
 		lastIndex = match.index + match[0].length
-		match = pattern.exec(text)
 	}
 
 	if (lastIndex < text.length) {
@@ -90,7 +106,7 @@ function renderInline(tokens: InlineToken[], keyPrefix: string): React.ReactNode
 			case 'link':
 				return createElement(
 					'a',
-					{ key, href: token.href, target: '_blank', rel: 'noopener noreferrer' },
+					{ key, href: sanitizeHref(token.href), target: '_blank', rel: 'noopener noreferrer' },
 					token.content,
 				)
 			default:
@@ -106,8 +122,11 @@ interface Block {
 	content?: string // for heading / paragraph
 }
 
+// Matches markdown headings: 1–3 leading '#' characters, followed by space/tab, then non-whitespace content
 const HEADING_RE = /^(#{1,3})[ \t]+(\S.*)$/
+// Matches unordered list items: leading '-' or '*', followed by space/tab, then non-whitespace content
 const UL_RE = /^[-*][ \t]+(\S.*)$/
+// Matches ordered list items: one or more digits, then '.' or ')', followed by space/tab, then non-whitespace content
 const OL_RE = /^\d+[.)][ \t]+(\S.*)$/
 
 function parseBlocks(content: string): Block[] {
@@ -209,6 +228,13 @@ export interface SimpleMarkdownProps {
 	dataKey: string
 }
 
+/**
+ * Render a lightweight subset of markdown content as React elements.
+ *
+ * @param content - The markdown-like text to parse and render.
+ * @param dataKey - Base key used for React element keys and the `data-mdocui-prose` attribute.
+ * @returns A React node tree representing the rendered markdown content.
+ */
 export function SimpleMarkdown({ content, dataKey }: SimpleMarkdownProps): React.ReactNode {
 	const blocks = parseBlocks(content)
 

@@ -85,6 +85,32 @@ describe('SimpleMarkdown', () => {
 			expect(link?.getAttribute('target')).toBe('_blank')
 			expect(link?.getAttribute('rel')).toBe('noopener noreferrer')
 		})
+
+		it('blocks javascript: hrefs', () => {
+			const { container } = render(
+				<SimpleMarkdown content="[click](javascript:alert(1))" dataKey="t-xss1" />,
+			)
+			const link = container.querySelector('a')
+			expect(link?.getAttribute('href')).toBeNull()
+		})
+
+		it('blocks protocol-relative hrefs like //evil.com', () => {
+			const { container } = render(
+				<SimpleMarkdown content="[click](//evil.com)" dataKey="t-xss2" />,
+			)
+			const link = container.querySelector('a')
+			expect(link?.getAttribute('href')).toBeNull()
+		})
+
+		it('allows relative paths and anchor hrefs', () => {
+			const { container: c1 } = render(<SimpleMarkdown content="[page](/about)" dataKey="t-rel1" />)
+			expect(c1.querySelector('a')?.getAttribute('href')).toBe('/about')
+
+			const { container: c2 } = render(
+				<SimpleMarkdown content="[section](#intro)" dataKey="t-rel2" />,
+			)
+			expect(c2.querySelector('a')?.getAttribute('href')).toBe('#intro')
+		})
 	})
 
 	describe('headings', () => {
