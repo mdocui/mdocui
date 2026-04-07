@@ -75,6 +75,7 @@ function Chat() {
 
   // Feed LLM chunks: push(chunk)
   // When stream ends: done()
+  // useRenderer automatically batches renders to at most one per frame (~60fps)
 
   return (
     <Renderer
@@ -87,6 +88,9 @@ function Chat() {
       classNames={{ button: 'bg-blue-600 text-white', card: 'border-zinc-700' }}
       onAction={(event) => {
         if (event.action === 'continue') sendMessage(event.label)
+      }}
+      onError={(event) => {
+        console.error(`Component <${event.componentName}> failed:`, event.error)
       }}
       renderProse={(text, key) => <ReactMarkdown key={key}>{text}</ReactMarkdown>}
       renderPendingComponent={(pendingTag) => <MyShimmer tag={pendingTag} />}  // or null to disable
@@ -152,12 +156,19 @@ interface RendererProps {
   components?: ComponentMap           // component map (default: defaultComponents)
   registry?: ComponentRegistry        // enables Zod prop validation after streaming
   onAction?: ActionHandler            // single callback for all interactions
+  onError?: (event: ComponentErrorEvent) => void  // catch component render errors
   isStreaming?: boolean               // true while LLM is still streaming
   meta?: ParseMeta                    // parser metadata (enables shimmer for pending tags)
   contextData?: Record<string, unknown>  // arbitrary data passed to all components
   renderProse?: (content: string, key: string) => React.ReactNode
   renderPendingComponent?: ((pendingTag?: string) => React.ReactNode) | null  // custom shimmer, or null to disable
   classNames?: Record<string, string> // per-component Tailwind/CSS classes
+}
+
+interface ComponentErrorEvent {
+  componentName: string               // name of the component that failed
+  error: Error                        // the thrown error
+  props: Record<string, unknown>      // props that were passed to the component
 }
 ```
 
@@ -235,6 +246,20 @@ onAction={(event) => {
   if (event.action === 'continue') sendMessage(event.label)
   if (event.action.startsWith('submit:')) sendMessage(JSON.stringify(event.formState))
   if (event.action === 'open_url') window.open(event.params.url, '_blank')
+}}
+```
+
+## Error Handling
+
+```typescript
+onError={(event) => {
+  // Fires when a component throws during render
+  console.error(`Component <${event.componentName}> failed to render`)
+  console.error('Error:', event.error)
+  console.error('Props:', event.props)
+  
+  // After a successful render, the error boundary shows the last valid output.
+  // On first-render failures, a simple error message is shown instead.
 }}
 ```
 

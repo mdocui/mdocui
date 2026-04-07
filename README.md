@@ -132,6 +132,7 @@ function Chat() {
 
   // Call push(chunk) as tokens arrive from LLM
   // Call done() when stream ends
+  // useRenderer batches renders to at most one per frame (~60fps) automatically
 
   return (
     <Renderer
@@ -143,12 +144,15 @@ function Chat() {
           sendMessage(event.label)
         }
       }}
+      onError={(event) => {
+        console.error(`Component ${event.componentName} failed:`, event.error)
+      }}
     />
   )
 }
 ```
 
-### 3. Handle actions
+### 3. Handle actions and errors
 
 Every interactive component fires through a single `onAction` callback:
 
@@ -165,6 +169,15 @@ onAction={(event) => {
       // event.params.url has the URL
       break
   }
+}}
+```
+
+Catch component rendering errors with `onError`:
+
+```typescript
+onError={(event) => {
+  console.error(`${event.componentName} failed to render:`, event.error)
+  // event.props contains the props that caused the error
 }}
 ```
 

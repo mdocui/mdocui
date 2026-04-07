@@ -47,7 +47,7 @@ function Chat() {
 
 ## `useRenderer`
 
-Hook that wraps `@mdocui/core`'s `StreamingParser`. Manages parse state in React and returns reactive AST nodes.
+Hook that wraps `@mdocui/core`'s `StreamingParser`. Manages parse state in React and returns reactive AST nodes. Automatically batches renders to at most one per frame (~60fps) for smooth streaming performance.
 
 ```ts
 const { nodes, meta, isStreaming, push, done, reset } = useRenderer({ registry })
@@ -66,9 +66,9 @@ const { nodes, meta, isStreaming, push, done, reset } = useRenderer({ registry }
 | `nodes` | `ASTNode[]` | Current parsed AST |
 | `meta` | `ParseMeta` | Parse errors, node count, completion status |
 | `isStreaming` | `boolean` | `true` between the first `push` and `done` |
-| `push(chunk)` | `(chunk: string) => void` | Feed a text chunk from the LLM stream |
+| `push(chunk)` | `(chunk: string) => void` | Feed a text chunk from the LLM stream. Renders are batched via requestAnimationFrame for efficient updates. |
 | `replaceContent(content, options?)` | `(content: string, options?: ReplaceContentOptions) => void` | Replace all content at once. Pass `{ streaming: true }` to keep shimmer/pendingTag active (for AG-UI style transports that provide accumulated content). Call `done()` when finished. |
-| `done()` | `() => void` | Signal the stream has ended; flushes the parser |
+| `done()` | `() => void` | Signal the stream has ended; flushes the parser and performs final render |
 | `reset()` | `() => void` | Clear all state for a new conversation turn |
 
 ---
@@ -94,6 +94,7 @@ Renders an `ASTNode[]` tree into React elements using a component map.
 | `nodes` | `ASTNode[]` | required | AST from `useRenderer` or `StreamingParser` |
 | `components` | `ComponentMap` | all 24 built-ins | Custom components merged on top of defaults (see below) |
 | `onAction` | `ActionHandler` | no-op | Callback for interactive events |
+| `onError` | `(event: ComponentErrorEvent) => void` | — | Callback when a component throws during render. Receives `{ componentName, error, props }` |
 | `isStreaming` | `boolean` | `false` | Whether the LLM is still streaming |
 | `registry` | `ComponentRegistry` | — | Optional registry for prop validation warnings (dev aid) |
 | `meta` | `ParseMeta` | — | Parse metadata from `useRenderer` — enables shimmer for pending components |
@@ -262,6 +263,37 @@ function handleAction(event: ActionEvent) {
 
 <Renderer nodes={nodes} components={defaultComponents} onAction={handleAction} />
 ```
+
+---
+
+## Error Handling
+
+The `<Renderer>` includes built-in error boundaries that catch component render failures. Use `onError` to log or report errors:
+
+```typescript
+interface ComponentErrorEvent {
+  componentName: string
+  error: Error
+  props: Record<string, unknown>
+}
+```
+
+```tsx
+<Renderer
+  nodes={nodes}
+  onError={(event) => {
+    console.error(`Component <${event.componentName}> failed:`, event.error)
+    // event.props contains the props that triggered the error
+  }}
+/>
+```
+
+**Error Recovery Behavior:**
+
+- **After successful render**: If a component throws after rendering at least once, the error boundary shows the last successfully rendered output instead of an error message, providing graceful degradation.
+- **On first-render failure**: If a component fails on its initial render, a simple error message is shown.
+
+This keeps the UI stable during streaming and component updates.
 
 ---
 
