@@ -106,22 +106,9 @@ interface Block {
 	content?: string // for heading / paragraph
 }
 
-function normalizeHeadingLevel(level?: number): 1 | 2 | 3 {
-	if (typeof level !== 'number' || !Number.isFinite(level)) {
-		return 1
-	}
-	if (level < 1) {
-		return 1
-	}
-	if (level > 3) {
-		return 3
-	}
-	return level as 1 | 2 | 3
-}
-
-const HEADING_RE = /^(#{1,3})[ \t]+(.+)$/
-const UL_RE = /^[-*][ \t]+(.+)$/
-const OL_RE = /^\d+[.)][ \t]+(.+)$/
+const HEADING_RE = /^(#{1,3})[ \t]+(\S.*)$/
+const UL_RE = /^[-*][ \t]+(\S.*)$/
+const OL_RE = /^\d+[.)][ \t]+(\S.*)$/
 
 function parseBlocks(content: string): Block[] {
 	const lines = content.split('\n')
