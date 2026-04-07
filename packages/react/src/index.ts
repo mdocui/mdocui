@@ -1,7 +1,13 @@
 export { allDefinitions, defaultGroups } from '@mdocui/core'
 export type { AnimateInProps } from './animations'
 export { AnimateIn } from './animations'
-export type { ActionHandler, ComponentMap, ComponentProps, RendererContext } from './context'
+export type {
+	ActionHandler,
+	ComponentErrorEvent,
+	ComponentMap,
+	ComponentProps,
+	RendererContext,
+} from './context'
 export { MdocUIProvider, useMdocUI } from './context'
 export { createDefaultRegistry, defaultComponents } from './defaults'
 export { MdocUIErrorBoundary } from './error-boundary'

@@ -4,6 +4,12 @@ import { createContext, useContext } from 'react'
 export type ActionHandler = (event: ActionEvent) => void
 export type ComponentMap = Record<string, React.ComponentType<ComponentProps>>
 
+export interface ComponentErrorEvent {
+	componentName: string
+	error: Error
+	props: Record<string, unknown>
+}
+
 export interface ComponentProps {
 	name: string
 	props: Record<string, unknown>
@@ -19,6 +25,7 @@ export interface RendererContext {
 	isStreaming: boolean
 	registry?: ComponentRegistry
 	contextData?: Record<string, unknown>
+	onError?: (event: ComponentErrorEvent) => void
 }
 
 const MdocUIContext = createContext<RendererContext | null>(null)

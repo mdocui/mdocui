@@ -195,6 +195,30 @@ describe('MdocUIErrorBoundary', () => {
 	})
 })
 
+it('calls onError with componentName, error, and props when child throws', () => {
+	const onError = vi.fn()
+	render(
+		<MdocUIErrorBoundary componentName="chart" onError={onError} componentProps={{ type: 'bar' }}>
+			<ThrowingComponent />
+		</MdocUIErrorBoundary>,
+	)
+	expect(onError).toHaveBeenCalledOnce()
+	const event = onError.mock.calls[0][0]
+	expect(event.componentName).toBe('chart')
+	expect(event.error).toBeInstanceOf(Error)
+	expect(event.props).toEqual({ type: 'bar' })
+})
+
+it('does not call onError when child renders successfully', () => {
+	const onError = vi.fn()
+	render(
+		<MdocUIErrorBoundary componentName="chart" onError={onError}>
+			<GoodComponent />
+		</MdocUIErrorBoundary>,
+	)
+	expect(onError).not.toHaveBeenCalled()
+})
+
 describe('Error boundary in Renderer', () => {
 	let consoleSpy: MockInstance
 

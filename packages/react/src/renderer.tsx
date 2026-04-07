@@ -1,7 +1,7 @@
 import type { ASTNode, ComponentNode, ComponentRegistry, ParseMeta, ProseNode } from '@mdocui/core'
 import React, { useMemo } from 'react'
 import { AnimateIn } from './animations'
-import type { ActionHandler, ComponentMap, RendererContext } from './context'
+import type { ActionHandler, ComponentErrorEvent, ComponentMap, RendererContext } from './context'
 import { MdocUIProvider } from './context'
 import { defaultComponents } from './defaults'
 import { MdocUIErrorBoundary } from './error-boundary'
@@ -13,6 +13,7 @@ export interface RendererProps {
 	components?: ComponentMap
 	registry?: ComponentRegistry
 	onAction?: ActionHandler
+	onError?: (event: ComponentErrorEvent) => void
 	isStreaming?: boolean
 	meta?: ParseMeta
 	contextData?: Record<string, unknown>
@@ -26,6 +27,7 @@ export function Renderer({
 	components,
 	registry,
 	onAction = noop,
+	onError,
 	isStreaming = false,
 	meta,
 	contextData,
@@ -39,8 +41,8 @@ export function Renderer({
 	)
 
 	const ctx = useMemo<RendererContext>(
-		() => ({ components: merged, onAction, isStreaming, registry, contextData }),
-		[merged, onAction, isStreaming, registry, contextData],
+		() => ({ components: merged, onAction, onError, isStreaming, registry, contextData }),
+		[merged, onAction, onError, isStreaming, registry, contextData],
 	)
 
 	const grouped = groupConsecutiveButtons(nodes)
@@ -162,7 +164,12 @@ function renderComponentNode(
 	return (
 		<div key={key} style={{ display: 'contents' }}>
 			<AnimateIn isStreaming={ctx.isStreaming}>
-				<MdocUIErrorBoundary componentName={node.name} resetKey={key}>
+				<MdocUIErrorBoundary
+					componentName={node.name}
+					resetKey={key}
+					onError={ctx.onError}
+					componentProps={node.props}
+				>
 					<Component
 						name={node.name}
 						props={node.props}

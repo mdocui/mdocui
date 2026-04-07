@@ -1,5 +1,6 @@
 import type { ErrorInfo, ReactNode } from 'react'
 import { Component } from 'react'
+import type { ComponentErrorEvent } from './context'
 
 const NO_SNAPSHOT = Symbol('no-snapshot')
 
@@ -7,6 +8,8 @@ interface MdocUIErrorBoundaryProps {
 	componentName?: string
 	resetKey?: string
 	children: ReactNode
+	onError?: (event: ComponentErrorEvent) => void
+	componentProps?: Record<string, unknown>
 }
 
 interface MdocUIErrorBoundaryState {
@@ -68,6 +71,11 @@ export class MdocUIErrorBoundary extends Component<
 			error,
 			errorInfo.componentStack ?? '',
 		)
+		this.props.onError?.({
+			componentName: name,
+			error,
+			props: this.props.componentProps ?? {},
+		})
 	}
 
 	render() {
