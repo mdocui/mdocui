@@ -35,14 +35,14 @@
 		"react-dom": ">=18"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.0",
-		"@types/react": "^19.1.0",
-		"@types/react-dom": "^19.1.0",
-		"jsdom": "^29.0.0",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
-		"tsup": "^8.5.0",
-		"vitest": "^4.1.0",
+		"@testing-library/react": "^16.3.2",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"jsdom": "^29.0.2",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"tsup": "catalog:",
+		"vitest": "catalog:",
 		"zod": "catalog:"
 	},
 	"homepage": "https://mdocui.github.io",

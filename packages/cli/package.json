@@ -27,9 +27,9 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@types/node": "^25.5.0",
-		"tsup": "^8.5.1",
-		"vitest": "^4.1.0"
+		"@types/node": "^25.5.2",
+		"tsup": "catalog:",
+		"vitest": "catalog:"
 	},
 	"homepage": "https://mdocui.github.io",
 	"license": "MIT",
