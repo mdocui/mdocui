@@ -135,7 +135,7 @@ export function Tabs({ props, className, children }: ComponentProps) {
 
 	const handleKeyDown = useCallback(
 		(e: React.KeyboardEvent) => {
-			let next = active
+			let next: number
 			if (e.key === 'ArrowRight') next = (active + 1) % labels.length
 			else if (e.key === 'ArrowLeft') next = (active - 1 + labels.length) % labels.length
 			else return

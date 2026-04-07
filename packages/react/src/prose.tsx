@@ -106,9 +106,9 @@ interface Block {
 	content?: string // for heading / paragraph
 }
 
-const HEADING_RE = /^(#{1,3})[ \t]+(.+)$/
-const UL_RE = /^[-*][ \t]+(.+)$/
-const OL_RE = /^\d+[.)][ \t]+(.+)$/
+const HEADING_RE = /^(#{1,3})[ \t]+(\S.*)$/
+const UL_RE = /^[-*][ \t]+(\S.*)$/
+const OL_RE = /^\d+[.)][ \t]+(\S.*)$/
 
 function parseBlocks(content: string): Block[] {
 	const lines = content.split('\n')
