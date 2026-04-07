@@ -89,6 +89,12 @@ export function Input({ props, className }: ComponentProps) {
 	const placeholder = (props.placeholder as string) ?? ''
 	const type = (props.type as string) ?? 'text'
 	const required = (props.required as boolean) ?? false
+	const minLength = props.minLength as number | undefined
+	const maxLength = props.maxLength as number | undefined
+	const pattern = props.pattern as string | undefined
+	const min = props.min as number | undefined
+	const max = props.max as number | undefined
+	const step = props.step as number | undefined
 	const id = `mdocui-${name}`
 	const themed = !!className
 
@@ -111,6 +117,12 @@ export function Input({ props, className }: ComponentProps) {
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
+				minLength={minLength}
+				maxLength={maxLength}
+				pattern={pattern}
+				min={min}
+				max={max}
+				step={step}
 				style={
 					themed
 						? undefined
@@ -136,6 +148,8 @@ export function Textarea({ props, className }: ComponentProps) {
 	const placeholder = (props.placeholder as string) ?? ''
 	const rows = (props.rows as number) ?? 3
 	const required = (props.required as boolean) ?? false
+	const minLength = props.minLength as number | undefined
+	const maxLength = props.maxLength as number | undefined
 	const id = `mdocui-${name}`
 	const themed = !!className
 
@@ -158,6 +172,8 @@ export function Textarea({ props, className }: ComponentProps) {
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
+				minLength={minLength}
+				maxLength={maxLength}
 				style={
 					themed
 						? undefined

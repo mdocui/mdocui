@@ -107,13 +107,26 @@ export const buttonGroup = defineComponent({
 export const input = defineComponent({
 	name: 'input',
 	description: 'Text input field',
-	props: z.object({
-		name: z.string().describe('Field name for form state'),
-		label: z.string().optional().describe('Input label'),
-		placeholder: z.string().optional().describe('Placeholder text'),
-		type: ciEnum(['text', 'email', 'password', 'number', 'url']).optional().describe('Input type'),
-		required: z.coerce.boolean().optional().describe('Whether field is required'),
-	}),
+	props: z
+		.object({
+			name: z.string().describe('Field name for form state'),
+			label: z.string().optional().describe('Input label'),
+			placeholder: z.string().optional().describe('Placeholder text'),
+			type: ciEnum(['text', 'email', 'password', 'number', 'url'])
+				.optional()
+				.describe('Input type'),
+			required: z.coerce.boolean().optional().describe('Whether field is required'),
+			minLength: z.coerce.number().int().positive().optional().describe('Minimum character length'),
+			maxLength: z.coerce.number().int().positive().optional().describe('Maximum character length'),
+			pattern: z.string().optional().describe('Regex pattern the value must match'),
+			min: z.coerce.number().optional().describe('Minimum value (type=number)'),
+			max: z.coerce.number().optional().describe('Maximum value (type=number)'),
+			step: z.coerce.number().positive().optional().describe('Step increment (type=number)'),
+		})
+		.refine(
+			(v) => v.minLength === undefined || v.maxLength === undefined || v.minLength <= v.maxLength,
+			{ message: 'minLength must be <= maxLength' },
+		),
 	children: 'none',
 })
 
@@ -144,13 +157,20 @@ export const checkbox = defineComponent({
 export const textarea = defineComponent({
 	name: 'textarea',
 	description: 'Multi-line text input',
-	props: z.object({
-		name: z.string().describe('Field name for form state'),
-		label: z.string().optional().describe('Textarea label'),
-		placeholder: z.string().optional().describe('Placeholder text'),
-		rows: z.coerce.number().optional().describe('Number of visible rows'),
-		required: z.coerce.boolean().optional().describe('Whether field is required'),
-	}),
+	props: z
+		.object({
+			name: z.string().describe('Field name for form state'),
+			label: z.string().optional().describe('Textarea label'),
+			placeholder: z.string().optional().describe('Placeholder text'),
+			rows: z.coerce.number().optional().describe('Number of visible rows'),
+			required: z.coerce.boolean().optional().describe('Whether field is required'),
+			minLength: z.coerce.number().int().positive().optional().describe('Minimum character length'),
+			maxLength: z.coerce.number().int().positive().optional().describe('Maximum character length'),
+		})
+		.refine(
+			(v) => v.minLength === undefined || v.maxLength === undefined || v.minLength <= v.maxLength,
+			{ message: 'minLength must be <= maxLength' },
+		),
 	children: 'none',
 })
 

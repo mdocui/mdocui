@@ -178,6 +178,52 @@ describe('Interactive components', () => {
 		expect(input.getAttribute('type')).toBe('email')
 	})
 
+	it('renders input with validation attributes', () => {
+		const { container } = renderNodes([
+			componentNode('input', {
+				name: 'age',
+				type: 'number',
+				min: 0,
+				max: 120,
+				step: 1,
+				required: true,
+			}),
+		])
+		const input = container.querySelector('input') as HTMLInputElement
+		expect(input.getAttribute('min')).toBe('0')
+		expect(input.getAttribute('max')).toBe('120')
+		expect(input.getAttribute('step')).toBe('1')
+		expect(input.required).toBe(true)
+	})
+
+	it('renders input with minLength, maxLength, and pattern', () => {
+		const { container } = renderNodes([
+			componentNode('input', {
+				name: 'username',
+				minLength: 3,
+				maxLength: 20,
+				pattern: '[a-z]+',
+			}),
+		])
+		const input = container.querySelector('input') as HTMLInputElement
+		expect(input.minLength).toBe(3)
+		expect(input.maxLength).toBe(20)
+		expect(input.getAttribute('pattern')).toBe('[a-z]+')
+	})
+
+	it('renders textarea with minLength and maxLength', () => {
+		const { container } = renderNodes([
+			componentNode('textarea', {
+				name: 'bio',
+				minLength: 10,
+				maxLength: 500,
+			}),
+		])
+		const textarea = container.querySelector('textarea') as HTMLTextAreaElement
+		expect(textarea.minLength).toBe(10)
+		expect(textarea.maxLength).toBe(500)
+	})
+
 	it('renders select with options', () => {
 		renderNodes([
 			componentNode('select', {
