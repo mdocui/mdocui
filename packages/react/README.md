@@ -292,6 +292,7 @@ interface ComponentErrorEvent {
 
 - **After successful render**: If a component throws after rendering at least once, the error boundary shows the last successfully rendered output instead of an error message, providing graceful degradation.
 - **On first-render failure**: If a component fails on its initial render, a simple error message is shown.
+- **Re-throw safe**: The last-valid snapshot is rendered through an inner error boundary. If the snapshot also throws, the inner boundary catches it and shows the error fallback instead of looping.
 
 This keeps the UI stable during streaming and component updates.
 

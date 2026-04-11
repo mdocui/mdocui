@@ -124,6 +124,42 @@ describe('MdocUIErrorBoundary', () => {
 		expect(container.querySelector('[data-mdocui-error]')).toBeNull()
 	})
 
+	it('falls back to error fallback when the last-valid snapshot also throws', () => {
+		// SometimesThrows succeeds once (captured as lastValid), then throws on remount.
+		// The inner boundary should catch the re-throw and show the error fallback.
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+		let mountCount = 0
+		function SometimesThrows() {
+			mountCount++
+			if (mountCount > 1) throw new Error('re-throw on remount')
+			return <span>Mounted once</span>
+		}
+
+		const { container, rerender } = render(
+			<MdocUIErrorBoundary componentName="chart">
+				<SometimesThrows />
+			</MdocUIErrorBoundary>,
+		)
+		expect(container.textContent).toContain('Mounted once')
+
+		// Now trigger an error — the boundary tries to show lastValidChildren
+		// (the <SometimesThrows /> element).  On remount it throws again.
+		// The inner LastValidAttemptBoundary must catch this and show the fallback.
+		rerender(
+			<MdocUIErrorBoundary componentName="chart">
+				<ThrowingComponent />
+			</MdocUIErrorBoundary>,
+		)
+		// Should show the error fallback, not loop or crash
+		expect(container.querySelector('[data-mdocui-error]')).toBeTruthy()
+		expect(container.textContent).toContain('Component "chart" failed to render.')
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.stringContaining('[mdocui] Last-valid snapshot also threw'),
+			expect.any(Error),
+		)
+		warnSpy.mockRestore()
+	})
+
 	it('recovers to new children after resetKey changes following a last-valid state', () => {
 		const { container, rerender } = render(
 			<MdocUIErrorBoundary componentName="chart" resetKey="k1">
