@@ -74,6 +74,32 @@ describe('generatePrompt', () => {
 		expect(prompt).toContain('TAG SYNTAX')
 	})
 
+	it('handles props schema wrapped in .refine() without throwing', () => {
+		// .refine() wraps z.object() in ZodEffects, which has no .shape property.
+		// formatComponent must unwrap it to avoid Object.keys(undefined) crashing.
+		const reg = new ComponentRegistry()
+		reg.register(
+			defineComponent({
+				name: 'input',
+				description: 'Text input field',
+				props: z
+					.object({
+						name: z.string().describe('Field name'),
+						minLength: z.number().optional().describe('Min length'),
+						maxLength: z.number().optional().describe('Max length'),
+					})
+					.refine((v) => (v.minLength ?? 0) <= (v.maxLength ?? Infinity), {
+						message: 'minLength must be <= maxLength',
+					}),
+				children: 'none',
+			}),
+		)
+		const prompt = generatePrompt(reg)
+		expect(prompt).toContain('{% input')
+		expect(prompt).toContain('Text input field')
+		expect(prompt).toContain('minLength')
+	})
+
 	it('groups components by category', () => {
 		const reg = new ComponentRegistry()
 		reg.registerAll([

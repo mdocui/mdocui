@@ -1,6 +1,6 @@
 {
 	"name": "@mdocui/react",
-	"version": "0.7.1",
+	"version": "0.7.2",
 	"description": "React adapter for mdocUI — Renderer, useRenderer hook, default generative UI components",
 	"type": "module",
 	"main": "./dist/index.cjs",

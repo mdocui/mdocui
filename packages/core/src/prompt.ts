@@ -163,9 +163,24 @@ function resolveType(def: ZodDef): string {
 	return ''
 }
 
+// Unwrap ZodEffects/ZodOptional/etc. wrappers (e.g. from .refine()) to reach
+// the underlying ZodObject and its .shape property.
+function unwrapShape(schema: unknown): Record<string, ZodField> {
+	const s = schema as { shape?: Record<string, ZodField>; _def?: ZodDef }
+	if (s?.shape) return s.shape
+	const def = s?._def
+	if (!def) return {}
+	const type = def.type as string
+	if (type === 'effects') return unwrapShape(def.innerType ?? def.schema)
+	if (type === 'optional' || type === 'default' || type === 'nullable')
+		return unwrapShape(def.innerType)
+	if (type === 'pipe') return unwrapShape(def.out)
+	return {}
+}
+
 function formatComponent(def: ComponentDefinition): string {
 	const closing = def.children === 'none' ? ' /%}' : ' %}'
-	const shape = def.props.shape as unknown as Record<string, ZodField>
+	const shape = unwrapShape(def.props)
 	const propNames = Object.keys(shape)
 
 	if (propNames.length === 0) {
@@ -195,7 +210,7 @@ function formatComponent(def: ComponentDefinition): string {
 }
 
 function formatComponentCompact(def: ComponentDefinition): string {
-	const shape = def.props.shape as unknown as Record<string, ZodField>
+	const shape = unwrapShape(def.props)
 	const props = Object.entries(shape)
 		.map(([name, field]) => {
 			const type = resolveType(field._def)
