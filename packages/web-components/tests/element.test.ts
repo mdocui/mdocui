@@ -419,3 +419,45 @@ describe('streaming without flicker', () => {
 		expect(el.querySelector('ul')).not.toBeNull()
 	})
 })
+
+describe('pending component placeholder', () => {
+	it('shows a placeholder while a tag name is arriving', () => {
+		const el = create()
+		el.push('{% chart ')
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		expect(el.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe(
+			'chart',
+		)
+	})
+
+	it('keeps the placeholder up while a body is still streaming', () => {
+		const el = create()
+		el.push('{% card title="C" %}')
+		// the card is not a node yet, so without this the pane would sit empty
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		el.push('some body text that goes on')
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		expect(el.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe('card')
+	})
+
+	it('names the innermost thing being built', () => {
+		const el = create()
+		el.push('{% card title="C" %}{% grid cols=2 %}')
+		expect(el.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe('grid')
+	})
+
+	it('removes the placeholder once everything closes', () => {
+		const el = create()
+		el.push('{% card title="C" %}body')
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		el.push('{% /card %}')
+		el.done()
+		expect(el.querySelector('[data-mdocui-shimmer]')).toBeNull()
+	})
+
+	it('keeps the placeholder last so finished content stays above it', () => {
+		const el = create()
+		el.push('intro text\n\n{% card title="C" %}')
+		expect(el.lastElementChild?.getAttribute('data-mdocui-shimmer')).toBe('true')
+	})
+})

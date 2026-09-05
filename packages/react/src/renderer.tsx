@@ -48,6 +48,13 @@ export function Renderer({
 
 	const grouped = groupButtons(nodes)
 
+	// A component with a body does not become a node until its closing tag
+	// lands, so a card wrapping a whole response shows nothing the entire time
+	// it streams. pendingTag only covers the moment a tag name is arriving, and
+	// goes undefined in between. Falling back to the innermost open tag keeps a
+	// placeholder up for as long as something is genuinely still being built.
+	const pendingLabel = meta?.pendingTag ?? meta?.openTags?.[meta.openTags.length - 1]
+
 	return (
 		<MdocUIProvider value={ctx}>
 			<div data-mdocui style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -70,12 +77,12 @@ export function Renderer({
 						item.node.type === 'component' ? `${item.node.name}-${idx}` : `prose-${idx}`
 					return renderNode(item.node, nodeKey, ctx, renderProse, classNames)
 				})}
-				{isStreaming && meta?.pendingTag && renderPendingComponent !== null && (
+				{isStreaming && pendingLabel && renderPendingComponent !== null && (
 					<div key="mdocui-shimmer">
 						{renderPendingComponent ? (
-							renderPendingComponent(meta.pendingTag)
+							renderPendingComponent(pendingLabel)
 						) : (
-							<ComponentShimmer pendingTag={meta.pendingTag} />
+							<ComponentShimmer pendingTag={pendingLabel} />
 						)}
 					</div>
 				)}

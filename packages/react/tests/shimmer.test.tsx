@@ -96,3 +96,52 @@ describe('Renderer shimmer integration', () => {
 		expect(container.querySelector('[data-mdocui-shimmer]')).toBeNull()
 	})
 })
+
+describe('placeholder while a body streams', () => {
+	const meta = (over: Partial<ParseMeta>): ParseMeta => ({
+		errors: [],
+		nodeCount: 0,
+		isComplete: false,
+		...over,
+	})
+
+	it('shows a placeholder while a component body is still open', () => {
+		// pendingTag is undefined here: the opening tag is parsed and the body is
+		// streaming, which is most of the life of a card wrapping a response
+		const { container } = render(
+			<Renderer nodes={[]} isStreaming={true} meta={meta({ openTags: ['card'] })} />,
+		)
+		const el = container.querySelector('[data-mdocui-shimmer]') as HTMLElement
+		expect(el).toBeTruthy()
+		expect(el.getAttribute('data-pending-tag')).toBe('card')
+	})
+
+	it('names the innermost open component', () => {
+		const { container } = render(
+			<Renderer nodes={[]} isStreaming={true} meta={meta({ openTags: ['card', 'grid'] })} />,
+		)
+		expect(container.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe(
+			'grid',
+		)
+	})
+
+	it('prefers the tag currently arriving over the open one', () => {
+		const { container } = render(
+			<Renderer
+				nodes={[]}
+				isStreaming={true}
+				meta={meta({ pendingTag: 'chart', openTags: ['card'] })}
+			/>,
+		)
+		expect(container.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe(
+			'chart',
+		)
+	})
+
+	it('shows nothing once everything is closed', () => {
+		const { container } = render(
+			<Renderer nodes={[]} isStreaming={true} meta={meta({ isComplete: true })} />,
+		)
+		expect(container.querySelector('[data-mdocui-shimmer]')).toBeNull()
+	})
+})

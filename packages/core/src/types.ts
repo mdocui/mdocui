@@ -58,7 +58,17 @@ export interface ParseMeta {
 	errors: ParseError[]
 	nodeCount: number
 	isComplete: boolean
+	/**
+	 * Name of the tag currently being read, once enough of it has arrived to
+	 * know what it is. Undefined while the name is still half typed.
+	 */
 	pendingTag?: string
+	/**
+	 * Components that have opened but not closed, outermost first. Their
+	 * contents are still being collected and will not appear as nodes until the
+	 * closing tag arrives, so a renderer showing progress needs this.
+	 */
+	openTags?: string[]
 	bufferLength?: number
 }
 

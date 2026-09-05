@@ -11,6 +11,7 @@ import {
 import { clear, patch } from './dom'
 import { releaseStreamDisabled } from './interactive'
 import { type CustomRenderer, renderItem } from './render'
+import { createShimmer } from './shimmer'
 
 export const ACTION_EVENT = 'mdocui:action'
 export const ERROR_EVENT = 'mdocui:error'
@@ -37,6 +38,7 @@ export class MdocUIElement extends HTMLElement {
 	private renderedCount = 0
 	// Lets us skip rebuilding the tail when it hasn't actually changed.
 	private lastSignature = ''
+	private shimmer: HTMLElement | null = null
 	private streaming = false
 
 	classNames: Record<string, string> = {}
@@ -104,6 +106,7 @@ export class MdocUIElement extends HTMLElement {
 		this.lastSignature = ''
 		this.rendered = []
 		this.streaming = false
+		this.shimmer = null
 		clear(this)
 	}
 
@@ -157,8 +160,39 @@ export class MdocUIElement extends HTMLElement {
 		this.renderedCount = next.length
 		this.lastSignature = next.length > 0 ? signatureOf(next[next.length - 1]) : ''
 
+		this.syncShimmer()
+
 		// Re-enable rather than rebuild, or we'd wipe a half-filled form.
 		if (final) releaseStreamDisabled(this)
+	}
+
+	/**
+	 * Show a placeholder for a component that has started arriving but has not
+	 * closed yet. Prose can stream as text, a half-parsed tag cannot.
+	 */
+	private syncShimmer(): void {
+		const meta = this.streaming ? this.parser?.getMeta() : undefined
+		// openTags covers the long stretch where a component's body is streaming
+		// but its closing tag has not arrived, which pendingTag alone misses.
+		const pending = meta?.pendingTag ?? meta?.openTags?.[meta.openTags.length - 1]
+
+		if (!pending) {
+			this.shimmer?.remove()
+			this.shimmer = null
+			return
+		}
+
+		if (!this.shimmer) {
+			this.shimmer = createShimmer(pending)
+			this.appendChild(this.shimmer)
+			return
+		}
+
+		if (this.shimmer.getAttribute('data-pending-tag') !== pending) {
+			this.shimmer.setAttribute('data-pending-tag', pending)
+		}
+		// keep it last, since new nodes land after it
+		if (this.lastChild !== this.shimmer) this.appendChild(this.shimmer)
 	}
 
 	private replaceAt(index: number, replacement: Node | null): void {
