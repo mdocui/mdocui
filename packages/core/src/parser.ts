@@ -107,11 +107,15 @@ export class StreamingParser {
 
 		let pendingTag: string | undefined
 		if (isBuffering && buffer.length > 2) {
-			const inner = buffer.slice(2).trim()
-			const spaceIdx = inner.indexOf(' ')
-			const rawName = spaceIdx === -1 ? inner : inner.slice(0, spaceIdx)
+			const afterDelimiter = buffer.slice(2).trimStart()
+			const spaceIdx = afterDelimiter.search(/\s/)
+			const rawName = spaceIdx === -1 ? afterDelimiter : afterDelimiter.slice(0, spaceIdx)
 			const name = rawName.endsWith('/') ? rawName.slice(0, -1) : rawName
-			if (name && !name.startsWith('/')) {
+			// Only report a name once something follows it. Until then "ca" could
+			// still become "card" or "callout", and a renderer would label a
+			// placeholder with a component that does not exist.
+			const settled = spaceIdx !== -1 || rawName.endsWith('/') || rawName.endsWith('%')
+			if (name && settled && !name.startsWith('/')) {
 				pendingTag = name
 			}
 		}
@@ -121,6 +125,7 @@ export class StreamingParser {
 			nodeCount: this.completedNodes.length,
 			isComplete: this.bodyStack.length === 0 && !isBuffering,
 			pendingTag: isBuffering ? pendingTag : undefined,
+			openTags: this.bodyStack.length > 0 ? this.bodyStack.map((f) => f.name) : undefined,
 			bufferLength: isBuffering ? buffer.length : undefined,
 		}
 	}

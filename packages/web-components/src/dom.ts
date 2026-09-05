@@ -60,3 +60,54 @@ export function append(parent: Node, child: Node | Node[] | null): void {
 export function clear(el: Node): void {
 	while (el.firstChild) el.removeChild(el.firstChild)
 }
+
+/**
+ * Update oldNode in place to match newNode. Swapping the tail on every chunk
+ * rebuilds whatever the reader is looking at, which flickers and kills text
+ * selection. Returns whichever node is now in the tree.
+ */
+export function patch(oldNode: Node, newNode: Node): Node {
+	if (oldNode.nodeType !== newNode.nodeType) {
+		oldNode.parentNode?.replaceChild(newNode, oldNode)
+		return newNode
+	}
+
+	if (oldNode.nodeType === 3) {
+		if (oldNode.nodeValue !== newNode.nodeValue) oldNode.nodeValue = newNode.nodeValue
+		return oldNode
+	}
+
+	if (oldNode.nodeType !== 1) return oldNode
+
+	const oldEl = oldNode as Element
+	const newEl = newNode as Element
+	if (oldEl.tagName !== newEl.tagName) {
+		oldEl.parentNode?.replaceChild(newEl, oldEl)
+		return newEl
+	}
+
+	for (const attr of Array.from(newEl.attributes)) {
+		if (oldEl.getAttribute(attr.name) !== attr.value) oldEl.setAttribute(attr.name, attr.value)
+	}
+	for (const attr of Array.from(oldEl.attributes)) {
+		if (!newEl.hasAttribute(attr.name)) oldEl.removeAttribute(attr.name)
+	}
+
+	const oldKids = Array.from(oldEl.childNodes)
+	const newKids = Array.from(newEl.childNodes)
+	for (let i = 0; i < Math.max(oldKids.length, newKids.length); i++) {
+		const o = oldKids[i]
+		const n = newKids[i]
+		if (n === undefined) {
+			if (o) oldEl.removeChild(o)
+			continue
+		}
+		if (o === undefined) {
+			oldEl.appendChild(n)
+			continue
+		}
+		patch(o, n)
+	}
+
+	return oldEl
+}

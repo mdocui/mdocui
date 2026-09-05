@@ -367,3 +367,61 @@ describe('StreamingParser', () => {
 		})
 	})
 })
+
+describe('progress reporting while streaming', () => {
+	const known = new Set(['card', 'grid', 'stat', 'chart', 'callout'])
+
+	it('reports a tag name only once it is settled', () => {
+		const p = new StreamingParser({ knownTags: known })
+		p.write('{% ca')
+		// "ca" could still become card or callout, so nothing is claimed yet
+		expect(p.getMeta().pendingTag).toBeUndefined()
+		p.write('rd ')
+		expect(p.getMeta().pendingTag).toBe('card')
+	})
+
+	it('reports a self-closing name once the slash arrives', () => {
+		const p = new StreamingParser({ knownTags: known })
+		p.write('{% divider')
+		expect(p.getMeta().pendingTag).toBeUndefined()
+		p.write('/')
+		expect(p.getMeta().pendingTag).toBe('divider')
+	})
+
+	it('lists components whose body is still being collected', () => {
+		const p = new StreamingParser({ knownTags: known })
+		p.write('{% card title="C" %}')
+		expect(p.getMeta().openTags).toEqual(['card'])
+		p.write('{% grid cols=2 %}')
+		expect(p.getMeta().openTags).toEqual(['card', 'grid'])
+		p.write('{% /grid %}')
+		expect(p.getMeta().openTags).toEqual(['card'])
+		p.write('{% /card %}')
+		expect(p.getMeta().openTags).toBeUndefined()
+	})
+
+	it('has far less dead time with openTags than with pendingTag alone', () => {
+		const markup =
+			'{% card title="C" %}\n{% grid cols=2 %}\n{% stat label="A" value="1" /%}\n{% stat label="B" value="2" /%}\n{% /grid %}\n{% /card %}'
+		const count = (useOpenTags: boolean) => {
+			const p = new StreamingParser({ knownTags: known })
+			let blind = 0
+			let nodes = 0
+			for (let i = 0; i < markup.length; i += 4) {
+				p.write(markup.slice(i, i + 4))
+				const m = p.getMeta()
+				const label = useOpenTags
+					? (m.pendingTag ?? m.openTags?.[m.openTags.length - 1])
+					: m.pendingTag
+				const grew = p.getNodes().length > nodes
+				nodes = p.getNodes().length
+				if (!grew && !label && !m.isComplete) blind++
+			}
+			return blind
+		}
+		// the card only becomes a node at the very end, so on pendingTag alone this
+		// response renders nothing for long stretches
+		expect(count(true)).toBeLessThan(count(false))
+		expect(count(true)).toBeLessThanOrEqual(2)
+	})
+})

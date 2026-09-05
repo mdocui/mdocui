@@ -367,3 +367,97 @@ describe('host layout', () => {
 		expect(el.style.display).toBe('grid')
 	})
 })
+
+describe('streaming without flicker', () => {
+	it('keeps the same element while the tail grows', () => {
+		const el = create()
+		el.push('Some prose that ')
+		const first = el.firstElementChild
+		const firstP = el.querySelector('p')
+		el.push('keeps on ')
+		el.push('growing as it streams.')
+		el.done()
+		// same nodes, updated in place, not rebuilt
+		expect(el.firstElementChild).toBe(first)
+		expect(el.querySelector('p')).toBe(firstP)
+		expect(el.textContent).toContain('keeps on growing as it streams.')
+	})
+
+	it('does not remove nodes while the tail grows', () => {
+		const el = create()
+		el.push('one ')
+		let removed = 0
+		const obs = new MutationObserver((records) => {
+			for (const r of records) removed += r.removedNodes.length
+		})
+		obs.observe(el, { childList: true, subtree: true, characterData: true })
+		el.push('two ')
+		el.push('three')
+		el.done()
+		obs.disconnect()
+		expect(removed).toBe(0)
+	})
+
+	it('preserves a text selection inside the growing tail', () => {
+		const el = create()
+		el.push('hello world ')
+		const p = el.querySelector('p') as HTMLElement
+		const textNode = p.firstChild as Text
+		el.push('and more text')
+		el.done()
+		// the very same text node survived, so a selection anchored in it would too
+		expect(el.querySelector('p')?.firstChild).toBe(textNode)
+	})
+
+	it('still replaces when the tag actually changes', () => {
+		const el = create()
+		el.push('plain text')
+		const before = el.firstElementChild?.tagName
+		el.push('\n\n- now a list')
+		el.done()
+		expect(before).toBe('DIV')
+		expect(el.querySelector('ul')).not.toBeNull()
+	})
+})
+
+describe('pending component placeholder', () => {
+	it('shows a placeholder while a tag name is arriving', () => {
+		const el = create()
+		el.push('{% chart ')
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		expect(el.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe(
+			'chart',
+		)
+	})
+
+	it('keeps the placeholder up while a body is still streaming', () => {
+		const el = create()
+		el.push('{% card title="C" %}')
+		// the card is not a node yet, so without this the pane would sit empty
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		el.push('some body text that goes on')
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		expect(el.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe('card')
+	})
+
+	it('names the innermost thing being built', () => {
+		const el = create()
+		el.push('{% card title="C" %}{% grid cols=2 %}')
+		expect(el.querySelector('[data-mdocui-shimmer]')?.getAttribute('data-pending-tag')).toBe('grid')
+	})
+
+	it('removes the placeholder once everything closes', () => {
+		const el = create()
+		el.push('{% card title="C" %}body')
+		expect(el.querySelector('[data-mdocui-shimmer]')).not.toBeNull()
+		el.push('{% /card %}')
+		el.done()
+		expect(el.querySelector('[data-mdocui-shimmer]')).toBeNull()
+	})
+
+	it('keeps the placeholder last so finished content stays above it', () => {
+		const el = create()
+		el.push('intro text\n\n{% card title="C" %}')
+		expect(el.lastElementChild?.getAttribute('data-mdocui-shimmer')).toBe('true')
+	})
+})
