@@ -8,7 +8,7 @@ import {
 	type ProseNode,
 	StreamingParser,
 } from '@mdocui/core'
-import { clear } from './dom'
+import { clear, patch } from './dom'
 import { releaseStreamDisabled } from './interactive'
 import { type CustomRenderer, renderItem } from './render'
 
@@ -165,10 +165,11 @@ export class MdocUIElement extends HTMLElement {
 		const old = this.rendered[index]
 		if (!replacement) return
 		if (old?.parentNode === this) {
-			this.replaceChild(replacement, old)
-		} else {
-			this.appendChild(replacement)
+			// Patch, don't swap. Swapping flickers.
+			this.rendered[index] = patch(old, replacement)
+			return
 		}
+		this.appendChild(replacement)
 		this.rendered[index] = replacement
 	}
 }

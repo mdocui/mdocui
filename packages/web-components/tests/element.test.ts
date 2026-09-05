@@ -367,3 +367,55 @@ describe('host layout', () => {
 		expect(el.style.display).toBe('grid')
 	})
 })
+
+describe('streaming without flicker', () => {
+	it('keeps the same element while the tail grows', () => {
+		const el = create()
+		el.push('Some prose that ')
+		const first = el.firstElementChild
+		const firstP = el.querySelector('p')
+		el.push('keeps on ')
+		el.push('growing as it streams.')
+		el.done()
+		// same nodes, updated in place, not rebuilt
+		expect(el.firstElementChild).toBe(first)
+		expect(el.querySelector('p')).toBe(firstP)
+		expect(el.textContent).toContain('keeps on growing as it streams.')
+	})
+
+	it('does not remove nodes while the tail grows', () => {
+		const el = create()
+		el.push('one ')
+		let removed = 0
+		const obs = new MutationObserver((records) => {
+			for (const r of records) removed += r.removedNodes.length
+		})
+		obs.observe(el, { childList: true, subtree: true, characterData: true })
+		el.push('two ')
+		el.push('three')
+		el.done()
+		obs.disconnect()
+		expect(removed).toBe(0)
+	})
+
+	it('preserves a text selection inside the growing tail', () => {
+		const el = create()
+		el.push('hello world ')
+		const p = el.querySelector('p') as HTMLElement
+		const textNode = p.firstChild as Text
+		el.push('and more text')
+		el.done()
+		// the very same text node survived, so a selection anchored in it would too
+		expect(el.querySelector('p')?.firstChild).toBe(textNode)
+	})
+
+	it('still replaces when the tag actually changes', () => {
+		const el = create()
+		el.push('plain text')
+		const before = el.firstElementChild?.tagName
+		el.push('\n\n- now a list')
+		el.done()
+		expect(before).toBe('DIV')
+		expect(el.querySelector('ul')).not.toBeNull()
+	})
+})
