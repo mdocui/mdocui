@@ -271,3 +271,45 @@ describe('accessibility', () => {
 		for (const th of ths) expect(th.getAttribute('scope')).toBe('col')
 	})
 })
+
+describe('prose structure matches the react renderer', () => {
+	it('wraps blocks in a div, not a span', () => {
+		const el = create()
+		el.markup = 'A paragraph.\n\n- one\n- two'
+		const wrapper = el.querySelector('[data-mdocui-prose]') as HTMLElement
+		// a span holding a <p> or a <ul> is invalid HTML
+		expect(wrapper.tagName).toBe('DIV')
+		expect(wrapper.querySelector('p')).not.toBeNull()
+		expect(wrapper.querySelector('ul')).not.toBeNull()
+	})
+
+	it('uses a span when there are no blocks', () => {
+		const el = create()
+		el.markup = '   '
+		const wrapper = el.querySelector('[data-mdocui-prose]') as HTMLElement
+		expect(wrapper?.tagName).toBe('SPAN')
+	})
+
+	it('turns a newline inside a paragraph into a line break', () => {
+		const el = create()
+		el.markup = 'first line\nsecond line'
+		const p = el.querySelector('p') as HTMLElement
+		expect(p.querySelectorAll('br')).toHaveLength(1)
+		expect(p.textContent).toBe('first linesecond line')
+	})
+
+	it('carries the same block spacing as the react renderer', () => {
+		const el = create()
+		el.markup = 'text\n\n- a'
+		expect((el.querySelector('p') as HTMLElement).style.margin).toBe('0.25em 0px')
+		const list = el.querySelector('ul') as HTMLElement
+		expect(list.style.margin).toBe('0.25em 0px')
+		expect(list.style.paddingLeft).toBe('1.5em')
+	})
+
+	it('marks the wrapper the same way', () => {
+		const el = create()
+		el.markup = 'hello'
+		expect(el.querySelector('[data-mdocui-prose]')?.getAttribute('data-mdocui-prose')).toBe('true')
+	})
+})

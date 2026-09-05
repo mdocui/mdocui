@@ -134,12 +134,12 @@ export class MdocUIElement extends HTMLElement {
 		if (lastIndex >= 0 && next[lastIndex]) {
 			const signature = signatureOf(next[lastIndex])
 			if (signature !== this.lastSignature) {
-				this.replaceAt(lastIndex, renderNode(next[lastIndex], opts, lastIndex))
+				this.replaceAt(lastIndex, renderNode(next[lastIndex], opts))
 			}
 		}
 
 		for (let i = this.renderedCount; i < next.length; i++) {
-			const el = renderNode(next[i], opts, i)
+			const el = renderNode(next[i], opts)
 			this.rendered[i] = el
 			if (el) this.appendChild(el)
 		}

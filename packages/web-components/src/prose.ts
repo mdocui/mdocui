@@ -52,15 +52,20 @@ function fillInline(parent: Node, text: string): void {
 }
 
 /** Parsing lives in core, so this matches what the React renderer produces. */
-export function renderProse(content: string, dataKey: string): HTMLElement {
-	const wrapper = document.createElement('span')
-	wrapper.setAttribute('data-mdocui-prose', dataKey)
-
+export function renderProse(content: string): HTMLElement {
 	const blocks = parseBlocks(content)
+
+	// No blocks means no block-level children, so a span is fine. Otherwise it
+	// has to be a div: a span holding a <p> or a <ul> is invalid HTML.
 	if (blocks.length === 0) {
-		wrapper.appendChild(document.createTextNode(content))
-		return wrapper
+		const span = document.createElement('span')
+		span.setAttribute('data-mdocui-prose', 'true')
+		span.appendChild(document.createTextNode(content))
+		return span
 	}
+
+	const wrapper = document.createElement('div')
+	wrapper.setAttribute('data-mdocui-prose', 'true')
 
 	for (const block of blocks) {
 		switch (block.type) {
@@ -73,6 +78,8 @@ export function renderProse(content: string, dataKey: string): HTMLElement {
 			case 'ulist':
 			case 'olist': {
 				const list = document.createElement(block.type === 'ulist' ? 'ul' : 'ol')
+				list.style.margin = '0.25em 0'
+				list.style.paddingLeft = '1.5em'
 				for (const item of block.items ?? []) {
 					const li = document.createElement('li')
 					fillInline(li, item)
@@ -83,7 +90,14 @@ export function renderProse(content: string, dataKey: string): HTMLElement {
 			}
 			default: {
 				const el = document.createElement('p')
-				fillInline(el, block.content ?? '')
+				el.style.margin = '0.25em 0'
+				const text = block.content ?? ''
+				// A newline inside a paragraph is a line break, not a new block.
+				const lines = text.split('\n')
+				lines.forEach((line, i) => {
+					fillInline(el, line)
+					if (i < lines.length - 1) el.appendChild(document.createElement('br'))
+				})
 				wrapper.appendChild(el)
 			}
 		}

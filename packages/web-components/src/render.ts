@@ -73,9 +73,9 @@ function nextUid(): string {
 	return String(counter)
 }
 
-export function renderNode(node: ASTNode, opts: RenderOptions, index: number): Node | null {
+export function renderNode(node: ASTNode, opts: RenderOptions): Node | null {
 	if (node.type === 'prose') {
-		return renderProse((node as ProseNode).content, `n${index}`)
+		return renderProse((node as ProseNode).content)
 	}
 
 	const component = node as ComponentNode
@@ -89,8 +89,8 @@ export function renderNode(node: ASTNode, opts: RenderOptions, index: number): N
 	const kids = component.children ?? []
 	if (kids.length > 0) {
 		slot = []
-		kids.forEach((child, i) => {
-			const rendered = renderNode(child, opts, i)
+		kids.forEach((child) => {
+			const rendered = renderNode(child, opts)
 			if (rendered) (slot as Node[]).push(rendered)
 		})
 	}
@@ -133,8 +133,6 @@ function wrap(nodes: Node[]): Node {
 
 export function renderNodes(nodes: ASTNode[], opts: RenderOptions): DocumentFragment {
 	const frag = document.createDocumentFragment()
-	nodes.forEach((node, i) => {
-		append(frag, renderNode(node, opts, i))
-	})
+	for (const node of nodes) append(frag, renderNode(node, opts))
 	return frag
 }
