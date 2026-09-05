@@ -1,12 +1,11 @@
 /**
- * Markdown parsing for prose nodes, independent of any rendering target.
+ * Markdown parsing for prose nodes, with no rendering attached.
  *
- * Produces a token and block structure that a renderer walks to build its own
- * output — React elements, DOM nodes, or anything else. Nothing here emits
- * markup, so no renderer has to reach for innerHTML to display prose.
+ * Returns tokens and blocks for a renderer to walk. Nothing here emits markup,
+ * so no renderer needs innerHTML.
  *
- * Handles bold, italic, bold+italic, strikethrough, inline code, links,
- * headings (h1-h3), unordered and ordered lists, and paragraph breaks.
+ * Covers bold, italic, bold+italic, strikethrough, inline code, links,
+ * headings (h1-h3), lists, and paragraph breaks.
  */
 
 export interface InlineToken {
@@ -34,11 +33,8 @@ const UL_RE = /^[-*][ \t]+(\S.*)$/
 const OL_RE = /^\d+[.)][ \t]+(\S.*)$/
 
 /**
- * Return the href only if its scheme is safe to put in the DOM.
- *
- * Renderers must use this rather than passing a parsed href through directly:
- * javascript: and data: URLs are rejected here, and an undefined result means
- * the link should render as plain text.
+ * Href, but only if the scheme is safe. javascript: and data: come back
+ * undefined, meaning render the label as plain text.
  */
 export function sanitizeHref(href?: string): string | undefined {
 	if (!href) return undefined
@@ -119,7 +115,7 @@ export function parseBlocks(content: string): ProseBlock[] {
 		const line = lines[i]
 		const trimmed = line.trim()
 
-		// Blank line — flush current paragraph
+		// Blank line ends the current paragraph
 		if (!trimmed) {
 			flushParagraph()
 			i++
@@ -139,7 +135,7 @@ export function parseBlocks(content: string): ProseBlock[] {
 			continue
 		}
 
-		// Unordered list — collect consecutive list items
+		// Unordered list: collect consecutive items
 		const ulMatch = trimmed.match(UL_RE)
 		if (ulMatch) {
 			flushParagraph()
@@ -160,7 +156,7 @@ export function parseBlocks(content: string): ProseBlock[] {
 			continue
 		}
 
-		// Ordered list — collect consecutive list items
+		// Ordered list: collect consecutive items
 		const olMatch = trimmed.match(OL_RE)
 		if (olMatch) {
 			flushParagraph()
@@ -180,7 +176,7 @@ export function parseBlocks(content: string): ProseBlock[] {
 			continue
 		}
 
-		// Regular text — accumulate into paragraph
+		// Regular text, accumulate into the paragraph
 		paraLines.push(line)
 		i++
 	}

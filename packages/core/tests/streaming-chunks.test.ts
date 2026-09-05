@@ -9,8 +9,8 @@ import { Tokenizer } from '../src/tokenizer'
  * must not change what comes out. Chunk boundaries are decided by the network
  * and the model, not by the caller.
  *
- * These fixtures are shaped like real model output — the {% and %} delimiters
- * are two characters, so any chunking can split one.
+ * Fixtures are shaped like real model output. Both delimiters are two
+ * characters, so any chunking can split one.
  */
 
 const registry = new ComponentRegistry()

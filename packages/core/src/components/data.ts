@@ -1,8 +1,8 @@
 import { h, styleUnless, type VElement, type VNode } from '../vnode'
 import type { PureArgs } from './content'
 
-// A chart is data, but role="img" exposes only its label — so the label has to
-// carry the data. Long series are summarised rather than read out in full.
+// role="img" only exposes the label, so the label has to carry the data.
+// Long series get summarised instead of read out in full.
 const MAX_SPOKEN_POINTS = 12
 
 export function describeChart(
@@ -14,8 +14,7 @@ export function describeChart(
 	const prefix = title ? `${title} — ` : ''
 	if (values.length === 0) return `${prefix}${type} chart`
 
-	// Values reach here unvalidated when the registry runs in coerce mode, so a
-	// non-numeric prop can land as NaN. Skip those rather than speak them.
+	// coerce mode lets unvalidated props through, so NaN is possible. Skip it.
 	const finite = values.filter((v) => Number.isFinite(v))
 	const count = `${values.length} data point${values.length === 1 ? '' : 's'}`
 	if (finite.length === 0) return `${prefix}${type} chart, ${count}`

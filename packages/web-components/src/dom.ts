@@ -6,18 +6,14 @@ const BOOLEAN_PROPS = new Set(['disabled', 'checked', 'required', 'open', 'selec
 function applyStyle(el: HTMLElement, style: Record<string, string | number | undefined>): void {
 	for (const [prop, value] of Object.entries(style)) {
 		if (value === undefined) continue
-		// Style keys are camelCase in the shared descriptions, which is what the
-		// CSSStyleDeclaration index signature expects.
 		;(el.style as unknown as Record<string, string>)[prop] = String(value)
 	}
 }
 
 /**
- * Build real DOM from a shared element description.
- *
- * `slot` is what the caller wants inside — the description says where it goes.
- * Text always becomes a text node, so markup in model output is displayed
- * rather than parsed.
+ * Build DOM from a shared element description. `slot` goes wherever the
+ * description says. Text becomes a text node, so markup in model output shows
+ * up as text instead of running.
  */
 export function renderVNode(node: VNode, slot: Node | Node[] | null): Node | Node[] | null {
 	if (node === null || node === undefined || node === false) return null
@@ -36,9 +32,7 @@ export function renderVNode(node: VNode, slot: Node | Node[] | null): Node | Nod
 			continue
 		}
 		if (typeof value === 'boolean') {
-			// A false boolean means the attribute is absent. A true one renders as
-			// the empty string for real HTML boolean attributes, and as "true" for
-			// data-* — matching what the React renderer produces.
+			// "" for real boolean attributes, "true" for data-*, same as React.
 			if (value) el.setAttribute(name, BOOLEAN_PROPS.has(name) ? '' : 'true')
 			continue
 		}

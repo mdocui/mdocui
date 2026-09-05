@@ -1,6 +1,6 @@
 {
 	"name": "@mdocui/web-components",
-	"version": "0.7.3",
+	"version": "0.8.0",
 	"description": "Custom element renderer for mdocUI — works in any framework, or none",
 	"type": "module",
 	"main": "./dist/index.cjs",

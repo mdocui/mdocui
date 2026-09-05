@@ -97,8 +97,8 @@ describe('streaming', () => {
 	})
 
 	it('produces the same DOM for id-bearing components however it is chunked', () => {
-		// ids are unique per instance, so they are normalised before comparing —
-		// what must match is the structure, not the counter.
+		// ids are unique per instance, so normalise them first. Structure is what
+		// has to match, not the counter.
 		const strip = (html: string) => html.replace(/mdocui-[a-z]+-\d+/g, 'ID')
 		const markup =
 			'{% form name="f" %}{% input name="email" label="Email" /%}{% select name="p" label="Plan" options=["a","b"] /%}{% /form %}{% tabs labels=["One","Two"] %}{% tab label="One" %}x{% /tab %}{% tab label="Two" %}y{% /tab %}{% /tabs %}'
@@ -124,7 +124,7 @@ describe('streaming', () => {
 
 		el.done()
 
-		// same element, same value, still focused — done() must not rebuild it
+		// same element, same value, still focused: done() must not rebuild it
 		expect(el.querySelector('input')).toBe(input)
 		expect((el.querySelector('input') as HTMLInputElement).value).toBe('typed before the end')
 		expect(document.activeElement).toBe(input)

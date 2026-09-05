@@ -4,31 +4,21 @@ import { append } from './dom'
 export interface InteractiveArgs {
 	props: Record<string, unknown>
 	className?: string
-	/**
-	 * Read live rather than captured: a control built during the stream is still
-	 * on the page when the stream ends, and must behave accordingly without
-	 * being rebuilt.
-	 */
+	/** Read live, not captured: controls outlive the stream they were built in. */
 	isStreaming: () => boolean
 	emit: (event: ActionEvent) => void
 	slot: Node | Node[] | null
 	uid: () => string
 }
 
-/**
- * Disable a control for the duration of the stream.
- *
- * The marker records that the stream is the reason, so it can be re-enabled
- * when the stream ends without rebuilding the element and discarding whatever
- * the user has already typed or focused.
- */
+/** Disable while streaming. The marker says why, so we can undo it later. */
 export function markStreamDisabled(el: HTMLInputElement | HTMLSelectElement): void {
 	el.disabled = true
 	el.setAttribute('aria-disabled', 'true')
 	el.setAttribute('data-mdocui-stream-disabled', 'true')
 }
 
-/** Undo markStreamDisabled, leaving controls disabled for other reasons alone. */
+/** Undo the above. Controls disabled for other reasons stay disabled. */
 export function releaseStreamDisabled(root: ParentNode): void {
 	for (const el of Array.from(root.querySelectorAll('[data-mdocui-stream-disabled]'))) {
 		const control = el as HTMLInputElement | HTMLSelectElement
@@ -88,7 +78,6 @@ export function button({ props, className, isStreaming, emit }: InteractiveArgs)
 		el.disabled = disabled
 		if (disabled) el.setAttribute('data-disabled', 'true')
 		else el.removeAttribute('data-disabled')
-		// Only the stream's doing is reversible without a rebuild.
 		if (isStreaming() && !ownDisabled) el.setAttribute('data-mdocui-stream-disabled', 'true')
 		else el.removeAttribute('data-mdocui-stream-disabled')
 		if (!className) el.style.cursor = disabled ? 'not-allowed' : 'pointer'
@@ -393,8 +382,7 @@ export function form({ props, className, isStreaming, emit, slot }: InteractiveA
 		submitted = true
 		el.setAttribute('data-submitted', 'true')
 		el.setAttribute('aria-hidden', 'true')
-		// inert as well as aria-hidden: without it the fields stay tab-focusable
-		// while being hidden from assistive tech.
+		// inert too: aria-hidden alone leaves the fields tab-focusable.
 		el.setAttribute('inert', '')
 		el.style.opacity = '0.5'
 		el.style.pointerEvents = 'none'
@@ -453,7 +441,7 @@ export function tabs({ props, className, slot, uid }: InteractiveArgs): HTMLElem
 		active = index
 		buttons.forEach((b, i) => {
 			b.setAttribute('aria-selected', String(i === index))
-			// A roving tab stop: one button in the tab order, arrows move between them.
+			// Roving tab stop: one button reachable by Tab, arrows move between them.
 			b.tabIndex = i === index ? 0 : -1
 			if (!className) b.style.fontWeight = i === index ? '600' : '400'
 		})

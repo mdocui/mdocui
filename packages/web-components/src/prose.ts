@@ -33,8 +33,7 @@ function inlineNode(token: InlineToken): Node {
 		}
 		case 'link': {
 			const href = sanitizeHref(token.href)
-			// An unsafe scheme yields no href at all, so the label renders as text
-			// rather than as a link that does something unexpected.
+			// No href means an unsafe scheme, so render the label as plain text.
 			if (!href) return text
 			const el = document.createElement('a')
 			el.setAttribute('href', href)
@@ -52,12 +51,7 @@ function fillInline(parent: Node, text: string): void {
 	for (const token of parseInline(text)) parent.appendChild(inlineNode(token))
 }
 
-/**
- * Render prose content into a container element.
- *
- * Parsing comes from @mdocui/core, so this matches what the React renderer
- * produces for the same input.
- */
+/** Parsing lives in core, so this matches what the React renderer produces. */
 export function renderProse(content: string, dataKey: string): HTMLElement {
 	const wrapper = document.createElement('span')
 	wrapper.setAttribute('data-mdocui-prose', dataKey)

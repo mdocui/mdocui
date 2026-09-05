@@ -50,8 +50,8 @@ export class Tokenizer {
 			const next = input[i + 1]
 
 			// The last character of a chunk has no lookahead. If it could begin a
-			// delimiter, hold it and decide once the next chunk arrives — otherwise
-			// a split `{%` is emitted as prose and a split `%}` never closes the tag.
+			// delimiter, hold it and decide once the next chunk arrives. Otherwise a
+			// split `{%` goes out as prose and a split `%}` never closes the tag.
 			if (next === undefined) {
 				if (this.state === TokenizerState.IN_PROSE && char === '{') {
 					this.pending = char

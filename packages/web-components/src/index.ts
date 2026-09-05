@@ -1,4 +1,4 @@
-// @mdocui/web-components — custom element renderer for mdocUI
+// @mdocui/web-components: custom element renderer for mdocUI
 
 export { append, clear, renderVNode } from './dom'
 export type { MdocUIErrorDetail } from './element'
@@ -10,7 +10,6 @@ export { renderNode, renderNodes } from './render'
 
 import { defineMdocUI } from './element'
 
-// Importing the package registers <mdoc-ui>, so a script tag is enough to use
-// it. Both guards inside defineMdocUI make this inert on a server and harmless
-// if the package is loaded twice.
+// Registering on import means a plain script tag is enough. defineMdocUI
+// guards against double-registration and against there being no DOM.
 defineMdocUI()

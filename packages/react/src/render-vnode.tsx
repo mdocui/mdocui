@@ -7,7 +7,7 @@ const ATTR_ALIAS: Record<string, string> = { class: 'className', for: 'htmlFor' 
 /**
  * Render a shared component description as React elements.
  *
- * `slot` is what the caller passed as children — the description says where
+ * `slot` is what the caller passed as children. The description says where
  * they belong, the renderer supplies them.
  */
 export function renderVNode(node: VNode, slot: ReactNode, key?: string): ReactNode {

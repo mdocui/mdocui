@@ -20,27 +20,20 @@ export interface MdocUIErrorDetail {
 }
 
 /**
- * Renders mdocUI markup into light DOM.
+ * Renders mdocUI markup into light DOM, so page CSS reaches the components.
  *
- * Content arrives through `push()` while a response streams, or through the
- * `markup` property in one go. Light DOM is deliberate: page CSS and the
- * `classNames` map style these components the same way they style the React
- * ones.
- *
- * Only the last node is re-rendered as chunks arrive. The parser emits a
- * component node only once its closing tag lands, so anything interactive is
- * final by the time it reaches the DOM and never gets rebuilt underneath the
- * user.
+ * Only the tail is re-rendered while streaming. The parser emits a component
+ * once its closing tag arrives, so anything interactive is already final by
+ * the time it hits the DOM.
  */
 export class MdocUIElement extends HTMLElement {
 	private parser: StreamingParser | null = null
 	private registryValue: ComponentRegistry | null = null
 	private rendered: (Node | null)[] = []
-	// A count, not a copy of the node list: getNodes() hands back the parser's
-	// own array, so holding a reference to it would compare it against itself.
+	// A count, not the array. getNodes() hands back the parser's own array, so
+	// keeping a reference would mean comparing it to itself.
 	private renderedCount = 0
-	// Signature of the last rendered node, so it is only rebuilt when its
-	// content actually changed rather than on every chunk.
+	// Lets us skip rebuilding the tail when it hasn't actually changed.
 	private lastSignature = ''
 	private streaming = false
 
@@ -123,10 +116,8 @@ export class MdocUIElement extends HTMLElement {
 	}
 
 	/**
-	 * Bring the DOM in line with the parser.
-	 *
-	 * Nodes before the last never change once emitted, so they are left alone —
-	 * that is what keeps focus and typed input intact while the rest streams.
+	 * Catch the DOM up with the parser. Nodes never change once settled, so we
+	 * only touch the tail. That's what keeps focus and typed input intact.
 	 */
 	private sync(final = false): void {
 		const next = this.parser?.getNodes() ?? []
@@ -138,9 +129,7 @@ export class MdocUIElement extends HTMLElement {
 			components: this.components,
 		}
 
-		// The previously-last node may have grown. Anything before it is settled,
-		// and once a node stops changing it is left alone — rebuilding it would
-		// throw away focus and typed input for no reason.
+		// The old tail may have grown. Once it stops changing, leave it be.
 		const lastIndex = this.renderedCount - 1
 		if (lastIndex >= 0 && next[lastIndex]) {
 			const signature = signatureOf(next[lastIndex])
@@ -157,9 +146,7 @@ export class MdocUIElement extends HTMLElement {
 		this.renderedCount = next.length
 		this.lastSignature = next.length > 0 ? signatureOf(next[next.length - 1]) : ''
 
-		// When the stream ends, re-enable the controls it disabled rather than
-		// rebuilding anything. A rebuild here would discard focus and whatever the
-		// user had already typed into a form sitting at the end of the response.
+		// Re-enable rather than rebuild, or we'd wipe a half-filled form.
 		if (final) releaseStreamDisabled(this)
 	}
 
@@ -175,24 +162,18 @@ export class MdocUIElement extends HTMLElement {
 	}
 }
 
-/** Cheap identity for a node, to tell a grown node from a settled one. */
+/** Cheap identity, to tell a growing node from a settled one. */
 function signatureOf(node: ASTNode): string {
 	return node.type === 'prose' ? `p:${(node as ProseNode).content}` : JSON.stringify(node)
 }
 
 let baseRegistered = false
 
-/**
- * Register the element.
- *
- * Safe to call more than once and safe to import where there is no DOM, so a
- * server render or a duplicated dependency does not throw.
- */
+/** Safe to call twice, and a no-op where there's no DOM (SSR). */
 export function defineMdocUI(tagName = 'mdoc-ui'): void {
 	if (typeof customElements === 'undefined') return
 	if (customElements.get(tagName)) return
-	// A constructor can only back one tag name, so any further name gets its own
-	// subclass rather than throwing.
+	// A class can only back one tag name, so extra names get a subclass.
 	const Ctor = baseRegistered ? class extends MdocUIElement {} : MdocUIElement
 	customElements.define(tagName, Ctor)
 	baseRegistered = true
