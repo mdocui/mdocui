@@ -7,6 +7,7 @@ import {
 	StreamingParser,
 } from '@mdocui/core'
 import { clear } from './dom'
+import { releaseStreamDisabled } from './interactive'
 import { type CustomRenderer, renderNode } from './render'
 
 export const ACTION_EVENT = 'mdocui:action'
@@ -130,7 +131,7 @@ export class MdocUIElement extends HTMLElement {
 	private sync(final = false): void {
 		const next = this.parser?.getNodes() ?? []
 		const opts = {
-			isStreaming: this.streaming,
+			isStreaming: () => this.streaming,
 			emit: this.emit,
 			onError: this.onError,
 			classNames: this.classNames,
@@ -156,12 +157,10 @@ export class MdocUIElement extends HTMLElement {
 		this.renderedCount = next.length
 		this.lastSignature = next.length > 0 ? signatureOf(next[next.length - 1]) : ''
 
-		// One more pass over the tail with streaming off, so controls disabled
-		// mid-stream become usable once the response is complete.
-		if (final && this.renderedCount > 0) {
-			const i = this.renderedCount - 1
-			this.replaceAt(i, renderNode(next[i], { ...opts, isStreaming: false }, i))
-		}
+		// When the stream ends, re-enable the controls it disabled rather than
+		// rebuilding anything. A rebuild here would discard focus and whatever the
+		// user had already typed into a form sitting at the end of the response.
+		if (final) releaseStreamDisabled(this)
 	}
 
 	private replaceAt(index: number, replacement: Node | null): void {

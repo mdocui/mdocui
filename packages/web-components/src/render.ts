@@ -59,7 +59,7 @@ const INTERACTIVE = {
 export type CustomRenderer = (args: InteractiveArgs & { name: string }) => Node | null
 
 export interface RenderOptions {
-	isStreaming: boolean
+	isStreaming: () => boolean
 	emit: (event: ActionEvent) => void
 	onError?: (name: string, error: Error, props: Record<string, unknown>) => void
 	classNames?: Record<string, string>

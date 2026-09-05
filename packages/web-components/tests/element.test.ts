@@ -96,6 +96,59 @@ describe('streaming', () => {
 		}
 	})
 
+	it('produces the same DOM for id-bearing components however it is chunked', () => {
+		// ids are unique per instance, so they are normalised before comparing —
+		// what must match is the structure, not the counter.
+		const strip = (html: string) => html.replace(/mdocui-[a-z]+-\d+/g, 'ID')
+		const markup =
+			'{% form name="f" %}{% input name="email" label="Email" /%}{% select name="p" label="Plan" options=["a","b"] /%}{% /form %}{% tabs labels=["One","Two"] %}{% tab label="One" %}x{% /tab %}{% tab label="Two" %}y{% /tab %}{% /tabs %}'
+
+		const whole = create()
+		whole.markup = markup
+		const expected = strip(whole.innerHTML)
+
+		for (const size of [1, 2, 3, 5, 17]) {
+			const el = create()
+			for (let i = 0; i < markup.length; i += size) el.push(markup.slice(i, i + size))
+			el.done()
+			expect(strip(el.innerHTML), `chunk size ${size}`).toBe(expected)
+		}
+	})
+
+	it('keeps what the user typed when the stream ends', () => {
+		const el = create()
+		el.push('{% form name="f" %}{% input name="email" label="Email" /%}{% /form %}')
+		const input = el.querySelector('input') as HTMLInputElement
+		input.value = 'typed before the end'
+		input.focus()
+
+		el.done()
+
+		// same element, same value, still focused — done() must not rebuild it
+		expect(el.querySelector('input')).toBe(input)
+		expect((el.querySelector('input') as HTMLInputElement).value).toBe('typed before the end')
+		expect(document.activeElement).toBe(input)
+	})
+
+	it('re-enables stream-disabled controls without rebuilding them', () => {
+		const el = create()
+		el.push('{% toggle name="n" label="L" /%}')
+		const toggle = el.querySelector('input') as HTMLInputElement
+		expect(toggle.disabled).toBe(true)
+
+		el.done()
+
+		expect(el.querySelector('input')).toBe(toggle)
+		expect(toggle.disabled).toBe(false)
+		expect(toggle.hasAttribute('aria-disabled')).toBe(false)
+	})
+
+	it('leaves a control disabled by its own prop disabled', () => {
+		const el = create()
+		el.markup = '{% button action="a" label="L" disabled=true /%}'
+		expect((el.querySelector('button') as HTMLButtonElement).disabled).toBe(true)
+	})
+
 	it('leaves already-rendered nodes alone as more arrives', () => {
 		const el = create()
 		el.push('{% divider /%}')

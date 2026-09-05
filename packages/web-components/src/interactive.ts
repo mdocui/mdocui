@@ -4,10 +4,38 @@ import { append } from './dom'
 export interface InteractiveArgs {
 	props: Record<string, unknown>
 	className?: string
-	isStreaming: boolean
+	/**
+	 * Read live rather than captured: a control built during the stream is still
+	 * on the page when the stream ends, and must behave accordingly without
+	 * being rebuilt.
+	 */
+	isStreaming: () => boolean
 	emit: (event: ActionEvent) => void
 	slot: Node | Node[] | null
 	uid: () => string
+}
+
+/**
+ * Disable a control for the duration of the stream.
+ *
+ * The marker records that the stream is the reason, so it can be re-enabled
+ * when the stream ends without rebuilding the element and discarding whatever
+ * the user has already typed or focused.
+ */
+export function markStreamDisabled(el: HTMLInputElement | HTMLSelectElement): void {
+	el.disabled = true
+	el.setAttribute('aria-disabled', 'true')
+	el.setAttribute('data-mdocui-stream-disabled', 'true')
+}
+
+/** Undo markStreamDisabled, leaving controls disabled for other reasons alone. */
+export function releaseStreamDisabled(root: ParentNode): void {
+	for (const el of Array.from(root.querySelectorAll('[data-mdocui-stream-disabled]'))) {
+		const control = el as HTMLInputElement | HTMLSelectElement
+		control.disabled = false
+		control.removeAttribute('aria-disabled')
+		control.removeAttribute('data-mdocui-stream-disabled')
+	}
 }
 
 function styled(el: HTMLElement, className: string | undefined, style: Record<string, string>) {
@@ -55,10 +83,14 @@ export function button({ props, className, isStreaming, emit }: InteractiveArgs)
 
 	let clicked = false
 	const sync = () => {
-		const disabled = isStreaming || (props.disabled as boolean) === true || clicked
+		const ownDisabled = (props.disabled as boolean) === true || clicked
+		const disabled = isStreaming() || ownDisabled
 		el.disabled = disabled
 		if (disabled) el.setAttribute('data-disabled', 'true')
 		else el.removeAttribute('data-disabled')
+		// Only the stream's doing is reversible without a rebuild.
+		if (isStreaming() && !ownDisabled) el.setAttribute('data-mdocui-stream-disabled', 'true')
+		else el.removeAttribute('data-mdocui-stream-disabled')
 		if (!className) el.style.cursor = disabled ? 'not-allowed' : 'pointer'
 		if (!className) el.style.opacity = disabled ? '0.5' : '1'
 	}
@@ -107,7 +139,7 @@ export function link({ props, className, isStreaming, emit }: InteractiveArgs): 
 
 	el.addEventListener('click', (e) => {
 		e.preventDefault()
-		if (isStreaming) return
+		if (isStreaming()) return
 		emit({
 			type: 'link_click',
 			action: props.action as string,
@@ -218,13 +250,10 @@ export function toggle({ props, className, isStreaming, emit }: InteractiveArgs)
 	el.name = name
 	el.checked = (props.checked as boolean) ?? false
 	el.setAttribute('aria-checked', String(el.checked))
-	if (isStreaming) {
-		el.disabled = true
-		el.setAttribute('aria-disabled', 'true')
-	}
+	if (isStreaming()) markStreamDisabled(el)
 
 	el.addEventListener('change', () => {
-		if (isStreaming) return
+		if (isStreaming()) return
 		el.setAttribute('aria-checked', String(el.checked))
 		emit({
 			type: 'select_change',
@@ -257,13 +286,10 @@ export function checkbox({ props, className, isStreaming, emit }: InteractiveArg
 	el.type = 'checkbox'
 	el.name = name
 	el.checked = (props.checked as boolean) ?? false
-	if (isStreaming) {
-		el.disabled = true
-		el.setAttribute('aria-disabled', 'true')
-	}
+	if (isStreaming()) markStreamDisabled(el)
 
 	el.addEventListener('change', () => {
-		if (isStreaming) return
+		if (isStreaming()) return
 		emit({
 			type: 'select_change',
 			action: `change:${name}`,
@@ -297,10 +323,7 @@ export function select({ props, className, isStreaming, emit, uid }: Interactive
 		el.required = true
 		el.setAttribute('aria-required', 'true')
 	}
-	if (isStreaming) {
-		el.disabled = true
-		el.setAttribute('aria-disabled', 'true')
-	}
+	if (isStreaming()) markStreamDisabled(el)
 	if (!className) {
 		el.style.width = '100%'
 		el.style.padding = '8px 12px'
@@ -325,7 +348,7 @@ export function select({ props, className, isStreaming, emit, uid }: Interactive
 	}
 
 	el.addEventListener('change', () => {
-		if (isStreaming) return
+		if (isStreaming()) return
 		emit({
 			type: 'select_change',
 			action: `change:${name}`,
@@ -357,7 +380,7 @@ export function form({ props, className, isStreaming, emit, slot }: InteractiveA
 	let submitted = false
 	el.addEventListener('submit', (e) => {
 		e.preventDefault()
-		if (isStreaming || submitted) return
+		if (isStreaming() || submitted) return
 
 		const data = new FormData(el)
 		const state: Record<string, unknown> = {}

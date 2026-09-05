@@ -95,6 +95,7 @@ Markdoc's `{% %}` delimiters are unambiguous — they never appear in normal pro
 |---------|-------------|--------|
 | [`@mdocui/core`](packages/core) | Streaming parser, tokenizer, component registry, prompt generator | Alpha |
 | [`@mdocui/react`](packages/react) | React renderer, 24 default components, `useRenderer` hook | Alpha |
+| [`@mdocui/web-components`](packages/web-components) | `<mdoc-ui>` custom element — any framework, or none | Alpha |
 | [`@mdocui/cli`](packages/cli) | Scaffold, generate system prompts, preview | Alpha |
 
 ## Quick Start
