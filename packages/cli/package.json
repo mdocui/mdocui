@@ -27,7 +27,7 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@types/node": "^25.5.2",
+		"@types/node": "^26.4.1",
 		"tsup": "catalog:",
 		"vitest": "catalog:"
 	},
