@@ -35,12 +35,12 @@
 		"react-dom": ">=18"
 	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.2",
-		"@types/react": "^19.2.14",
-		"@types/react-dom": "^19.2.3",
-		"jsdom": "^29.0.2",
-		"react": "^19.2.4",
-		"react-dom": "^19.2.4",
+		"@testing-library/react": "^16.3.3",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.7",
+		"jsdom": "^30.0.1",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8",
 		"tsup": "catalog:",
 		"vitest": "catalog:",
 		"zod": "catalog:"
