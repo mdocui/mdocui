@@ -3,12 +3,14 @@ import {
 	type ASTNode,
 	allDefinitions,
 	ComponentRegistry,
+	type GroupedItem,
+	groupButtons,
 	type ProseNode,
 	StreamingParser,
 } from '@mdocui/core'
 import { clear } from './dom'
 import { releaseStreamDisabled } from './interactive'
-import { type CustomRenderer, renderNode } from './render'
+import { type CustomRenderer, renderItem } from './render'
 
 export const ACTION_EVENT = 'mdocui:action'
 export const ERROR_EVENT = 'mdocui:error'
@@ -66,8 +68,15 @@ export class MdocUIElement extends HTMLElement {
 	}
 
 	connectedCallback(): void {
-		if (!this.hasAttribute('data-mdocui-root')) {
-			this.setAttribute('data-mdocui-root', 'true')
+		if (!this.hasAttribute('data-mdocui')) {
+			this.setAttribute('data-mdocui', 'true')
+		}
+		// Same column layout the react renderer puts on its root, so blocks are
+		// spaced the same way. Skipped if the page already styled the host.
+		if (!this.getAttribute('style')) {
+			this.style.display = 'flex'
+			this.style.flexDirection = 'column'
+			this.style.gap = '8px'
 		}
 	}
 
@@ -120,7 +129,9 @@ export class MdocUIElement extends HTMLElement {
 	 * only touch the tail. That's what keeps focus and typed input intact.
 	 */
 	private sync(final = false): void {
-		const next = this.parser?.getNodes() ?? []
+		// Group before comparing: consecutive buttons render as one row, so the
+		// row is the unit that grows, not the individual button nodes.
+		const next = groupButtons(this.parser?.getNodes() ?? [])
 		const opts = {
 			isStreaming: () => this.streaming,
 			emit: this.emit,
@@ -134,12 +145,12 @@ export class MdocUIElement extends HTMLElement {
 		if (lastIndex >= 0 && next[lastIndex]) {
 			const signature = signatureOf(next[lastIndex])
 			if (signature !== this.lastSignature) {
-				this.replaceAt(lastIndex, renderNode(next[lastIndex], opts))
+				this.replaceAt(lastIndex, renderItem(next[lastIndex], opts))
 			}
 		}
 
 		for (let i = this.renderedCount; i < next.length; i++) {
-			const el = renderNode(next[i], opts)
+			const el = renderItem(next[i], opts)
 			this.rendered[i] = el
 			if (el) this.appendChild(el)
 		}
@@ -162,8 +173,10 @@ export class MdocUIElement extends HTMLElement {
 	}
 }
 
-/** Cheap identity, to tell a growing node from a settled one. */
-function signatureOf(node: ASTNode): string {
+/** Cheap identity, to tell a growing item from a settled one. */
+function signatureOf(item: GroupedItem): string {
+	if (item.type === 'button-row') return `b:${item.nodes.length}:${JSON.stringify(item.nodes)}`
+	const node = item.node
 	return node.type === 'prose' ? `p:${(node as ProseNode).content}` : JSON.stringify(node)
 }
 

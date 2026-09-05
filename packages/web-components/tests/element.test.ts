@@ -313,3 +313,57 @@ describe('prose structure matches the react renderer', () => {
 		expect(el.querySelector('[data-mdocui-prose]')?.getAttribute('data-mdocui-prose')).toBe('true')
 	})
 })
+
+describe('button rows', () => {
+	it('groups consecutive buttons into one row', () => {
+		const el = create()
+		el.markup = '{% button action="a" label="A" /%}\n\n{% button action="b" label="B" /%}'
+		const rows = el.querySelectorAll('[data-mdocui-button-row]')
+		expect(rows).toHaveLength(1)
+		expect(rows[0].querySelectorAll('button')).toHaveLength(2)
+	})
+
+	it('starts a new row after other content', () => {
+		const el = create()
+		el.markup =
+			'{% button action="a" label="A" /%}\n\ntext between\n\n{% button action="b" label="B" /%}'
+		expect(el.querySelectorAll('[data-mdocui-button-row]')).toHaveLength(2)
+	})
+
+	it('does not wrap a button nested inside another component', () => {
+		const el = create()
+		el.markup = '{% card title="C" %}{% button action="a" label="A" /%}{% /card %}'
+		expect(el.querySelectorAll('[data-mdocui-button-row]')).toHaveLength(0)
+		expect(el.querySelectorAll('button')).toHaveLength(1)
+	})
+
+	it('grows the row as more buttons stream in', () => {
+		const el = create()
+		el.push('{% button action="a" label="A" /%}')
+		expect(el.querySelectorAll('[data-mdocui-button-row] button')).toHaveLength(1)
+		el.push('\n\n{% button action="b" label="B" /%}')
+		el.done()
+		const rows = el.querySelectorAll('[data-mdocui-button-row]')
+		expect(rows).toHaveLength(1)
+		expect(rows[0].querySelectorAll('button')).toHaveLength(2)
+	})
+})
+
+describe('host layout', () => {
+	it('lays out top-level blocks as a spaced column, like the react root', () => {
+		const el = create()
+		el.markup = 'a\n\n{% divider /%}'
+		expect(el.style.display).toBe('flex')
+		expect(el.style.flexDirection).toBe('column')
+		expect(el.style.gap).toBe('8px')
+		expect(el.getAttribute('data-mdocui')).toBe('true')
+	})
+
+	it('leaves the host alone if the page already styled it', () => {
+		const el = document.createElement('mdoc-ui') as MdocUIElement
+		el.setAttribute('style', 'display: grid')
+		document.body.appendChild(el)
+		el.markup = 'a'
+		expect(el.style.display).toBe('grid')
+	})
+})

@@ -10,7 +10,9 @@ import {
 	chart,
 	codeBlock,
 	divider,
+	type GroupedItem,
 	grid,
+	groupButtons,
 	image,
 	type ProseNode,
 	progress,
@@ -131,8 +133,21 @@ function wrap(nodes: Node[]): Node {
 	return frag
 }
 
+/** Render one grouped item: a single node, or a row of buttons. */
+export function renderItem(item: GroupedItem, opts: RenderOptions): Node | null {
+	if (item.type === 'node') return renderNode(item.node, opts)
+
+	const row = document.createElement('div')
+	row.setAttribute('data-mdocui-button-row', 'true')
+	row.style.display = 'flex'
+	row.style.flexWrap = 'wrap'
+	row.style.gap = '8px'
+	for (const node of item.nodes) append(row, renderNode(node, opts))
+	return row
+}
+
 export function renderNodes(nodes: ASTNode[], opts: RenderOptions): DocumentFragment {
 	const frag = document.createDocumentFragment()
-	for (const node of nodes) append(frag, renderNode(node, opts))
+	for (const item of groupButtons(nodes)) append(frag, renderItem(item, opts))
 	return frag
 }

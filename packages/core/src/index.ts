@@ -6,6 +6,8 @@ export { badge, callout, codeBlock, divider, image, safeSrc } from './components
 export { chart, describeChart, progress, stat, table } from './components/data'
 export { accordion, buttonGroup, card, grid, stack, tab } from './components/layout'
 export { allDefinitions, defaultGroups } from './definitions'
+export type { GroupedItem } from './grouping'
+export { groupButtons } from './grouping'
 export type { ParserOptions } from './parser'
 export { StreamingParser } from './parser'
 export { generatePrompt } from './prompt'
