@@ -1,5 +1,38 @@
 import type { ComponentProps } from '../context'
 
+// A chart is data, but role="img" exposes only its label — so the label has to
+// carry the data. Long series are summarised rather than read out in full.
+const MAX_SPOKEN_POINTS = 12
+
+function describeChart(
+	type: string,
+	labels: unknown[],
+	values: number[],
+	title: string | undefined,
+): string {
+	const prefix = title ? `${title} — ` : ''
+	if (values.length === 0) return `${prefix}${type} chart`
+
+	// Values reach here unvalidated when the registry runs in coerce mode, so a
+	// non-numeric prop can land as NaN. Skip those rather than speak them.
+	const finite = values.filter((v) => Number.isFinite(v))
+	const count = `${values.length} data point${values.length === 1 ? '' : 's'}`
+	if (finite.length === 0) return `${prefix}${type} chart, ${count}`
+
+	if (values.length > MAX_SPOKEN_POINTS) {
+		const min = finite.reduce((a, b) => Math.min(a, b), finite[0])
+		const max = finite.reduce((a, b) => Math.max(a, b), finite[0])
+		return `${prefix}${type} chart, ${count}, values from ${min} to ${max}`
+	}
+
+	const pairs = values.flatMap((v, i) => {
+		if (!Number.isFinite(v)) return []
+		const label = labels[i]
+		return [label === undefined ? String(v) : `${String(label)} ${v}`]
+	})
+	return `${prefix}${type} chart, ${count}: ${pairs.join(', ')}`
+}
+
 export function Chart({ props, className }: ComponentProps) {
 	const type = props.type as string
 	const labels = Array.isArray(props.labels) ? props.labels : []
@@ -14,7 +47,7 @@ export function Chart({ props, className }: ComponentProps) {
 			data-mdocui-chart
 			data-type={type}
 			role="img"
-			aria-label={title ?? `${type} chart`}
+			aria-label={describeChart(type, labels, values, title)}
 			style={themed ? undefined : { padding: '12px 0' }}
 		>
 			{title && (
@@ -121,6 +154,7 @@ export function Table({ props, className }: ComponentProps) {
 					{headers.map((h) => (
 						<th
 							key={h}
+							scope="col"
 							style={
 								themed
 									? undefined
