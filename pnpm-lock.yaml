@@ -108,6 +108,22 @@ importers:
         specifier: 'catalog:'
         version: 4.5.4
 
+  packages/web-components:
+    dependencies:
+      '@mdocui/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      jsdom:
+        specifier: ^30.0.1
+        version: 30.0.1
+      tsup:
+        specifier: 'catalog:'
+        version: 8.5.1(postcss@8.5.28)(tsx@4.23.13)(typescript@6.0.3)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1)(vite@8.2.2(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
+
 packages:
 
   '@asamuzakjp/css-color@6.0.7':

@@ -1,0 +1,200 @@
+import {
+	type ActionEvent,
+	type ASTNode,
+	allDefinitions,
+	ComponentRegistry,
+	type ProseNode,
+	StreamingParser,
+} from '@mdocui/core'
+import { clear } from './dom'
+import { type CustomRenderer, renderNode } from './render'
+
+export const ACTION_EVENT = 'mdocui:action'
+export const ERROR_EVENT = 'mdocui:error'
+
+export interface MdocUIErrorDetail {
+	componentName: string
+	error: Error
+	props: Record<string, unknown>
+}
+
+/**
+ * Renders mdocUI markup into light DOM.
+ *
+ * Content arrives through `push()` while a response streams, or through the
+ * `markup` property in one go. Light DOM is deliberate: page CSS and the
+ * `classNames` map style these components the same way they style the React
+ * ones.
+ *
+ * Only the last node is re-rendered as chunks arrive. The parser emits a
+ * component node only once its closing tag lands, so anything interactive is
+ * final by the time it reaches the DOM and never gets rebuilt underneath the
+ * user.
+ */
+export class MdocUIElement extends HTMLElement {
+	private parser: StreamingParser | null = null
+	private registryValue: ComponentRegistry | null = null
+	private rendered: (Node | null)[] = []
+	// A count, not a copy of the node list: getNodes() hands back the parser's
+	// own array, so holding a reference to it would compare it against itself.
+	private renderedCount = 0
+	// Signature of the last rendered node, so it is only rebuilt when its
+	// content actually changed rather than on every chunk.
+	private lastSignature = ''
+	private streaming = false
+
+	classNames: Record<string, string> = {}
+	components: Record<string, CustomRenderer> = {}
+
+	get registry(): ComponentRegistry {
+		if (!this.registryValue) {
+			const registry = new ComponentRegistry({ coerce: true })
+			registry.registerAll(allDefinitions)
+			this.registryValue = registry
+		}
+		return this.registryValue
+	}
+
+	set registry(value: ComponentRegistry) {
+		this.registryValue = value
+		this.parser = null
+	}
+
+	/** Replace the content in one go. */
+	set markup(value: string) {
+		this.reset()
+		this.push(value)
+		this.done()
+	}
+
+	get isStreaming(): boolean {
+		return this.streaming
+	}
+
+	connectedCallback(): void {
+		if (!this.hasAttribute('data-mdocui-root')) {
+			this.setAttribute('data-mdocui-root', 'true')
+		}
+	}
+
+	/** Feed the next chunk of a streaming response. */
+	push(chunk: string): void {
+		if (!this.parser) {
+			this.parser = new StreamingParser({ knownTags: this.registry.knownTags() })
+		}
+		this.streaming = true
+		this.parser.write(chunk)
+		this.sync()
+	}
+
+	/** Close the stream, flushing anything the parser is still holding. */
+	done(): void {
+		this.parser?.flush()
+		this.streaming = false
+		this.sync(true)
+	}
+
+	/** Clear the element and start over. */
+	reset(): void {
+		this.parser = null
+		this.renderedCount = 0
+		this.lastSignature = ''
+		this.rendered = []
+		this.streaming = false
+		clear(this)
+	}
+
+	getNodes(): ASTNode[] {
+		return this.parser?.getNodes() ?? []
+	}
+
+	private emit = (event: ActionEvent): void => {
+		this.dispatchEvent(new CustomEvent(ACTION_EVENT, { detail: event, bubbles: true }))
+	}
+
+	private onError = (componentName: string, error: Error, props: Record<string, unknown>): void => {
+		this.dispatchEvent(
+			new CustomEvent<MdocUIErrorDetail>(ERROR_EVENT, {
+				detail: { componentName, error, props },
+				bubbles: true,
+			}),
+		)
+	}
+
+	/**
+	 * Bring the DOM in line with the parser.
+	 *
+	 * Nodes before the last never change once emitted, so they are left alone —
+	 * that is what keeps focus and typed input intact while the rest streams.
+	 */
+	private sync(final = false): void {
+		const next = this.parser?.getNodes() ?? []
+		const opts = {
+			isStreaming: this.streaming,
+			emit: this.emit,
+			onError: this.onError,
+			classNames: this.classNames,
+			components: this.components,
+		}
+
+		// The previously-last node may have grown. Anything before it is settled,
+		// and once a node stops changing it is left alone — rebuilding it would
+		// throw away focus and typed input for no reason.
+		const lastIndex = this.renderedCount - 1
+		if (lastIndex >= 0 && next[lastIndex]) {
+			const signature = signatureOf(next[lastIndex])
+			if (signature !== this.lastSignature) {
+				this.replaceAt(lastIndex, renderNode(next[lastIndex], opts, lastIndex))
+			}
+		}
+
+		for (let i = this.renderedCount; i < next.length; i++) {
+			const el = renderNode(next[i], opts, i)
+			this.rendered[i] = el
+			if (el) this.appendChild(el)
+		}
+		this.renderedCount = next.length
+		this.lastSignature = next.length > 0 ? signatureOf(next[next.length - 1]) : ''
+
+		// One more pass over the tail with streaming off, so controls disabled
+		// mid-stream become usable once the response is complete.
+		if (final && this.renderedCount > 0) {
+			const i = this.renderedCount - 1
+			this.replaceAt(i, renderNode(next[i], { ...opts, isStreaming: false }, i))
+		}
+	}
+
+	private replaceAt(index: number, replacement: Node | null): void {
+		const old = this.rendered[index]
+		if (!replacement) return
+		if (old?.parentNode === this) {
+			this.replaceChild(replacement, old)
+		} else {
+			this.appendChild(replacement)
+		}
+		this.rendered[index] = replacement
+	}
+}
+
+/** Cheap identity for a node, to tell a grown node from a settled one. */
+function signatureOf(node: ASTNode): string {
+	return node.type === 'prose' ? `p:${(node as ProseNode).content}` : JSON.stringify(node)
+}
+
+let baseRegistered = false
+
+/**
+ * Register the element.
+ *
+ * Safe to call more than once and safe to import where there is no DOM, so a
+ * server render or a duplicated dependency does not throw.
+ */
+export function defineMdocUI(tagName = 'mdoc-ui'): void {
+	if (typeof customElements === 'undefined') return
+	if (customElements.get(tagName)) return
+	// A constructor can only back one tag name, so any further name gets its own
+	// subclass rather than throwing.
+	const Ctor = baseRegistered ? class extends MdocUIElement {} : MdocUIElement
+	customElements.define(tagName, Ctor)
+	baseRegistered = true
+}

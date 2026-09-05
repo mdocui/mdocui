@@ -1,0 +1,56 @@
+{
+	"name": "@mdocui/web-components",
+	"version": "0.7.3",
+	"description": "Custom element renderer for mdocUI — works in any framework, or none",
+	"type": "module",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"clean": "rm -rf dist"
+	},
+	"dependencies": {
+		"@mdocui/core": "workspace:*"
+	},
+	"devDependencies": {
+		"jsdom": "^30.0.1",
+		"tsup": "catalog:",
+		"vitest": "catalog:"
+	},
+	"homepage": "https://mdocui.github.io",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mdocui/mdocui",
+		"directory": "packages/web-components"
+	},
+	"keywords": [
+		"markdoc",
+		"llm",
+		"generative-ui",
+		"web-components",
+		"custom-elements",
+		"streaming"
+	],
+	"publishConfig": {
+		"access": "public"
+	}
+}
