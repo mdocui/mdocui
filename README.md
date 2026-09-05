@@ -25,7 +25,7 @@ Generative UI library for LLMs using Markdoc `{% %}` tag syntax inline with mark
 
 LLMs write natural markdown **and** drop interactive UI components in the same stream — charts, buttons, forms, tables, cards, and more. No custom DSL to learn, no JSON blocks, no JSX confusion.
 
-**Key features:** built-in prose rendering, component merging, CLI scaffolder, error boundaries, streaming animations, shimmer placeholders, prop validation, context data passthrough, and configurable prompt verbosity.
+**Key features:** built-in prose rendering, component merging, CLI scaffolder, error boundaries, streaming animations, shimmer placeholders, prop validation, context data passthrough, configurable prompt verbosity, and accessible components.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/mdocui/.github/main/assets/demo.gif" alt="mdocUI demo — streaming dashboard with charts, stats, and tables" width="800">
