@@ -1,6 +1,8 @@
 // @mdocui/core — Streaming Markdoc parser for LLM generative UI
 
 export { parseAttributes } from './attributes'
+export type { PureArgs } from './components/content'
+export { badge, callout, divider, safeSrc } from './components/content'
 export { allDefinitions, defaultGroups } from './definitions'
 export type { ParserOptions } from './parser'
 export { StreamingParser } from './parser'
@@ -23,3 +25,5 @@ export type {
 	ProseNode,
 	ValidationResult,
 } from './types'
+export type { VAttrs, VElement, VNode, VStyle } from './vnode'
+export { h, isVElement, SLOT, styleUnless } from './vnode'

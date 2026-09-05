@@ -1,53 +1,14 @@
 import type { ActionEvent } from '@mdocui/core'
+import { badge as badgeSpec, callout as calloutSpec } from '@mdocui/core'
 import type { ComponentProps } from '../context'
+import { renderVNode } from '../render-vnode'
 
 export function Callout({ props, className, children }: ComponentProps) {
-	const type = (props.type as string) ?? 'info'
-	const title = props.title as string | undefined
-
-	const role = type === 'warning' || type === 'error' ? 'alert' : 'status'
-
-	return (
-		<div
-			className={className}
-			data-mdocui-callout
-			data-type={type}
-			role={role}
-			style={{
-				padding: '12px 16px',
-				borderLeft: '4px solid currentColor',
-				borderRadius: '0 6px 6px 0',
-				opacity: 0.9,
-			}}
-		>
-			{title && <div style={{ fontWeight: 600, marginBottom: '4px' }}>{title}</div>}
-			<div>{children}</div>
-		</div>
-	)
+	return renderVNode(calloutSpec({ props, className }), children)
 }
 
 export function Badge({ props, className }: ComponentProps) {
-	const label = props.label as string
-	const variant = (props.variant as string) ?? 'default'
-
-	return (
-		<span
-			className={className}
-			data-mdocui-badge
-			data-variant={variant}
-			style={{
-				display: 'inline-block',
-				padding: '2px 8px',
-				borderRadius: '9999px',
-				fontSize: '12px',
-				fontWeight: 500,
-				border: '1px solid currentColor',
-				opacity: 0.8,
-			}}
-		>
-			{label}
-		</span>
-	)
+	return renderVNode(badgeSpec({ props, className }), null)
 }
 
 export function Image({ props, className }: ComponentProps) {
