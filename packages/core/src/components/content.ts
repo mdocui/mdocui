@@ -72,3 +72,44 @@ export function divider({ className }: PureArgs): VElement {
 		}),
 	})
 }
+
+export function image({ props, className }: PureArgs): VElement {
+	return h('img', {
+		class: className,
+		'data-mdocui-image': true,
+		src: safeSrc(props.src),
+		alt: props.alt as string,
+		width: props.width as number | undefined,
+		height: props.height as number | undefined,
+		style: { maxWidth: '100%', borderRadius: '6px' },
+	})
+}
+
+export function codeBlock({ props, className }: PureArgs): VElement {
+	const title = props.title as string | undefined
+	const titleNode: VNode = title
+		? h(
+				'div',
+				{
+					style: {
+						padding: '6px 12px',
+						fontSize: '12px',
+						opacity: 0.6,
+						borderBottom: '1px solid currentColor',
+					},
+				},
+				title,
+			)
+		: null
+
+	return h(
+		'div',
+		{ class: className, 'data-mdocui-code-block': true },
+		titleNode,
+		h(
+			'pre',
+			{ style: { margin: 0, padding: '12px', overflow: 'auto', fontSize: '13px' } },
+			h('code', { 'data-language': props.language as string | undefined }, props.code as string),
+		),
+	)
+}

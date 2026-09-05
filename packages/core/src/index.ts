@@ -2,7 +2,9 @@
 
 export { parseAttributes } from './attributes'
 export type { PureArgs } from './components/content'
-export { badge, callout, divider, safeSrc } from './components/content'
+export { badge, callout, codeBlock, divider, image, safeSrc } from './components/content'
+export { chart, describeChart, progress, stat, table } from './components/data'
+export { accordion, buttonGroup, card, grid, stack, tab } from './components/layout'
 export { allDefinitions, defaultGroups } from './definitions'
 export type { ParserOptions } from './parser'
 export { StreamingParser } from './parser'

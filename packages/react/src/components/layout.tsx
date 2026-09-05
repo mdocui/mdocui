@@ -1,126 +1,33 @@
+import {
+	accordion as accordionSpec,
+	card as cardSpec,
+	divider as dividerSpec,
+	grid as gridSpec,
+	stack as stackSpec,
+	tab as tabSpec,
+} from '@mdocui/core'
 import React, { useCallback, useId, useRef, useState } from 'react'
 import type { ComponentProps } from '../context'
+import { renderVNode } from '../render-vnode'
 
 export function Stack({ props, className, children }: ComponentProps) {
-	const direction = (props.direction as string) ?? 'vertical'
-	const gap = (props.gap as string) ?? 'md'
-	const align = (props.align as string) ?? 'stretch'
-	const themed = !!className
-
-	return (
-		<div
-			className={className}
-			data-mdocui-stack
-			data-direction={direction}
-			data-gap={gap}
-			data-align={align}
-			style={
-				themed
-					? undefined
-					: {
-							display: 'flex',
-							flexDirection: direction === 'horizontal' ? 'row' : 'column',
-							gap: gapValue(gap),
-							alignItems: alignValue(align),
-						}
-			}
-		>
-			{children}
-		</div>
-	)
+	return renderVNode(stackSpec({ props, className }), children)
 }
 
 export function Grid({ props, className, children }: ComponentProps) {
-	const cols = (props.cols as number) ?? 2
-	const gap = (props.gap as string) ?? 'md'
-	const themed = !!className
-
-	return (
-		<div
-			className={className}
-			data-mdocui-grid
-			data-cols={cols}
-			style={
-				themed
-					? undefined
-					: {
-							display: 'grid',
-							gridTemplateColumns: `repeat(${cols}, 1fr)`,
-							gap: gapValue(gap),
-						}
-			}
-		>
-			{children}
-		</div>
-	)
+	return renderVNode(gridSpec({ props, className }), children)
 }
 
 export function Card({ props, className, children }: ComponentProps) {
-	const title = props.title as string | undefined
-	const themed = !!className
-
-	return (
-		<div
-			className={className}
-			data-mdocui-card
-			data-variant={(props.variant as string) ?? 'default'}
-			style={
-				themed
-					? undefined
-					: {
-							border: '1px solid currentColor',
-							borderRadius: '8px',
-							padding: '16px',
-							opacity: 0.8,
-						}
-			}
-		>
-			{title && (
-				<div
-					data-mdocui-card-title
-					style={themed ? undefined : { fontWeight: 600, marginBottom: '8px' }}
-				>
-					{title}
-				</div>
-			)}
-			<div data-mdocui-card-body>{children}</div>
-		</div>
-	)
+	return renderVNode(cardSpec({ props, className }), children)
 }
 
 export function Divider({ className }: ComponentProps) {
-	const themed = !!className
-	return (
-		<hr
-			className={className}
-			data-mdocui-divider
-			style={
-				themed
-					? undefined
-					: { border: 'none', borderTop: '1px solid currentColor', margin: '8px 0', opacity: 0.2 }
-			}
-		/>
-	)
+	return renderVNode(dividerSpec({ props: {}, className }), null)
 }
 
 export function Accordion({ props, className, children }: ComponentProps) {
-	const title = props.title as string
-	const open = (props.open as boolean) ?? false
-	const themed = !!className
-
-	return (
-		<details className={className} data-mdocui-accordion open={open || undefined}>
-			<summary
-				data-mdocui-accordion-summary
-				style={themed ? undefined : { cursor: 'pointer', fontWeight: 500 }}
-			>
-				{title}
-			</summary>
-			<div data-mdocui-accordion-body style={themed ? undefined : { paddingTop: '8px' }}>
-				{children}
-			</div>
-		</details>
-	)
+	return renderVNode(accordionSpec({ props, className }), children)
 }
 
 export function Tabs({ props, className, children }: ComponentProps) {
@@ -215,35 +122,5 @@ export function Tabs({ props, className, children }: ComponentProps) {
 }
 
 export function Tab({ props, className, children }: ComponentProps) {
-	return (
-		<div className={className} data-mdocui-tab data-label={props.label as string}>
-			{children}
-		</div>
-	)
-}
-
-function gapValue(gap: string): string {
-	switch (gap) {
-		case 'none':
-			return '0'
-		case 'sm':
-			return '4px'
-		case 'lg':
-			return '24px'
-		default:
-			return '12px'
-	}
-}
-
-function alignValue(align: string): string {
-	switch (align) {
-		case 'start':
-			return 'flex-start'
-		case 'center':
-			return 'center'
-		case 'end':
-			return 'flex-end'
-		default:
-			return 'stretch'
-	}
+	return renderVNode(tabSpec({ props, className }), children)
 }
