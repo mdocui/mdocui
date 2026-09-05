@@ -9,6 +9,9 @@ catalogs:
     tsup:
       specifier: ^8.5.1
       version: 8.5.1
+    typescript:
+      specifier: ^6.0.3
+      version: 6.0.3
     vitest:
       specifier: ^5.0.0
       version: 5.0.0
@@ -33,7 +36,7 @@ importers:
         specifier: ^2.10.12
         version: 2.10.12
       typescript:
-        specifier: 6.0.3
+        specifier: 'catalog:'
         version: 6.0.3
       zod:
         specifier: 'catalog:'
@@ -56,7 +59,7 @@ importers:
         version: 8.5.1(postcss@8.5.28)(tsx@4.23.13)(typescript@6.0.3)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
+        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@26.4.1)(esbuild@0.27.7)(tsx@4.23.13))
 
   packages/core:
     dependencies:
@@ -69,7 +72,7 @@ importers:
         version: 8.5.1(postcss@8.5.28)(tsx@4.23.13)(typescript@6.0.3)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@26.4.1)(esbuild@0.27.7)(tsx@4.23.13))
+        version: 5.0.0(@types/node@26.4.1)(jsdom@30.0.1)(vite@8.0.5(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@26.4.1)(esbuild@0.28.2)(tsx@4.23.13))
 
   packages/react:
     dependencies:
