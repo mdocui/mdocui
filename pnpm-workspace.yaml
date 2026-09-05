@@ -9,3 +9,8 @@ catalog:
 
 overrides:
   vite: ^8.0.5
+
+allowBuilds:
+  esbuild: true
+
+loglevel: error
