@@ -261,6 +261,41 @@ parseAttributes('options=["a","b","c"] required=true')
 
 ---
 
+### Prose parsing
+
+Markdown parsing for prose nodes, with no rendering attached. Renderers walk the
+result to build their own output, so nothing here emits markup and no renderer
+needs `innerHTML` to display prose.
+
+```ts
+import { parseBlocks, parseInline, sanitizeHref } from '@mdocui/core'
+
+parseBlocks('# Title\n\n- one\n- two')
+// [{ type: 'heading', level: 1, content: 'Title' },
+//  { type: 'ulist', items: ['one', 'two'] }]
+
+parseInline('a **b** and [c](https://x.com)')
+// [{ type: 'text', content: 'a ' },
+//  { type: 'bold', content: 'b' },
+//  { type: 'text', content: ' and ' },
+//  { type: 'link', content: 'c', href: 'https://x.com' }]
+```
+
+`sanitizeHref` returns the href only if its scheme is safe to put in the DOM.
+Renderers must pass link hrefs through it — `javascript:` and `data:` URLs come
+back as `undefined`, meaning the link should render as plain text.
+
+```ts
+sanitizeHref('https://example.com') // 'https://example.com'
+sanitizeHref('javascript:alert(1)') // undefined
+```
+
+Supports bold, italic, bold+italic, strikethrough, inline code, links, headings
+(h1-h3), unordered and ordered lists, and paragraph breaks. `@mdocui/react`
+renders this via `SimpleMarkdown`.
+
+---
+
 ## Types
 
 ### `ASTNode`

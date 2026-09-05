@@ -1,6 +1,8 @@
 import type { ActionEvent } from '@mdocui/core'
+import { buttonGroup as buttonGroupSpec } from '@mdocui/core'
 import { useId, useState } from 'react'
 import type { ComponentProps } from '../context'
+import { renderVNode } from '../render-vnode'
 
 export function Button({ props, className, onAction, isStreaming }: ComponentProps) {
 	const action = props.action as string
@@ -57,30 +59,7 @@ export function Button({ props, className, onAction, isStreaming }: ComponentPro
 }
 
 export function ButtonGroup({ props, className, children }: ComponentProps) {
-	const direction = (props.direction as string) ?? 'horizontal'
-	const themed = !!className
-
-	return (
-		// biome-ignore lint/a11y/useSemanticElements: fieldset carries browser default border/padding that breaks unstyled layout
-		<div
-			className={className}
-			data-mdocui-button-group
-			data-direction={direction}
-			role="group"
-			aria-label={(props.label as string) ?? undefined}
-			style={
-				themed
-					? undefined
-					: {
-							display: 'flex',
-							flexDirection: direction === 'vertical' ? 'column' : 'row',
-							gap: '8px',
-						}
-			}
-		>
-			{children}
-		</div>
-	)
+	return renderVNode(buttonGroupSpec({ props, className }), children)
 }
 
 export function Input({ props, className }: ComponentProps) {

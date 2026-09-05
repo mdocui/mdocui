@@ -1,4 +1,5 @@
 import type { ASTNode, ComponentNode, ComponentRegistry, ParseMeta, ProseNode } from '@mdocui/core'
+import { groupButtons } from '@mdocui/core'
 import React, { useMemo } from 'react'
 import { AnimateIn } from './animations'
 import type { ActionHandler, ComponentErrorEvent, ComponentMap, RendererContext } from './context'
@@ -45,7 +46,7 @@ export function Renderer({
 		[merged, onAction, onError, isStreaming, registry, contextData],
 	)
 
-	const grouped = groupConsecutiveButtons(nodes)
+	const grouped = groupButtons(nodes)
 
 	return (
 		<MdocUIProvider value={ctx}>
@@ -81,37 +82,6 @@ export function Renderer({
 			</div>
 		</MdocUIProvider>
 	)
-}
-
-type GroupedItem = { type: 'node'; node: ASTNode } | { type: 'button-row'; nodes: ASTNode[] }
-
-function groupConsecutiveButtons(nodes: ASTNode[]): GroupedItem[] {
-	const result: GroupedItem[] = []
-	let buttonBuffer: ASTNode[] = []
-
-	const flushButtons = () => {
-		if (buttonBuffer.length > 0) {
-			result.push({ type: 'button-row', nodes: buttonBuffer })
-			buttonBuffer = []
-		}
-	}
-
-	for (const node of nodes) {
-		const isButton = node.type === 'component' && node.name === 'button'
-		const isEmptyProse = node.type === 'prose' && node.content.trim() === ''
-
-		if (isButton) {
-			buttonBuffer.push(node)
-		} else if (isEmptyProse && buttonBuffer.length > 0) {
-			// skip whitespace-only prose between buttons
-		} else {
-			flushButtons()
-			result.push({ type: 'node', node })
-		}
-	}
-	flushButtons()
-
-	return result
 }
 
 function renderNode(

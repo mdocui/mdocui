@@ -1,99 +1,27 @@
 import type { ActionEvent } from '@mdocui/core'
+import {
+	badge as badgeSpec,
+	callout as calloutSpec,
+	codeBlock as codeBlockSpec,
+	image as imageSpec,
+} from '@mdocui/core'
 import type { ComponentProps } from '../context'
+import { renderVNode } from '../render-vnode'
 
 export function Callout({ props, className, children }: ComponentProps) {
-	const type = (props.type as string) ?? 'info'
-	const title = props.title as string | undefined
-
-	const role = type === 'warning' || type === 'error' ? 'alert' : 'status'
-
-	return (
-		<div
-			className={className}
-			data-mdocui-callout
-			data-type={type}
-			role={role}
-			style={{
-				padding: '12px 16px',
-				borderLeft: '4px solid currentColor',
-				borderRadius: '0 6px 6px 0',
-				opacity: 0.9,
-			}}
-		>
-			{title && <div style={{ fontWeight: 600, marginBottom: '4px' }}>{title}</div>}
-			<div>{children}</div>
-		</div>
-	)
+	return renderVNode(calloutSpec({ props, className }), children)
 }
 
 export function Badge({ props, className }: ComponentProps) {
-	const label = props.label as string
-	const variant = (props.variant as string) ?? 'default'
-
-	return (
-		<span
-			className={className}
-			data-mdocui-badge
-			data-variant={variant}
-			style={{
-				display: 'inline-block',
-				padding: '2px 8px',
-				borderRadius: '9999px',
-				fontSize: '12px',
-				fontWeight: 500,
-				border: '1px solid currentColor',
-				opacity: 0.8,
-			}}
-		>
-			{label}
-		</span>
-	)
+	return renderVNode(badgeSpec({ props, className }), null)
 }
 
 export function Image({ props, className }: ComponentProps) {
-	const rawSrc = props.src as string
-	const src = rawSrc && !/^(javascript|data):/i.test(rawSrc) ? rawSrc : undefined
-	const alt = props.alt as string
-	const width = props.width as number | undefined
-	const height = props.height as number | undefined
-
-	return (
-		<img
-			className={className}
-			data-mdocui-image
-			src={src}
-			alt={alt}
-			width={width}
-			height={height}
-			style={{ maxWidth: '100%', borderRadius: '6px' }}
-		/>
-	)
+	return renderVNode(imageSpec({ props, className }), null)
 }
 
 export function CodeBlock({ props, className }: ComponentProps) {
-	const code = props.code as string
-	const language = props.language as string | undefined
-	const title = props.title as string | undefined
-
-	return (
-		<div className={className} data-mdocui-code-block>
-			{title && (
-				<div
-					style={{
-						padding: '6px 12px',
-						fontSize: '12px',
-						opacity: 0.6,
-						borderBottom: '1px solid currentColor',
-					}}
-				>
-					{title}
-				</div>
-			)}
-			<pre style={{ margin: 0, padding: '12px', overflow: 'auto', fontSize: '13px' }}>
-				<code data-language={language}>{code}</code>
-			</pre>
-		</div>
-	)
+	return renderVNode(codeBlockSpec({ props, className }), null)
 }
 
 export function Link({ props, className, onAction, isStreaming }: ComponentProps) {

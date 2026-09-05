@@ -1,7 +1,7 @@
 {
-	"name": "@mdocui/react",
+	"name": "@mdocui/web-components",
 	"version": "0.8.0",
-	"description": "React adapter for mdocUI — Renderer, useRenderer hook, default generative UI components",
+	"description": "Custom element renderer for mdocUI — works in any framework, or none",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -30,28 +30,26 @@
 	"dependencies": {
 		"@mdocui/core": "workspace:*"
 	},
-	"peerDependencies": {
-		"react": ">=18",
-		"react-dom": ">=18"
-	},
 	"devDependencies": {
-		"@testing-library/react": "^16.3.3",
-		"@types/react": "^19.2.18",
-		"@types/react-dom": "^19.2.7",
 		"jsdom": "^30.0.1",
-		"react": "^19.2.8",
-		"react-dom": "^19.2.8",
 		"tsup": "catalog:",
-		"vitest": "catalog:",
-		"zod": "catalog:"
+		"vitest": "catalog:"
 	},
 	"homepage": "https://mdocui.github.io",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/mdocui/mdocui",
-		"directory": "packages/react"
+		"directory": "packages/web-components"
 	},
+	"keywords": [
+		"markdoc",
+		"llm",
+		"generative-ui",
+		"web-components",
+		"custom-elements",
+		"streaming"
+	],
 	"publishConfig": {
 		"access": "public"
 	}
