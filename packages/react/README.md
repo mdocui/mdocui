@@ -298,6 +298,25 @@ This keeps the UI stable during streaming and component updates.
 
 ---
 
+## Accessibility
+
+The built-in components are keyboard and screen-reader ready out of the box:
+
+- Labels are tied to their control, with ids generated per instance so repeated
+  field names in one stream cannot cross-wire them
+- Controls that emit actions — `button`, `toggle`, `checkbox`, `select` — are
+  disabled while streaming rather than silently ignoring input. `input` and
+  `textarea` stay editable, so a form can be filled while the rest arrives
+- `tabs` implements the full ARIA tab pattern — arrows, Home, End, and a roving
+  tab stop; `accordion` uses native `<details>`
+- `chart` announces its data, not just its type: "Revenue — bar chart, 3 data
+  points: Jan 120, Feb 150, Mar 180". Series longer than 12 points are
+  summarised by count and range
+- A submitted `form` is removed from the tab order, not just dimmed
+
+If you replace a built-in with your own component, these guarantees are yours to
+maintain. See CONTRIBUTING.md for the checklist.
+
 ## Custom Components
 
 Pass custom components via the `components` prop — they merge on top of the 24 built-in defaults. You only need to pass overrides, not the full map:
