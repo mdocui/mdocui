@@ -26,6 +26,10 @@ export class Tokenizer {
 	private stringChar: string | null = null
 	private escaped = false
 	private tokens: Token[] = []
+	// A character held back because deciding what it means needs the character
+	// after it, which has not arrived yet. `{%` and `%}` are two characters, and
+	// a chunk boundary can fall between them.
+	private pending = ''
 
 	getState(): TokenizerState {
 		return this.state
@@ -38,9 +42,26 @@ export class Tokenizer {
 	write(chunk: string): Token[] {
 		this.tokens = []
 
-		for (let i = 0; i < chunk.length; i++) {
-			const char = chunk[i]
-			const next = chunk[i + 1]
+		const input = this.pending + chunk
+		this.pending = ''
+
+		for (let i = 0; i < input.length; i++) {
+			const char = input[i]
+			const next = input[i + 1]
+
+			// The last character of a chunk has no lookahead. If it could begin a
+			// delimiter, hold it and decide once the next chunk arrives — otherwise
+			// a split `{%` is emitted as prose and a split `%}` never closes the tag.
+			if (next === undefined) {
+				if (this.state === TokenizerState.IN_PROSE && char === '{') {
+					this.pending = char
+					break
+				}
+				if (this.state === TokenizerState.IN_TAG && char === '%') {
+					this.pending = char
+					break
+				}
+			}
 
 			switch (this.state) {
 				case TokenizerState.IN_PROSE:
@@ -92,6 +113,16 @@ export class Tokenizer {
 	flush(): Token[] {
 		this.tokens = []
 
+		// Nothing more is coming, so a held character is just itself.
+		if (this.pending) {
+			if (this.state === TokenizerState.IN_PROSE) {
+				this.proseBuffer += this.pending
+			} else {
+				this.buffer += this.pending
+			}
+			this.pending = ''
+		}
+
 		if (this.state === TokenizerState.IN_TAG || this.state === TokenizerState.IN_STRING) {
 			this.proseBuffer += this.buffer
 			this.buffer = ''
@@ -109,6 +140,7 @@ export class Tokenizer {
 		this.stringChar = null
 		this.escaped = false
 		this.tokens = []
+		this.pending = ''
 	}
 
 	private flushProse(): void {
