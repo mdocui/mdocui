@@ -138,6 +138,8 @@ export function Tabs({ props, className, children }: ComponentProps) {
 			let next: number
 			if (e.key === 'ArrowRight') next = (active + 1) % labels.length
 			else if (e.key === 'ArrowLeft') next = (active - 1 + labels.length) % labels.length
+			else if (e.key === 'Home') next = 0
+			else if (e.key === 'End') next = labels.length - 1
 			else return
 			e.preventDefault()
 			setActive(next)
@@ -154,6 +156,7 @@ export function Tabs({ props, className, children }: ComponentProps) {
 				role="tablist"
 				data-mdocui-tablist
 				aria-label={labels.join(', ')}
+				aria-orientation="horizontal"
 				onKeyDown={handleKeyDown}
 				style={
 					themed

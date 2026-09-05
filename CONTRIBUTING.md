@@ -104,6 +104,23 @@ pnpm clean          # Remove dist/ from all packages
 5. Add tests in `packages/react/tests/components.test.tsx`
 6. Update the component count in READMEs if it changes
 
+### Accessibility requirements
+
+Every component must meet these before merge:
+
+- Generate ids with `useId()`, never from a prop. The same `name` can appear
+  twice in one stream, and duplicate ids break `<label for>`.
+- Pair every control with a `<label htmlFor>`, or give it an `aria-label`.
+- Reflect `isStreaming` as `disabled`/`aria-disabled` on interactive controls.
+  Silently dropping the event leaves the control looking live.
+- Prefer native elements (`<details>`, `<table>`, `<button>`). If you use an
+  ARIA role, implement its full keyboard pattern — arrows, Home, End, and
+  roving `tabIndex`. `Tabs` in `layout.tsx` is the reference.
+- Anything conveying data must expose that data to assistive tech, not just a
+  type name. `describeChart` in `data.tsx` is the reference.
+- Never leave focusable content inside `aria-hidden`. Use `inert` as well;
+  `pointer-events: none` stops the mouse but not the keyboard.
+
 ## Pull Request Guidelines
 
 - Keep PRs focused — one feature or fix per PR

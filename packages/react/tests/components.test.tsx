@@ -450,3 +450,126 @@ describe('Content components', () => {
 		expect(handler).not.toHaveBeenCalled()
 	})
 })
+
+describe('Accessibility', () => {
+	it('gives each input a unique id even when names collide', () => {
+		const { container } = renderNodes([
+			componentNode('input', { name: 'email', label: 'Work email' }),
+			componentNode('input', { name: 'email', label: 'Personal email' }),
+		])
+		const ids = Array.from(container.querySelectorAll('input')).map((el) => el.id)
+		expect(ids).toHaveLength(2)
+		expect(ids[0]).not.toBe(ids[1])
+	})
+
+	it('associates every label with its own control', () => {
+		const { container } = renderNodes([
+			componentNode('input', { name: 'email', label: 'Work email' }),
+			componentNode('input', { name: 'email', label: 'Personal email' }),
+		])
+		for (const label of Array.from(container.querySelectorAll('label'))) {
+			const target = container.querySelector(`#${CSS.escape(label.htmlFor)}`)
+			expect(target).not.toBeNull()
+		}
+	})
+
+	it('disables toggle, checkbox and select while streaming', () => {
+		const { container } = renderNodes(
+			[
+				componentNode('toggle', { name: 'notify', label: 'Notify me' }),
+				componentNode('checkbox', { name: 'agree', label: 'I agree' }),
+				componentNode('select', { name: 'plan', options: ['a', 'b'] }),
+			],
+			vi.fn(),
+			true,
+		)
+		for (const el of Array.from(container.querySelectorAll('input, select'))) {
+			expect((el as HTMLInputElement).disabled).toBe(true)
+		}
+	})
+
+	it('describes chart data in the accessible label', () => {
+		const { container } = renderNodes([
+			componentNode('chart', {
+				type: 'bar',
+				labels: ['Jan', 'Feb'],
+				values: [120, 150],
+				title: 'Revenue',
+			}),
+		])
+		const label = container.querySelector('[role="img"]')?.getAttribute('aria-label') ?? ''
+		expect(label).toContain('Revenue')
+		expect(label).toContain('Jan 120')
+		expect(label).toContain('Feb 150')
+	})
+
+	it('summarises long series instead of reading every point', () => {
+		const values = Array.from({ length: 40 }, (_, i) => i + 1)
+		const { container } = renderNodes([componentNode('chart', { type: 'line', values })])
+		const label = container.querySelector('[role="img"]')?.getAttribute('aria-label') ?? ''
+		expect(label).toContain('40 data points')
+		expect(label).toContain('1 to 40')
+	})
+
+	it('says data point, singular, for a one-point chart', () => {
+		const { container } = renderNodes([
+			componentNode('chart', { type: 'bar', labels: ['Jan'], values: [1] }),
+		])
+		const label = container.querySelector('[role="img"]')?.getAttribute('aria-label') ?? ''
+		expect(label).toContain('1 data point:')
+		expect(label).not.toContain('1 data points')
+	})
+
+	it('does not speak non-numeric chart values', () => {
+		const short = renderNodes([
+			componentNode('chart', { type: 'bar', labels: ['Jan', 'Feb'], values: ['x', 150] }),
+		])
+		const shortLabel =
+			short.container.querySelector('[role="img"]')?.getAttribute('aria-label') ?? ''
+		expect(shortLabel).not.toContain('NaN')
+		expect(shortLabel).toContain('Feb 150')
+
+		const values = Array.from({ length: 20 }, (_, i) => (i === 3 ? 'x' : i))
+		const long = renderNodes([componentNode('chart', { type: 'line', values })])
+		const longLabel = long.container.querySelector('[role="img"]')?.getAttribute('aria-label') ?? ''
+		expect(longLabel).not.toContain('NaN')
+		expect(longLabel).toContain('20 data points')
+	})
+
+	it('marks table headers as column headers', () => {
+		const { container } = renderNodes([
+			componentNode('table', { headers: ['Name', 'Value'], rows: [['a', '1']] }),
+		])
+		const headers = Array.from(container.querySelectorAll('th'))
+		expect(headers).toHaveLength(2)
+		for (const th of headers) expect(th.getAttribute('scope')).toBe('col')
+	})
+
+	it('moves to first and last tab with Home and End', () => {
+		const { container } = renderNodes([
+			componentNode('tabs', { labels: ['One', 'Two', 'Three'] }, [
+				componentNode('tab', { label: 'One' }, [{ type: 'prose', content: 'first' }]),
+				componentNode('tab', { label: 'Two' }, [{ type: 'prose', content: 'second' }]),
+				componentNode('tab', { label: 'Three' }, [{ type: 'prose', content: 'third' }]),
+			]),
+		])
+		const tablist = container.querySelector('[role="tablist"]') as HTMLElement
+		fireEvent.keyDown(tablist, { key: 'End' })
+		expect(screen.getByText('third')).toBeDefined()
+		fireEvent.keyDown(tablist, { key: 'Home' })
+		expect(screen.getByText('first')).toBeDefined()
+	})
+
+	it('keeps a submitted form out of the tab order', () => {
+		const { container } = renderNodes([
+			componentNode('form', { name: 'signup' }, [
+				componentNode('input', { name: 'email', label: 'Email' }),
+				componentNode('button', { action: 'submit', label: 'Send' }),
+			]),
+		])
+		const form = container.querySelector('form') as HTMLFormElement
+		fireEvent.submit(form)
+		const submitted = container.querySelector('[data-submitted]')
+		expect(submitted?.hasAttribute('inert')).toBe(true)
+	})
+})

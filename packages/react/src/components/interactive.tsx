@@ -1,5 +1,5 @@
 import type { ActionEvent } from '@mdocui/core'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { ComponentProps } from '../context'
 
 export function Button({ props, className, onAction, isStreaming }: ComponentProps) {
@@ -95,7 +95,8 @@ export function Input({ props, className }: ComponentProps) {
 	const min = props.min as number | undefined
 	const max = props.max as number | undefined
 	const step = props.step as number | undefined
-	const id = `mdocui-${name}`
+	const uid = useId()
+	const id = `mdocui-${name}-${uid}`
 	const themed = !!className
 
 	return (
@@ -150,7 +151,8 @@ export function Textarea({ props, className }: ComponentProps) {
 	const required = (props.required as boolean) ?? false
 	const minLength = props.minLength as number | undefined
 	const maxLength = props.maxLength as number | undefined
-	const id = `mdocui-${name}`
+	const uid = useId()
+	const id = `mdocui-${name}-${uid}`
 	const themed = !!className
 
 	return (
@@ -228,6 +230,8 @@ export function Toggle({ props, className, onAction, isStreaming }: ComponentPro
 				aria-checked={isChecked}
 				name={name}
 				checked={isChecked}
+				disabled={isStreaming}
+				aria-disabled={isStreaming || undefined}
 				onChange={handleChange}
 			/>
 			<span>{label}</span>
@@ -241,7 +245,8 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 	const options = Array.isArray(props.options) ? props.options : []
 	const placeholder = props.placeholder as string | undefined
 	const required = (props.required as boolean) ?? false
-	const id = `mdocui-${name}`
+	const uid = useId()
+	const id = `mdocui-${name}-${uid}`
 	const themed = !!className
 
 	const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -271,6 +276,8 @@ export function Select({ props, className, onAction, isStreaming }: ComponentPro
 				required={required}
 				aria-required={required || undefined}
 				aria-label={label ? undefined : name}
+				disabled={isStreaming}
+				aria-disabled={isStreaming || undefined}
 				onChange={handleChange}
 				style={
 					themed
@@ -324,7 +331,14 @@ export function Checkbox({ props, className, onAction, isStreaming }: ComponentP
 					: { display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }
 			}
 		>
-			<input type="checkbox" name={name} checked={isChecked} onChange={handleChange} />
+			<input
+				type="checkbox"
+				name={name}
+				checked={isChecked}
+				disabled={isStreaming}
+				aria-disabled={isStreaming || undefined}
+				onChange={handleChange}
+			/>
 			<span>{label}</span>
 		</label>
 	)
@@ -359,6 +373,9 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 	}
 
 	if (submitted) {
+		// inert, not just pointer-events: without it the submitted fields stay
+		// tab-focusable while aria-hidden keeps them from assistive tech.
+		// Passed as a string so it works across the React >=18 peer range.
 		return (
 			<div
 				className={className}
@@ -366,6 +383,7 @@ export function Form({ props, className, children, onAction, isStreaming }: Comp
 				data-name={formName}
 				data-submitted
 				aria-hidden="true"
+				{...{ inert: 'true' }}
 				style={
 					themed
 						? { opacity: 0.5, pointerEvents: 'none' }
