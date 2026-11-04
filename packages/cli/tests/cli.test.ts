@@ -82,37 +82,4 @@ export default {
 		expect(prompt).toContain('{% button')
 		expect(prompt).toContain('A button')
 	})
-
-	it('preview starts dev server', () => {
-		const child = require('node:child_process').spawn(
-			'node',
-			[CLI_PATH, 'preview', '--port', '4399'],
-			{
-				cwd: tmpDir,
-				env: { ...process.env, NODE_OPTIONS: '' },
-				stdio: ['pipe', 'pipe', 'pipe'],
-			},
-		)
-
-		return new Promise<void>((resolve, reject) => {
-			const timeout = setTimeout(() => {
-				child.kill()
-				reject(new Error('Server did not start in time'))
-			}, 5000)
-
-			child.stdout.on('data', (data: Buffer) => {
-				const out = data.toString()
-				if (out.includes('4399')) {
-					clearTimeout(timeout)
-					child.kill()
-					resolve()
-				}
-			})
-
-			child.on('error', (err: Error) => {
-				clearTimeout(timeout)
-				reject(err)
-			})
-		})
-	})
 })

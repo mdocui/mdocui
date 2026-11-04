@@ -100,6 +100,24 @@ export class StreamingParser {
 		return this.completedNodes
 	}
 
+	/** Include open body components as provisional nodes for live previews. */
+	getSnapshotNodes(): ASTNode[] {
+		if (this.bodyStack.length === 0) return this.completedNodes.map(cloneNode)
+
+		const openNodes: ComponentNode[] = this.bodyStack.map((frame) => ({
+			type: 'component',
+			name: frame.name,
+			props: { ...frame.props },
+			children: frame.children.map(cloneNode),
+			selfClosing: false,
+		}))
+		for (let i = 0; i < openNodes.length - 1; i++) {
+			openNodes[i].children.push(openNodes[i + 1])
+		}
+
+		return [...this.completedNodes.map(cloneNode), openNodes[0]]
+	}
+
 	getMeta(): ParseMeta {
 		const tokenizerState = this.tokenizer.getState()
 		const buffer = this.tokenizer.getBuffer()
@@ -123,7 +141,7 @@ export class StreamingParser {
 		return {
 			errors: [...this.errors],
 			nodeCount: this.completedNodes.length,
-			isComplete: this.bodyStack.length === 0 && !isBuffering,
+			isComplete: this.bodyStack.length === 0 && !isBuffering && !this.tokenizer.hasPending(),
 			pendingTag: isBuffering ? pendingTag : undefined,
 			openTags: this.bodyStack.length > 0 ? this.bodyStack.map((f) => f.name) : undefined,
 			bufferLength: isBuffering ? buffer.length : undefined,
@@ -291,6 +309,12 @@ export class StreamingParser {
 		if (this.options.knownTags.size === 0) return true
 		return this.options.knownTags.has(name)
 	}
+}
+
+function cloneNode(node: ASTNode): ASTNode {
+	return node.type === 'prose'
+		? { ...node }
+		: { ...node, props: { ...node.props }, children: node.children.map(cloneNode) }
 }
 
 interface BodyFrame {

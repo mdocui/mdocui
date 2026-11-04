@@ -38,6 +38,24 @@ describe('StreamingParser', () => {
 		expect((node.children[0] as ProseNode).content).toBe('Important message')
 	})
 
+	it('includes open component content in preview snapshots without completing it', () => {
+		const p = new StreamingParser({ knownTags })
+		p.write('{% card title="Live" %}Streaming body')
+
+		const snapshot = p.getSnapshotNodes()
+		expect(snapshot).toHaveLength(1)
+		expect((snapshot[0] as ComponentNode).name).toBe('card')
+		expect((snapshot[0] as ComponentNode).children).toEqual([
+			{ type: 'prose', content: 'Streaming body' },
+		])
+		expect(p.getNodes()).toEqual([])
+
+		p.write(' more')
+		expect(((snapshot[0] as ComponentNode).children[0] as ProseNode).content).toBe('Streaming body')
+		p.write('{% /card %}')
+		expect(p.getNodes()).toHaveLength(1)
+	})
+
 	it('parses mixed prose and tags', () => {
 		const p = new StreamingParser({ knownTags })
 		const input =
@@ -254,6 +272,14 @@ describe('StreamingParser', () => {
 			p.reset()
 			p.write('{% callout %}body')
 			expect(p.getMeta().isComplete).toBe(false)
+		})
+
+		it('marks a held delimiter character as incomplete until the next chunk', () => {
+			const p = new StreamingParser({ knownTags })
+			p.write('Hello {')
+			expect(p.getMeta().isComplete).toBe(false)
+			p.write(' ordinary prose')
+			expect(p.getMeta().isComplete).toBe(true)
 		})
 
 		it('reset clears errors', () => {

@@ -72,6 +72,10 @@ const parser = new StreamingParser({
 // Feed chunks as they arrive from the LLM
 let newNodes = parser.write('Here is a card:\n{% card title="Hello" %}')
 newNodes = parser.write('Card body content')
+
+// Preview completed nodes plus open component bodies without flushing
+const snapshot = parser.getSnapshotNodes() // ASTNode[]
+
 newNodes = parser.write('{% /card %}')
 
 // Finalize -- force-closes any unclosed tags
