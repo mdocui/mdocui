@@ -50,7 +50,7 @@ npx @mdocui/cli preview
 npx @mdocui/cli preview --port 3000
 ```
 
-Opens a browser UI where you type mdocUI markup on the left and inspect parsed output on the right. Use **Play stream**/**Pause stream**, **Step**, and **Restart** to replay input in chunks; choose chunk size or seek with the progress slider. AST and parser-state panels show nodes, open or pending tags, completion state, and errors. **Restart** returns to chunk zero paused; **Play stream** resumes playback. Replay flushes the parser only at the end.
+Opens a browser UI where you type mdocUI markup on the left and inspect parsed output on the right. Use **Play stream**/**Pause stream**, **Step**, and **Reset** to replay input in chunks; choose chunk size or seek with the progress slider. AST and parser-state panels show nodes, open or pending tags, completion state, and errors. **Reset** returns to chunk zero paused; **Play stream** resumes playback. Replay flushes the parser only at the end.
 
 The **Sample** selector includes split-delimiter and open-body examples, loaded paused with one-character chunks. The open-body sample intentionally ends without a closing tag so the final flush reports an unclosed-tag warning.
 

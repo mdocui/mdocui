@@ -351,7 +351,7 @@ This is an informational alert with **markdown** inside.
     <div class="replay-actions">
       <button class="replay-primary" id="replay-play" type="button" aria-label="Play stream" aria-pressed="false"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path id="play-path" d="M8 5v14l11-7z"/></svg><span id="replay-play-label">Play stream</span></button>
       <button class="replay-action" id="replay-step" type="button" aria-label="Advance one chunk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 5v14l10-7zM19 5v14"/></svg>Step</button>
-      <button class="replay-action" id="replay-reset" type="button" aria-label="Restart replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg>Restart</button>
+      <button class="replay-action" id="replay-reset" type="button" aria-label="Reset replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/></svg>Reset</button>
     </div>
     <label for="replay-sample">Sample <select id="replay-sample"><option value="">Load sample…</option><option value="boundaries">Split delimiters</option><option value="open-body">Open body</option></select></label>
     <label for="chunk-size">Chunk size <select id="chunk-size"><option>1</option><option>2</option><option selected>4</option><option>8</option><option>16</option></select></label>
@@ -566,7 +566,7 @@ This is an informational alert with **markdown** inside.
       return false;
     } finally {
       if (version === requestVersion) {
-        stepButton.disabled = false;
+        stepButton.disabled = Boolean(replayTimer);
         playButton.disabled = false;
       }
     }

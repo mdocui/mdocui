@@ -83,7 +83,7 @@ afterEach(() => {
 	vi.useRealTimers()
 })
 
-it('Restart returns to chunk zero and stays paused', async () => {
+it('Reset returns to chunk zero and stays paused', async () => {
 	const { element, fetch } = playground()
 	element('replay-step').fire('click')
 	await settle()
@@ -96,7 +96,7 @@ it('Restart returns to chunk zero and stays paused', async () => {
 	expect(element('replay-seek').value).toBe('0')
 })
 
-it.each(['restart', 'chunk-size', 'sample'])(
+it.each(['reset', 'chunk-size', 'sample'])(
 	'does not resume an old cursor during pending %s',
 	async (action) => {
 		const { element, fetch } = playground()
@@ -109,7 +109,7 @@ it.each(['restart', 'chunk-size', 'sample'])(
 				resolve = done
 			}),
 		)
-		if (action === 'restart') element('replay-reset').fire('click')
+		if (action === 'reset') element('replay-reset').fire('click')
 		else if (action === 'chunk-size') {
 			element('chunk-size').value = '4'
 			element('chunk-size').fire('change')
@@ -192,6 +192,19 @@ it('Step advances one chunk and Pause stops timers and pending responses', async
 	expect(element('preview').innerHTML).not.toContain('Paused response')
 	expect(element('replay-play').attributes.get('aria-pressed')).toBe('false')
 	expect(element('replay-seek').value).toBe('2')
+})
+
+it('keeps Step disabled throughout playback instead of flickering between chunks', async () => {
+	const { element } = playground()
+	element('replay-play').fire('click')
+	await vi.advanceTimersByTimeAsync(0)
+	await settle()
+	expect(element('replay-step').disabled).toBe(true)
+	await vi.advanceTimersByTimeAsync(60)
+	await settle()
+	expect(element('replay-step').disabled).toBe(true)
+	element('replay-play').fire('click')
+	expect(element('replay-step').disabled).toBe(false)
 })
 
 it('a superseded playback loop cannot schedule ticks after Pause and resume', async () => {
