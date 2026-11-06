@@ -39,6 +39,10 @@ export class Tokenizer {
 		return this.buffer
 	}
 
+	hasPending(): boolean {
+		return this.pending.length > 0
+	}
+
 	write(chunk: string): Token[] {
 		this.tokens = []
 
