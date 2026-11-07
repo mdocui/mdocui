@@ -12,7 +12,7 @@
     "release": "turbo build --force && pnpm --filter @mdocui/core publish --access public --no-git-checks && pnpm --filter @mdocui/react publish --access public --no-git-checks && pnpm --filter @mdocui/cli publish --access public --no-git-checks"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.15",
+    "@biomejs/biome": "^2.6.4",
     "tsx": "^4.23.15",
     "turbo": "^2.11.10",
     "typescript": "catalog:",
